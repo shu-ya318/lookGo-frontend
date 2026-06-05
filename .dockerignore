@@ -7,7 +7,6 @@ dist/
 
 # Environment and Secrets
 .env*
-.npmrc
 
 # Logs
 npm-debug.log*

@@ -3,15 +3,9 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# 預設從外網下載
-ARG NPM_REGISTRY=https://registry.npmjs.org/
-# 用 .npmrc 代替 npm config set 在容器全域的設定檔中寫入變數
-# RUN npm config set registry $NPM_REGISTRY
-RUN echo "registry=${NPM_REGISTRY}" > .npmrc
+COPY package*.json .npmrc ./
 
-COPY package*.json ./
-
-RUN npm ci
+RUN npm install
 
 COPY . .
 
