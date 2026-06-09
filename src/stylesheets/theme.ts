@@ -2,6 +2,15 @@ import { createTheme } from '@mui/material/styles';
 import { grey } from '@mui/material/colors';
 
 export const theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 640,
+      sm: 768,
+      md: 1024,
+      lg: 1280,
+      xl: 1536,
+    },
+  },
   components: {
     MuiButton: {
       styleOverrides: {

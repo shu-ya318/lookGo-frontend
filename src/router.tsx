@@ -28,6 +28,11 @@ const authRoutes = {
   path: "/auth",
   element: <AuthLayout />,
   loader: async () => {
+    const accessToken = getAccessToken();
+    if (!accessToken) {
+      return null;
+    }
+
     try {
       const userInfo = await getCurrentUser();
       if (userInfo) {

@@ -25,9 +25,7 @@ import type { SignupRequest } from '@/services/auth/interface';
 
 const formSchema = z.object({
   email: z
-    .string()
-    .min(1, '請輸入 Email!')
-    .email('Email 格式不正確!'),
+    .email('請輸入有效格式的 Email!'),
   username: z
     .string()
     .min(1, '請輸入使用者名稱!'),
@@ -38,7 +36,7 @@ const formSchema = z.object({
     .max(20, '密碼長度必須為 8-20 個字元!'),
   birthDate: z
     .string()
-    .min(1, '請輸入出生日期!')
+    .min(1, '請輸入出生日期(yyyy-MM-dd)!')
     .regex(/^\d{4}-\d{2}-\d{2}$/, '出生日期格式必須為 yyyy-MM-dd!')
     .refine((val) => {
       const parts = val.split('-');
@@ -46,7 +44,7 @@ const formSchema = z.object({
       const year = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1;
       const day = parseInt(parts[2], 10);
-      
+
       const inputDate = new Date(year, month, day);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -110,8 +108,8 @@ const SignupPage = () => {
       }}
     >
       {/* Title */}
-      <Typography variant='h4' sx={{ mb: 1, fontWeight: 700 }}>註冊</Typography>
-      <Stack sx={{ gap: '1.25rem', width: '100%' }}> 
+      <Typography variant='h4' sx={{ mb: 1, fontWeight: 700, textAlign: 'center', width: '100%' }}>註冊</Typography>
+      <Stack sx={{ gap: '1.25rem', width: '100%' }}>
         {/* Email */}
         <FormControl fullWidth>
           <Controller
@@ -189,7 +187,7 @@ const SignupPage = () => {
                           onClick={() => setShowPassword(!showPassword)}
                           edge='end'
                         >
-                           {showPassword ? <Visibility /> :<VisibilityOff /> }
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>
                     ),

@@ -61,7 +61,7 @@ export const Header = ({ onToggle }: HeaderProps) => {
             <IconButton
               edge='start'
               aria-label='open sidebar'
-              sx={{ 
+              sx={{
                 color: 'primary.dark',
                 '&:hover': { backgroundColor: 'action.hover' }
               }}
@@ -79,7 +79,7 @@ export const Header = ({ onToggle }: HeaderProps) => {
                 userSelect: 'none'
               }}
             >
-              財產管理系統
+              LookGo
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

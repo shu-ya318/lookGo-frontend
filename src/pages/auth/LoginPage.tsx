@@ -5,7 +5,9 @@ import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { enqueueSnackbar } from 'notistack';
 
+import FormLabel from '@mui/material/FormLabel';
 import Stack from '@mui/material/Stack';
+import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -25,9 +27,7 @@ import type { LoginRequest } from '@/services/auth/interface';
 
 const formSchema = z.object({
   email: z
-    .string()
-    .min(1, '請輸入 Email!')
-    .email('Email 格式不正確!'),
+    .email('請輸入有效格式的 Email!'),
   password: z
     .string()
     .min(1, '請輸入密碼!')
@@ -83,22 +83,36 @@ const LoginPage = () => {
       sx={{
         width: '100%',
         maxWidth: '20rem',
-        gap: '3.0625rem',
+        gap: '2rem',
         justifyContent: 'space-between',
       }}
     >
       {/* Title */}
-      <Typography variant='h4'>歡迎登入</Typography>
-      <Stack sx={{ gap: '2.375rem' }}>
+      <Stack>
+        <Typography variant='h4' sx={{ textAlign: 'center' }}>歡迎您回來</Typography>
+        <Typography variant='caption' sx={{ mt: 1, textAlign: 'center' }}>請輸入電子郵件和密碼登入</Typography>
+      </Stack>
+      <Stack sx={{ gap: '1.5rem' }}>
         {/* Email */}
         <FormControl fullWidth>
+          <FormLabel
+            htmlFor='Email'
+            required
+            sx={{
+              color: 'primary.dark',
+              '& .MuiFormLabel-asterisk': { color: 'error.main' },
+            }}
+          >
+            電子郵件
+          </FormLabel>
           <Controller
             name='email'
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
-                type='text'
+                id="Email"
+                type="text"
                 placeholder="請輸入電子郵件"
                 error={!!errors.email}
                 helperText={errors.email?.message}
@@ -109,12 +123,23 @@ const LoginPage = () => {
         </FormControl>
         {/* Password */}
         <FormControl fullWidth>
+          <FormLabel
+            htmlFor='Password'
+            required
+            sx={{
+              color: 'primary.dark',
+              '& .MuiFormLabel-asterisk': { color: 'error.main' },
+            }}
+          >
+            密碼
+          </FormLabel>
           <Controller
             name='password'
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
+                id="password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="請輸入密碼"
                 error={!!errors.password}
@@ -138,16 +163,17 @@ const LoginPage = () => {
             )}
           />
         </FormControl>
-        {/* Sign up link */}
+        {/* Link */}
         <Stack>
-          <Typography variant='body2' color="text.secondary">還沒有帳號嗎？</Typography>
-          <Button
-            variant='text'
+          <Link
+            component="button"
+            variant="button"
+            underline="hover"
+            color="secondary"
             onClick={() => navigate('/auth/signup')}
-            sx={{ fontWeight: 600 }}
           >
-            註冊
-          </Button>
+            還沒有帳號嗎?點此註冊
+          </Link>
         </Stack>
       </Stack>
       {/* Submit button */}
@@ -158,6 +184,7 @@ const LoginPage = () => {
         sx={{
           height: '3rem',
           padding: '.75rem .9375rem',
+          border: 1,
           borderRadius: '4px',
           backgroundColor: '#007AFF',
           color: '#FFFFFF',

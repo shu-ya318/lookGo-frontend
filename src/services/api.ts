@@ -12,7 +12,7 @@ import { refreshTokens } from "./auth";
 import { handleApiError } from "./error";
 
 const service = axios.create({
-  baseURL: "/practice5",
+  baseURL: "/api/v1",
   timeout: 10000,
 });
 
