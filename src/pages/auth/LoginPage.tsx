@@ -83,14 +83,16 @@ const LoginPage = () => {
       sx={{
         width: '100%',
         maxWidth: '20rem',
+        height: '100%',
+        minHeight: '34rem',
         gap: '2rem',
         justifyContent: 'space-between',
       }}
     >
       {/* Title */}
       <Stack>
-        <Typography variant='h4' sx={{ textAlign: 'center' }}>歡迎您回來</Typography>
-        <Typography variant='caption' sx={{ mt: 1, textAlign: 'center' }}>請輸入電子郵件和密碼登入</Typography>
+        <Typography variant='h4' sx={{ color: 'neutral.dark', textAlign: 'center' }}>歡迎您回來</Typography>
+        <Typography variant='caption' sx={{ color: 'neutral.main', mt: 1, textAlign: 'center' }}>請輸入電子郵件和密碼登入</Typography>
       </Stack>
       <Stack sx={{ gap: '1.5rem' }}>
         {/* Email */}
@@ -99,7 +101,7 @@ const LoginPage = () => {
             htmlFor='Email'
             required
             sx={{
-              color: 'primary.dark',
+              color: 'neutral.dark',
               '& .MuiFormLabel-asterisk': { color: 'error.main' },
             }}
           >
@@ -127,7 +129,7 @@ const LoginPage = () => {
             htmlFor='Password'
             required
             sx={{
-              color: 'primary.dark',
+              color: 'neutral.dark',
               '& .MuiFormLabel-asterisk': { color: 'error.main' },
             }}
           >
@@ -163,41 +165,47 @@ const LoginPage = () => {
             )}
           />
         </FormControl>
-        {/* Link */}
-        <Stack>
-          <Link
-            component="button"
-            variant="button"
-            underline="hover"
-            color="secondary"
-            onClick={() => navigate('/auth/signup')}
-          >
-            還沒有帳號嗎?點此註冊
-          </Link>
-        </Stack>
+        <Link
+          component="button"
+          variant="button"
+          underline="hover"
+          color="secondary"
+          sx={{ textAlign: 'left' }}
+          onClick={() => navigate('/auth/forget-password')}
+        >
+          忘記密碼?
+        </Link>
       </Stack>
       {/* Submit button */}
       <Button
+        aria-label=''
         type='submit'
         variant='contained'
         disabled={isSubmitting}
         sx={{
-          height: '3rem',
-          padding: '.75rem .9375rem',
-          border: 1,
-          borderRadius: '4px',
-          backgroundColor: '#007AFF',
-          color: '#FFFFFF',
-          textTransform: 'none',
+          height: "2.75rem",
+          padding: ".625rem .875rem",
+          borderRadius: "6px",
+          backgroundColor: "neutral.light",
+          color: "primary.contrastText",
           boxShadow: 'none',
           '&:hover': {
-            backgroundColor: '#0056b3',
-            boxShadow: '0 2px 8px rgba(0, 122, 255, 0.25)',
+            backgroundColor: 'neutral.dark',
           },
         }}
       >
         登入
       </Button>
+      {/* Sign upLink */}
+      <Link
+        component="button"
+        variant="button"
+        underline="hover"
+        color="secondary"
+        onClick={() => navigate('/auth/signup')}
+      >
+        還沒有帳號?<span style={{ color: '#828282', fontWeight: 700 }}>點此註冊</span>
+      </Link>
     </Stack>
   );
 };

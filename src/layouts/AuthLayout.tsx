@@ -33,7 +33,7 @@ export const AuthLayout = () => {
           borderRadius: '0px',
           overflow: 'hidden',
           [theme.breakpoints.up('xs')]: {
-            minHeight: '680px',
+            minHeight: '820px',
             borderRadius: '24px',
             boxShadow: '0 12px 40px rgba(0, 0, 0, 0.08)',
           },
@@ -77,12 +77,11 @@ export const AuthLayout = () => {
             sx={{
               maxWidth: '20rem',
               textAlign: 'left',
-              opacity: 0.85,
               letterSpacing: '2px',
               textShadow: '0 2px 6px rgba(0, 0, 0, 0.25)',
             }}
           >
-            立即成為會員，開始蒐藏你最愛的車站，並且規劃專屬的旅程吧!
+            立即成為會員，蒐藏更多你最愛的車站、規劃專屬的旅程，並能和管理員及時互動!
           </Typography>
         </Box>
         {/* Right Panel */}
@@ -104,9 +103,11 @@ export const AuthLayout = () => {
             sx={{
               width: '100%',
               maxWidth: '26rem',
+              minHeight: '34rem',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <Outlet />

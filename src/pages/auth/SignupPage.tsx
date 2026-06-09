@@ -5,7 +5,9 @@ import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { enqueueSnackbar } from 'notistack';
 
+import FormLabel from '@mui/material/FormLabel';
 import Stack from '@mui/material/Stack';
+import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -89,9 +91,9 @@ const SignupPage = () => {
       useUserStore.setState({ userInfo: response });
 
       navigate('/');
-      enqueueSnackbar('註冊成功，歡迎加入', { variant: 'success' });
+      enqueueSnackbar('註冊成功，歡迎加入會員', { variant: 'success' });
     } catch (error) {
-      enqueueSnackbar(error as string, { variant: 'error' });
+      enqueueSnackbar(error as string || '註冊失敗', { variant: 'error' });
     }
   };
 
@@ -101,25 +103,40 @@ const SignupPage = () => {
       onSubmit={handleSubmit(onSubmit)}
       sx={{
         width: '100%',
-        maxWidth: '22rem',
+        maxWidth: '20rem',
+        height: '100%',
+        minHeight: '34rem',
         gap: '2rem',
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: 'space-between',
       }}
     >
       {/* Title */}
-      <Typography variant='h4' sx={{ mb: 1, fontWeight: 700, textAlign: 'center', width: '100%' }}>註冊</Typography>
-      <Stack sx={{ gap: '1.25rem', width: '100%' }}>
+      <Stack>
+        <Typography variant='h4' sx={{ color: 'neutral.dark', textAlign: 'center' }}>歡迎您的加入</Typography>
+        <Typography variant='caption' sx={{ color: 'neutral.main', mt: 1, textAlign: 'center' }}>請填寫完整資訊以完成註冊</Typography>
+      </Stack>
+      <Stack sx={{ gap: '1.5rem' }}>
         {/* Email */}
         <FormControl fullWidth>
+          <FormLabel
+            htmlFor='Email'
+            required
+            sx={{
+              color: 'neutral.dark',
+              '& .MuiFormLabel-asterisk': { color: 'error.main' },
+            }}
+          >
+            電子郵件
+          </FormLabel>
           <Controller
             name='email'
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
+                id='Email'
                 type='text'
-                placeholder="請輸入電子郵件"
+                placeholder='請輸入電子郵件'
                 error={!!errors.email}
                 helperText={errors.email?.message}
                 variant='outlined'
@@ -129,14 +146,25 @@ const SignupPage = () => {
         </FormControl>
         {/* Username */}
         <FormControl fullWidth>
+          <FormLabel
+            htmlFor='Username'
+            required
+            sx={{
+              color: 'neutral.dark',
+              '& .MuiFormLabel-asterisk': { color: 'error.main' },
+            }}
+          >
+            使用者名稱
+          </FormLabel>
           <Controller
             name='username'
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
+                id='Username'
                 type='text'
-                placeholder="請輸入使用者名稱"
+                placeholder='請輸入使用者名稱'
                 error={!!errors.username}
                 helperText={errors.username?.message}
                 variant='outlined'
@@ -144,16 +172,27 @@ const SignupPage = () => {
             )}
           />
         </FormControl>
+
         {/* Birth Date */}
         <FormControl fullWidth>
+          <FormLabel
+            htmlFor='BirthDate'
+            required
+            sx={{
+              color: 'neutral.dark',
+              '& .MuiFormLabel-asterisk': { color: 'error.main' },
+            }}
+          >
+            出生西元日期
+          </FormLabel>
           <Controller
             name='birthDate'
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
+                id='BirthDate'
                 type='date'
-                label="出生日期"
                 slotProps={{
                   inputLabel: {
                     shrink: true,
@@ -168,14 +207,25 @@ const SignupPage = () => {
         </FormControl>
         {/* Password */}
         <FormControl fullWidth>
+          <FormLabel
+            htmlFor='Password'
+            required
+            sx={{
+              color: 'neutral.dark',
+              '& .MuiFormLabel-asterisk': { color: 'error.main' },
+            }}
+          >
+            密碼
+          </FormLabel>
           <Controller
             name='password'
             control={control}
             render={({ field }) => (
               <TextField
                 {...field}
+                id='Password'
                 type={showPassword ? 'text' : 'password'}
-                placeholder="請輸入密碼"
+                placeholder='請輸入密碼'
                 error={!!errors.password}
                 helperText={errors.password?.message}
                 variant='outlined'
@@ -197,43 +247,40 @@ const SignupPage = () => {
             )}
           />
         </FormControl>
-        {/* Login link */}
-        <Stack sx={{ mt: 1, alignItems: 'center' }}>
-          <Typography variant='body2' color="text.secondary">已經有帳號了嗎？</Typography>
-          <Button
-            fullWidth
-            variant='text'
-            onClick={() => navigate('/auth/login')}
-            sx={{ fontWeight: 600 }}
-          >
-            登入
-          </Button>
-        </Stack>
       </Stack>
+
       {/* Submit button */}
       <Button
+        aria-label='註冊'
         type='submit'
         variant='contained'
         disabled={isSubmitting}
-        fullWidth
         sx={{
-          height: '3rem',
-          padding: '.75rem .9375rem',
-          borderRadius: '4px',
-          backgroundColor: '#007AFF',
-          color: '#FFFFFF',
-          textTransform: 'none',
+          height: '2.75rem',
+          padding: '.625rem .875rem',
+          borderRadius: '6px',
+          backgroundColor: 'neutral.light',
+          color: 'primary.contrastText',
           boxShadow: 'none',
           '&:hover': {
-            backgroundColor: '#0056b3',
-            boxShadow: '0 2px 8px rgba(0, 122, 255, 0.25)',
+            backgroundColor: 'neutral.dark',
           },
         }}
       >
         註冊
       </Button>
-    </Stack>
 
+      {/* Login link */}
+      <Link
+        component='button'
+        variant='button'
+        underline='hover'
+        color='secondary'
+        onClick={() => navigate('/auth/login')}
+      >
+        已經有帳號?<span style={{ color: '#828282', fontWeight: 700 }}>點此登入</span>
+      </Link>
+    </Stack>
   );
 };
 

@@ -37,7 +37,7 @@ export const theme = createTheme({
             color: 'rgba(0, 0, 0, 0.6)',
           },
           '&.Mui-selected': {
-            color: '#000000',
+            color: '#000000', // neutral.dark
           },
         },
       },
@@ -45,7 +45,7 @@ export const theme = createTheme({
     MuiTabs: {
       styleOverrides: {
         indicator: {
-          backgroundColor: '#303030',
+          backgroundColor: '#303030', // neutral.main
         },
       },
     },
@@ -53,7 +53,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           marginBottom: '.25rem',
-          color: 'primary.dark',
+          color: 'neutral.dark',
           fontSize: '1rem',
           fontWeight: 500,
         },
@@ -70,6 +70,12 @@ export const theme = createTheme({
           fontWeight: 500,
           height: '3rem',
           borderRadius: '4px',
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#303030',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#303030',
+          },
         },
         input: {
           padding: '.75rem .9375rem',
@@ -144,12 +150,19 @@ export const theme = createTheme({
   },
   palette: {
     mode: 'light',
-    // black
+    // blue (brand primary)
     primary: {
+      dark: '#0D47A1',
+      main: '#1565C0',
+      light: '#42A5F5',
+      contrastText: "#FFFFFF",
+    },
+    // black (neutral, for text/icon/border usage)
+    neutral: {
       dark: '#000000',
       main: '#303030',
       light: '#505050',
-      contrastText: '#FFFFFF',
+      contrastText: "#FFFFFF",
     },
     // grey
     secondary: {
@@ -180,11 +193,11 @@ export const theme = createTheme({
       main: '#FF3B30',
     },
     //state, description
-    // blue
+    // blue (info / auxiliary)
     info: {
-      dark: '#446692',
-      main: '#007AFF', // iOS blue
-      light: '#91CAFF',
+      dark: '#0277BD',
+      main: '#0288D1',
+      light: '#B3E5FC',
     },
     //state
     // green
@@ -217,6 +230,7 @@ export const theme = createTheme({
       fontWeight: 700,
     },
     h5: {
+      fontSize: '1.5rem',
       fontWeight: 700,
     },
     h6: {
