@@ -17,8 +17,10 @@ FROM nginx:stable-alpine AS production
 # Copy built assets from build stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy custom Nginx configuration template
+COPY nginx.conf /etc/nginx/templates/default.conf.template
+
+ENV BACKEND_HOST=backend:8080
 
 EXPOSE 80
 
