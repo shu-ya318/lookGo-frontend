@@ -27,12 +27,12 @@ import type { LoginRequest } from '@/services/auth/interface';
 
 const formSchema = z.object({
   email: z
-    .email('請輸入有效格式的 Email!'),
+    .email('請輸入有效格式的電子郵件!'),
   password: z
     .string()
     .min(1, '請輸入密碼!')
-    .min(8, '密碼長度必須為 8-20 個字元!')
-    .max(20, '密碼長度必須為 8-20 個字元!'),
+    .min(8, '密碼長度必須為 8-20 個字!')
+    .max(20, '密碼長度必須為 8-20 個字!'),
 });
 
 export type FormSchemaData = z.infer<typeof formSchema>;
@@ -86,7 +86,6 @@ const LoginPage = () => {
         height: '100%',
         minHeight: '34rem',
         gap: '2rem',
-        justifyContent: 'space-between',
       }}
     >
       {/* Title */}
@@ -165,6 +164,7 @@ const LoginPage = () => {
             )}
           />
         </FormControl>
+        {/* Forget password Link */}
         <Link
           component="button"
           variant="button"
@@ -196,7 +196,7 @@ const LoginPage = () => {
       >
         登入
       </Button>
-      {/* Sign upLink */}
+      {/* Sign up Link */}
       <Link
         component="button"
         variant="button"

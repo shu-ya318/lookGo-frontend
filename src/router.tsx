@@ -10,6 +10,8 @@ import { Layout } from "./layouts/Layout";
 
 import LoginPage from "@/pages/auth/LoginPage";
 import SignupPage from "@/pages/auth/SignupPage";
+import ForgetPasswordPage from "@/pages/auth/ForgetPasswordPage";
+import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
 import NotFoundPage from "@/pages/auth/NotFoundPage";
 import NotAuthorizedPage from "@/pages/auth/NotAuthorizedPage";
 
@@ -54,6 +56,14 @@ const authRoutes = {
     {
       path: "signup",
       element: <SignupPage />,
+    },
+    {
+      path: "forget-password",
+      element: <ForgetPasswordPage />,
+    },
+    {
+      path: "reset-password",
+      element: <ResetPasswordPage />,
     },
   ],
 };

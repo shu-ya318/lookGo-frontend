@@ -27,22 +27,24 @@ import type { SignupRequest } from '@/services/auth/interface';
 
 const formSchema = z.object({
   email: z
-    .email('請輸入有效格式的 Email!'),
+    .email('請輸入有效格式的電子郵件!'),
   username: z
     .string()
     .min(1, '請輸入使用者名稱!'),
   password: z
     .string()
     .min(1, '請輸入密碼!')
-    .min(8, '密碼長度必須為 8-20 個字元!')
-    .max(20, '密碼長度必須為 8-20 個字元!'),
+    .min(8, '密碼長度必須為 8-20 個字!')
+    .max(20, '密碼長度必須為 8-20 個字!'),
   birthDate: z
     .string()
     .min(1, '請輸入出生日期(yyyy-MM-dd)!')
     .regex(/^\d{4}-\d{2}-\d{2}$/, '出生日期格式必須為 yyyy-MM-dd!')
     .refine((val) => {
       const parts = val.split('-');
+
       if (parts.length !== 3) return false;
+
       const year = parseInt(parts[0], 10);
       const month = parseInt(parts[1], 10) - 1;
       const day = parseInt(parts[2], 10);
@@ -50,6 +52,7 @@ const formSchema = z.object({
       const inputDate = new Date(year, month, day);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+
       return inputDate <= today;
     }, '出生日期不得大於今日!'),
 });
@@ -107,7 +110,6 @@ const SignupPage = () => {
         height: '100%',
         minHeight: '34rem',
         gap: '2rem',
-        justifyContent: 'space-between',
       }}
     >
       {/* Title */}
@@ -172,7 +174,6 @@ const SignupPage = () => {
             )}
           />
         </FormControl>
-
         {/* Birth Date */}
         <FormControl fullWidth>
           <FormLabel
@@ -248,7 +249,6 @@ const SignupPage = () => {
           />
         </FormControl>
       </Stack>
-
       {/* Submit button */}
       <Button
         aria-label='註冊'
@@ -269,8 +269,7 @@ const SignupPage = () => {
       >
         註冊
       </Button>
-
-      {/* Login link */}
+      {/* Login Link */}
       <Link
         component='button'
         variant='button'
