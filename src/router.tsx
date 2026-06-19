@@ -104,7 +104,7 @@ const mainRoutes = {
       element: <HomePage />,
     },
     {
-      path: "setting",
+      path: "user-setting",
       element: <SettingPage />,
     },
     {
