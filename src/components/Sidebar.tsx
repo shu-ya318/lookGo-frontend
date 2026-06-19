@@ -9,14 +9,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 
-interface SidebarItem {
-  name: string;
-  path: string;
-}
-
 interface SidebarProps {
   isOpen: boolean;
-  items: SidebarItem[];
+  items: {
+    name: string;
+    path: string;
+  }[];
   onClose: () => void;
 };
 
@@ -29,7 +27,17 @@ export const Sidebar = ({ isOpen, items, onClose }: SidebarProps) => {
   };
 
   return (
-    <Drawer open={isOpen} onClose={onClose} hidden={!isOpen}>
+    <Drawer
+      open={isOpen}
+      onClose={onClose}
+      hidden={!isOpen}
+      sx={{
+        display: { xs: 'block', md: 'none' },
+        '& .MuiDrawer-paper': {
+          display: { xs: 'block', md: 'none' },
+        }
+      }}
+    >
       <Stack
         sx={{
           justifyContent: 'space-between',

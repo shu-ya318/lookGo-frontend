@@ -3,23 +3,26 @@ import { Outlet } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
 
-import { Header } from '@/components/Header';
+import { Header } from '@/components/header/Header';
 import { Sidebar } from '@/components/Sidebar';
+import { Footer } from '@/components/Footer';
 
 export const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const sidebarItems = [
-    { name: '首頁', path: '/' },
+    { name: '路網圖查詢', path: '/network-map' },
+    { name: '車站聊天室', path: '/chat-room' },
+    { name: '客製化旅程', path: '/trip-planner' },
+    { name: '車站書籤', path: '/station-bookmark' }
   ];
 
   return (
     <Stack
       sx={{
         width: '100%',
-        maxWidth: '1126px',
         height: '100%',
-        margin: '0 auto',
+        minHeight: '100vh',
         padding: 0,
       }}
     >
@@ -33,6 +36,8 @@ export const Layout = () => {
         component='main'
         sx={{
           width: '100%',
+          maxWidth: '1280px',
+          margin: '0 auto',
           flex: 1,
           justifyContent: 'flex-start',
           marginTop: '4.375rem',
@@ -43,7 +48,7 @@ export const Layout = () => {
       >
         <Outlet />
       </Stack>
-
+      <Footer />
     </Stack>
   );
 };

@@ -4,7 +4,7 @@ import { grey } from '@mui/material/colors';
 export const theme = createTheme({
   breakpoints: {
     values: {
-      xs: 640,
+      xs: 0,
       sm: 768,
       md: 1024,
       lg: 1280,

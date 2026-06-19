@@ -16,6 +16,13 @@ import NotFoundPage from "@/pages/auth/NotFoundPage";
 import NotAuthorizedPage from "@/pages/auth/NotAuthorizedPage";
 
 import HomePage from "@/pages/HomePage";
+import SettingPage from "@/pages/user/SettingPage";
+import NetworkMapPage from "@/pages/station/NetworkMapPage";
+import TripPlannerPage from "@/pages/tripPlan/TripPlannerPage";
+import StationBookmarkPage from "@/pages/bookmark/StationBookmarkPage";
+import ChatRoomPage from "@/pages/chat/ChatRoomPage";
+import UserPermissionPage from "@/pages/admin/UserPermissionPage";
+import StationManagementPage from "@/pages/admin/StationManagementPage";
 
 const getAccessToken = () => useAuthStore.getState().accessToken;
 
@@ -95,6 +102,34 @@ const mainRoutes = {
     {
       path: "home",
       element: <HomePage />,
+    },
+    {
+      path: "setting",
+      element: <SettingPage />,
+    },
+    {
+      path: "network-map",
+      element: <NetworkMapPage />,
+    },
+    {
+      path: "trip-planner",
+      element: <TripPlannerPage />,
+    },
+    {
+      path: "station-bookmark",
+      element: <StationBookmarkPage />,
+    },
+    {
+      path: "chat-room",
+      element: <ChatRoomPage />,
+    },
+    {
+      path: "admin/user-permission",
+      element: <UserPermissionPage />,
+    },
+    {
+      path: "admin/station-management",
+      element: <StationManagementPage />,
     },
   ],
 };
