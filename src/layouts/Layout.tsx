@@ -36,7 +36,6 @@ export const Layout = () => {
         component='main'
         sx={{
           width: '100%',
-          maxWidth: '1280px',
           margin: '0 auto',
           flex: 1,
           justifyContent: 'flex-start',

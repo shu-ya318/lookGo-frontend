@@ -15,3 +15,13 @@ export interface GetCurrentUserResponse {
     lastLoginAt: string | null;
 }
 
+export interface GetUsersRequest {
+    page: number;
+    pageSize: number;
+}
+
+export interface GetUsersResponse {
+    content: GetCurrentUserResponse[];
+    totalElements: number;
+}
+
