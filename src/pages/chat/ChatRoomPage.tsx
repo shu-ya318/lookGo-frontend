@@ -27,12 +27,6 @@ const bookmarkedStations: StationOption[] = [
 const allStationList: StationOption[] = [
     { label: '台北車站', group: '所有車站' },
     { label: '板橋站', group: '所有車站' },
-    { label: '中山站', group: '所有車站' },
-    { label: '西門站', group: '所有車站' },
-    { label: '忠孝復興站', group: '所有車站' },
-    { label: '大安站', group: '所有車站' },
-    { label: '松山站', group: '所有車站' },
-    { label: '南京復興站', group: '所有車站' },
 ];
 
 const stationOptions: StationOption[] = [
