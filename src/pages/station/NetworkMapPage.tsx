@@ -17,6 +17,8 @@ import Typography from '@mui/material/Typography';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
+import IconButton from '@mui/material/IconButton';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 
 import trtcMap from '@/assets/trtc_map.jpg';
 
@@ -50,7 +52,7 @@ const equipmentFilterOptions = [
     '充電站',
 ];
 
-const fareTypeFilterOptions = ['普通票', '優待票', '敬老票', '愛心票'];
+const fareTypeFilterOptions = ['全票', '優惠票'];
 
 const travelTimeFilterOptions = [
     '最少轉乘次數',
@@ -62,20 +64,20 @@ interface StationFacility {
     exits: string[];
 }
 
-const tamsuiStationInfo = {
-    nameZhTw: '民權西路',
-    nameEn: 'Minquan West Road',
-    facilities: [
-        { name: '廁所', exits: ['出口 1', '出口 2'] },
-        { name: '電梯', exits: ['出口 1', '出口 3'] },
-    ] as StationFacility[],
-};
+// const stationInfo = {
+//     nameZhTw: '民權西路',
+//     nameEn: 'Minquan West Road',
+//     facilities: [
+//         { name: '廁所', exits: ['出口 1', '出口 2'] },
+//         { name: '電梯', exits: ['出口 1', '出口 3'] },
+//     ] as StationFacility[],
+// };
 
 const tripCardData = {
-    startStation: '淡水',
+    startStation: '劍潭',
     endStation: '民權西路',
-    travelTime: '約 25 分鐘',
-    fare: 'NT$ 35',
+    travelTime: '最短車程時間：4 分鐘',
+    fare: '全票：NT$ 20',
     startFacilities: [
         { name: '廁所', exits: ['出口 1', '出口 2'] },
         { name: '電梯', exits: ['出口 1', '出口 3'] },
@@ -140,7 +142,6 @@ const NetworkMapPage = () => {
         <Box
             sx={{
                 position: 'relative',
-                mx: { xs: -2, sm: -4, md: -6 },
                 height: 'calc(100vh - 4.375rem)',
                 overflow: 'hidden',
                 backgroundColor: 'tertiary.light',
@@ -454,7 +455,7 @@ const NetworkMapPage = () => {
             </Stack>
 
             {/* 資訊卡片 */}
-            <Card
+            {/* <Card
                 sx={{
                     position: 'absolute',
                     top: '22%',
@@ -466,14 +467,14 @@ const NetworkMapPage = () => {
             >
                 <CardContent sx={{ '&:last-child': { pb: 2 } }}>
                     <Typography variant='body2' sx={{ fontWeight: 700 }}>
-                        {tamsuiStationInfo.nameZhTw}
+                        {stationInfo.nameZhTw}
                     </Typography>
                     <Typography
                         variant='caption'
                         color='text.secondary'
                         sx={{ display: 'block' }}
                     >
-                        {tamsuiStationInfo.nameEn}
+                        {stationInfo.nameEn}
                     </Typography>
 
                     <Divider sx={{ my: 1 }} />
@@ -484,10 +485,9 @@ const NetworkMapPage = () => {
                     >
                         設備
                     </Typography>
-                    {renderFacilities(tamsuiStationInfo.facilities)}
+                    {renderFacilities(stationInfo.facilities)}
                 </CardContent>
-            </Card>
-
+            </Card> */}
             {/* 起訖車站資訊卡片 - 固定左下角 */}
             <Card
                 sx={{
@@ -509,8 +509,19 @@ const NetworkMapPage = () => {
                         起訖車站
                     </Typography>
                     <Typography variant='body2'>
-                        {tripCardData.startStation} →{' '}
+                        {tripCardData.startStation} <IconButton
+                            size='small'
+                            sx={{ p: 0.25, color: 'text.secondary' }}
+                        >
+                            <BookmarkBorderIcon sx={{ fontSize: 16 }} />
+                        </IconButton> →{' '}
                         {tripCardData.endStation}
+                        <IconButton
+                            size='small'
+                            sx={{ p: 0.25, color: 'text.secondary' }}
+                        >
+                            <BookmarkBorderIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
                     </Typography>
 
                     <Divider sx={{ my: 1 }} />
@@ -557,29 +568,36 @@ const NetworkMapPage = () => {
                     </Typography>
 
                     {/* 起始車站設備 */}
-                    <Typography
-                        variant='caption'
-                        sx={{
-                            fontWeight: 600,
-                            display: 'block',
-                            mt: 0.5,
-                        }}
+                    <Stack
+                        direction='row'
+                        spacing={0.5}
+                        sx={{ alignItems: 'center', mt: 0.5 }}
                     >
-                        {tripCardData.startStation}
-                    </Typography>
+                        <Typography
+                            variant='caption'
+                            sx={{
+                                fontWeight: 600,
+                            }}
+                        >
+                            {tripCardData.startStation}
+                        </Typography>
+                    </Stack>
                     {renderFacilities(tripCardData.startFacilities)}
-
                     {/* 終點車站設備 */}
-                    <Typography
-                        variant='caption'
-                        sx={{
-                            fontWeight: 600,
-                            display: 'block',
-                            mt: 1,
-                        }}
+                    <Stack
+                        direction='row'
+                        spacing={0.5}
+                        sx={{ alignItems: 'center', mt: 1 }}
                     >
-                        {tripCardData.endStation}
-                    </Typography>
+                        <Typography
+                            variant='caption'
+                            sx={{
+                                fontWeight: 600,
+                            }}
+                        >
+                            {tripCardData.endStation}
+                        </Typography>
+                    </Stack>
                     {renderFacilities(tripCardData.endFacilities)}
                 </CardContent>
             </Card>

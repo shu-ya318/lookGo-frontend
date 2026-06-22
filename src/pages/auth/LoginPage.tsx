@@ -167,6 +167,7 @@ const LoginPage = () => {
         {/* Forget password Link */}
         <Link
           component="button"
+          type="button"
           variant="button"
           underline="hover"
           color="secondary"
@@ -199,6 +200,7 @@ const LoginPage = () => {
       {/* Sign up Link */}
       <Link
         component="button"
+        type="button"
         variant="button"
         underline="hover"
         color="secondary"

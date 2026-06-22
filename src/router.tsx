@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, redirect } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet, redirect } from "react-router-dom";
 
 import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
@@ -23,6 +23,12 @@ import StationBookmarkPage from "@/pages/bookmark/StationBookmarkPage";
 import ChatRoomPage from "@/pages/chat/ChatRoomPage";
 import UserPermissionPage from "@/pages/admin/UserPermissionPage";
 import StationManagementPage from "@/pages/admin/StationManagementPage";
+
+const AdminGuard = () => {
+  const role = useUserStore(state => state.userInfo?.role);
+  if (role !== 'ADMIN') return <Navigate to='/unauthorized' replace />;
+  return <Outlet />;
+};
 
 const getAccessToken = () => useAuthStore.getState().accessToken;
 
@@ -120,16 +126,22 @@ const mainRoutes = {
       element: <StationBookmarkPage />,
     },
     {
-      path: "chat-room",
+      path: "station-chat-room",
       element: <ChatRoomPage />,
     },
     {
-      path: "admin/user-permission",
-      element: <UserPermissionPage />,
-    },
-    {
-      path: "admin/station-management",
-      element: <StationManagementPage />,
+      path: "admin",
+      element: <AdminGuard />,
+      children: [
+        {
+          path: "user-management",
+          element: <UserPermissionPage />,
+        },
+        {
+          path: "station-management",
+          element: <StationManagementPage />,
+        },
+      ],
     },
   ],
 };

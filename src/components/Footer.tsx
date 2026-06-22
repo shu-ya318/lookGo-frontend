@@ -11,7 +11,7 @@ import logo from '@/assets/logo_transparent.png';
 export const Footer = () => {
     const footerItems = [
         { name: '路網圖查詢', path: '/network-map' },
-        { name: '車站聊天室', path: '/chat-room' },
+        { name: '車站聊天室', path: '/station-chat-room' },
         { name: '客製化旅程', path: '/trip-planner' },
         { name: '車站書籤', path: '/station-bookmark' }
     ];

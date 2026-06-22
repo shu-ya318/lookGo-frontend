@@ -12,6 +12,8 @@ import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import RouteOutlinedIcon from '@mui/icons-material/RouteOutlined';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import ChatBubbleOutlineOutlined from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
+import TrainOutlinedIcon from '@mui/icons-material/TrainOutlined';
 import Button from '@mui/material/Button';
 
 import { ImageBox } from '../ImageBox';
@@ -33,6 +35,7 @@ export const Header = ({ onToggle }: HeaderProps) => {
   const navigate = useNavigate();
 
   const { userInfo } = useUserStore();
+  const isAdmin = userInfo?.role === 'ADMIN';
 
   const userProfileMenuItem = useMemo(
     () => [
@@ -41,7 +44,7 @@ export const Header = ({ onToggle }: HeaderProps) => {
         text: '設定',
         props: {
           component: NavLink,
-          to: `/settings/users/${userInfo?.id}`,
+          to: `/user-setting`,  // /${userInfo?.id}
         },
       },
       {
@@ -50,7 +53,7 @@ export const Header = ({ onToggle }: HeaderProps) => {
         action: async () => {
           try {
             await logout();
-            useAuthStore((state) => state.clearAuth);
+            useAuthStore.getState().clearAuth();
             navigate('/auth/login');
             enqueueSnackbar('登出成功!', { variant: 'success' });
           } catch (error) {
@@ -127,17 +130,27 @@ export const Header = ({ onToggle }: HeaderProps) => {
                   label: '路網圖查詢'
                 },
                 {
-                  to: '/chat-room', icon: <ChatBubbleOutlineOutlined />,
-                  label: '車站聊天室'
-                },
-                {
-                  to: '/trip-planner', icon: <RouteOutlinedIcon />,
-                  label: '客製化旅程'
-                },
-                {
                   to: '/station-bookmark', icon: <BookmarkBorderIcon />,
                   label: '車站書籤'
                 },
+                {
+                  to: '/trip-planner', icon: <RouteOutlinedIcon />,
+                  label: '旅程規劃'
+                },
+                {
+                  to: '/station-chat-room', icon: <ChatBubbleOutlineOutlined />,
+                  label: '車站聊天室'
+                },
+                ...(isAdmin ? [
+                  {
+                    to: '/admin/user-management', icon: <PeopleOutlinedIcon />,
+                    label: '使用者管理'
+                  },
+                  {
+                    to: '/admin/station-management', icon: <TrainOutlinedIcon />,
+                    label: '車站管理'
+                  },
+                ] : []),
               ].map(({ to, icon, label }) => (
                 <NavLink key={to} to={to} style={{ textDecoration: 'none' }}>
                   {() => (

@@ -38,9 +38,13 @@ const formSchema = z.object({
     .max(20, '密碼長度必須為 8-20 個字!'),
   birthDate: z
     .string()
-    .min(1, '請輸入出生日期(yyyy-MM-dd)!')
-    .regex(/^\d{4}-\d{2}-\d{2}$/, '出生日期格式必須為 yyyy-MM-dd!')
+    .optional()
     .refine((val) => {
+      if (!val) return true;
+      return /^\d{4}-\d{2}-\d{2}$/.test(val);
+    }, '出生日期格式必須為 yyyy-MM-dd!')
+    .refine((val) => {
+      if (!val) return true;
       const parts = val.split('-');
 
       if (parts.length !== 3) return false;
@@ -82,7 +86,11 @@ const SignupPage = () => {
   });
 
   const onSubmit: SubmitHandler<FormSchemaData> = async data => {
-    await handleSignup(data);
+    const submitData = { ...data };
+    if (!submitData.birthDate) {
+      delete submitData.birthDate;
+    }
+    await handleSignup(submitData);
   };
 
   const handleSignup = async (request: SignupRequest) => {
@@ -178,10 +186,8 @@ const SignupPage = () => {
         <FormControl fullWidth>
           <FormLabel
             htmlFor='BirthDate'
-            required
             sx={{
               color: 'neutral.dark',
-              '& .MuiFormLabel-asterisk': { color: 'error.main' },
             }}
           >
             出生西元日期
@@ -272,6 +278,7 @@ const SignupPage = () => {
       {/* Login Link */}
       <Link
         component='button'
+        type='button'
         variant='button'
         underline='hover'
         color='secondary'

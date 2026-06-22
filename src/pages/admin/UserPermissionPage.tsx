@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
 
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { DataGrid } from '@mui/x-data-grid';
-import { enqueueSnackbar } from 'notistack';
 
-import { getUsers } from '@/services/user';
+import { getAllUsers } from '@/services/user';
 
 import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import type {
@@ -16,7 +16,6 @@ import type {
 
 const UserPermissionPage = () => {
     const [rows, setRows] = useState<GetCurrentUserResponse[]>([]);
-    const [rowCount, setRowCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [paginationModel, setPaginationModel] = useState({
         page: 0,
@@ -59,6 +58,7 @@ const UserPermissionPage = () => {
                 headerName: '生日',
                 flex: 0.8,
                 minWidth: 110,
+                valueGetter: (value: string | null) => value ?? '-',
             },
             {
                 field: 'status',
@@ -117,27 +117,24 @@ const UserPermissionPage = () => {
         []
     );
 
-    // const fetchUsers = useCallback(async () => {
-    //     setIsLoading(true);
-    //     try {
-    //         const { content, totalElements } = await getUsers({
-    //             page: paginationModel.page,
-    //             pageSize: paginationModel.pageSize,
-    //         });
-    //         setRows(content);
-    //         setRowCount(totalElements);
-    //     } catch (error) {
-    //         enqueueSnackbar((error as string) || '取得使用者列表失敗', {
-    //             variant: 'error',
-    //         });
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // }, [paginationModel.page, paginationModel.pageSize]);
+    const fetchUser = useCallback(async () => {
+        setIsLoading(true);
 
-    // useEffect(() => {
-    //     fetchUsers();
-    // }, [fetchUsers]);
+        try {
+            const users = await getAllUsers();
+            setRows(users);
+        } catch (error) {
+            enqueueSnackbar((error as string) || '取得使用者列表失敗', {
+                variant: 'error',
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchUser();
+    }, [fetchUser]);
 
     return (
         <Stack
@@ -150,14 +147,12 @@ const UserPermissionPage = () => {
             }}
         >
             <Typography variant='h5'>
-                使用者權限管理
+                使用者管理
             </Typography>
             <DataGrid
                 rows={rows}
                 columns={columns}
                 loading={isLoading}
-                paginationMode='server'
-                rowCount={rowCount}
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
                 pageSizeOptions={[10, 25, 50, 100]}

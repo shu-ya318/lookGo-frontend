@@ -1,4 +1,4 @@
-export type MembershipTier = 'FREE' | 'BASIC' | 'PREMIUM';
+export type MembershipTier = 'BASIC' | 'PREMIUM';
 export type UserRole = 'USER' | 'ADMIN';
 export type UserStatus = 'DISABLED' | 'ACTIVE';
 
@@ -8,20 +8,23 @@ export interface GetCurrentUserResponse {
     username: string;
     membershipTier: MembershipTier;
     role: UserRole;
-    birthDate: string;
+    birthDate?: string;
     status: UserStatus;
     createdAt: string;
     updatedAt: string;
-    lastLoginAt: string | null;
+    lastLoginAt?: string;
 }
 
-export interface GetUsersRequest {
-    page: number;
-    pageSize: number;
+export interface UpdateUsernameRequest {
+    username: string;
 }
 
-export interface GetUsersResponse {
-    content: GetCurrentUserResponse[];
-    totalElements: number;
+export interface UpdatePasswordRequest {
+    oldPassword: string;
+    newPassword: string;
+}
+
+export interface UpdateBirthDateRequest {
+    birthDate: string;
 }
 

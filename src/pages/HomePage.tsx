@@ -8,6 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
 
+import trtcBanner from "@/assets/trtc_banner.jpg";
 import placeholderImg from "@/assets/placeholder.png";
 
 const featureSections: {
@@ -24,25 +25,25 @@ const featureSections: {
             path: "/network-map",
         },
         {
-            title: "車站聊天室",
-            subtitle: "即時交流平台",
+            title: "車站書籤",
+            subtitle: "收藏常用車站",
             description:
-                "在車站專屬聊天室中與其他旅客即時交流，分享搭乘心得與周邊資訊。",
-            path: "/chat-room",
+                "將常用或感興趣的車站加入書籤，隨時快速查看車站資訊。",
+            path: "/station-bookmark",
         },
         {
-            title: "客製化旅程",
+            title: "旅程規劃",
             subtitle: "專屬旅程規劃",
             description:
                 "依據您的需求客製化規劃捷運旅程，打造最適合您的出行路線。",
             path: "/trip-planner",
         },
         {
-            title: "車站書籤",
-            subtitle: "收藏常用車站",
+            title: "車站聊天室",
+            subtitle: "即時交流平台",
             description:
-                "將常用或感興趣的車站加入書籤，隨時快速查看車站資訊。",
-            path: "/station-bookmark",
+                "在車站專屬聊天室中與其他旅客即時交流，分享搭乘心得與周邊資訊。",
+            path: "/station-chat-room",
         },
     ];
 
@@ -67,7 +68,7 @@ const HomePage = () => {
             <Box
                 sx={{
                     position: "relative",
-                    width: "100vw",
+                    width: "100%",
                     left: "50%",
                     transform: "translateX(-50%)",
                     minHeight: "640px",
@@ -79,7 +80,7 @@ const HomePage = () => {
             >
                 <Box
                     component="img"
-                    src={placeholderImg}
+                    src={trtcBanner}
                     alt="背景圖片"
                     sx={{
                         position: "absolute",
@@ -98,7 +99,7 @@ const HomePage = () => {
                         left: 0,
                         width: "100%",
                         height: "100%",
-                        backgroundColor: "rgba(0, 0, 0, 0.4)",
+                        backgroundColor: "rgba(0, 0, 0, 0.13)",
                         zIndex: 1,
                     }}
                 />

@@ -6,19 +6,20 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
+import Divider from '@mui/material/Divider';
 import ListItemText from '@mui/material/ListItemText';
+import ListSubheader from '@mui/material/ListSubheader';
+import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import SearchIcon from '@mui/icons-material/Search';
-
-import type { SelectChangeEvent } from '@mui/material/Select';
-import { Divider } from '@mui/material';
+import TuneIcon from '@mui/icons-material/Tune';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface StationOption {
     label: string;
@@ -46,13 +47,21 @@ const stationOptions: StationOption[] = [
     ...allStationList,
 ];
 
-const filterOptions = [
+const equipmentFilterOptions = [
+    '廁所',
+    '電梯',
     '無障礙設施',
     '哺乳室',
     'ATM',
-    '廁所',
     '置物櫃',
     '充電站',
+];
+
+const fareTypeFilterOptions = ['全票', '優惠票'];
+
+const travelTimeFilterOptions = [
+    '最少轉乘次數',
+    '最短車程時間'
 ];
 
 interface TripHistory {
@@ -91,32 +100,86 @@ const mockTripHistory: TripHistory[] = [
     },
 ];
 
+const getMockTripResult = (start: string, end: string): { fare: string; travelTime: string; facilities: string[] } => {
+    if (start === '淡水站' && end === '民權西路站') {
+        return {
+            fare: '全票: 50 元',
+            travelTime: '最短車程時間: 35 分鐘',
+            facilities: ['無障礙設施', '廁所', 'ATM', '充電站'],
+        };
+    }
+
+    if (start === '淡水站' && end === '松山站') {
+        return {
+            fare: '全票: 65 元',
+            travelTime: '最少轉乘次數: 48 分鐘',
+            facilities: ['無障礙設施', '廁所', 'ATM', '置物櫃'],
+        };
+    }
+
+    return {
+        fare: '全票: 55 元',
+        travelTime: '最短車程時間: 45 分鐘',
+        facilities: ['無障礙設施', '廁所', '充電站'],
+    };
+};
+
+interface AdvancedFilters {
+    equipment: string[];
+    fare: string[];
+    time: string[];
+}
+
 const TripPlannerPage = () => {
     const [startStation, setStartStation] = useState<StationOption | null>(
         null
     );
     const [endStation, setEndStation] = useState<StationOption | null>(null);
-    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+    const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
+        equipment: [],
+        fare: [],
+        time: [],
+    });
+    const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
     const [tripResult, setTripResult] = useState<TripResult | null>(null);
     const [note, setNote] = useState('');
     const [selectedHistoryId, setSelectedHistoryId] = useState<number | null>(
         null
     );
+    const [tripTitle, setTripTitle] = useState('新旅程');
+    const [isEditingTitle, setIsEditingTitle] = useState(false);
 
     const isHistoryMode = selectedHistoryId !== null;
+    const hasEndStation = endStation !== null;
+    const isMenuOpen = Boolean(menuAnchorEl);
 
-    const handleFilterChange = (event: SelectChangeEvent<string[]>): void => {
-        setSelectedFilters(event.target.value as string[]);
+    const toggleFilter = (
+        category: keyof AdvancedFilters,
+        value: string
+    ): void => {
+        setAdvancedFilters(prev => {
+            const current = prev[category];
+            const updated = current.includes(value)
+                ? current.filter(v => v !== value)
+                : [...current, value];
+            return { ...prev, [category]: updated };
+        });
     };
+
+    const totalFilterCount =
+        advancedFilters.equipment.length +
+        advancedFilters.fare.length +
+        advancedFilters.time.length;
 
     const handleSearch = (): void => {
         if (!startStation || !endStation) return;
+        const mockData = getMockTripResult(startStation.label, endStation.label);
         setTripResult({
             startStation: startStation.label,
             endStation: endStation.label,
-            fare: '',
-            travelTime: '',
-            facilities: [],
+            fare: mockData.fare,
+            travelTime: mockData.travelTime,
+            facilities: mockData.facilities,
         });
     };
 
@@ -132,14 +195,20 @@ const TripPlannerPage = () => {
             stationOptions.find(s => s.label === trip.endStation) ?? null;
         setStartStation(start);
         setEndStation(end);
-        setSelectedFilters(trip.filters);
+        setAdvancedFilters({
+            equipment: trip.filters,
+            fare: [],
+            time: [],
+        });
         setNote(trip.note);
+        setTripTitle(trip.title);
+        const mockData = getMockTripResult(trip.startStation, trip.endStation);
         setTripResult({
             startStation: trip.startStation,
             endStation: trip.endStation,
-            fare: '',
-            travelTime: '',
-            facilities: [],
+            fare: mockData.fare,
+            travelTime: mockData.travelTime,
+            facilities: mockData.facilities,
         });
     };
 
@@ -147,8 +216,13 @@ const TripPlannerPage = () => {
         setSelectedHistoryId(null);
         setStartStation(null);
         setEndStation(null);
-        setSelectedFilters([]);
+        setAdvancedFilters({
+            equipment: [],
+            fare: [],
+            time: [],
+        });
         setNote('');
+        setTripTitle('新旅程');
         setTripResult(null);
     };
 
@@ -223,113 +297,316 @@ const TripPlannerPage = () => {
             <Divider orientation='vertical' flexItem sx={{ backgroundColor: 'tertiary.main' }} />
             {/* 右側面板 - 客製化旅程規劃 (75%) */}
             <Stack sx={{ flex: 1, gap: 2 }}>
-                <Typography variant='h5'>客製化旅程規劃</Typography>
-
-                <Stack
-                    direction='row'
-                    sx={{ alignItems: 'center', gap: 2, flexWrap: 'wrap' }}
-                >
-                    <Stack
-                        direction='row'
-                        sx={{ alignItems: 'center', gap: 1 }}
-                    >
-                        <Typography variant='body2' sx={{ flexShrink: 0 }}>
-                            起始車站
-                        </Typography>
-                        <Autocomplete
-                            value={startStation}
-                            onChange={(_event, newValue) =>
-                                setStartStation(newValue)
-                            }
-                            options={stationOptions}
-                            groupBy={option => option.group}
-                            getOptionLabel={option => option.label}
-                            isOptionEqualToValue={(option, value) =>
-                                option.label === value.label
-                            }
-                            renderOption={(props, option) => (
-                                <li {...props} key={`${option.group}-${option.label}`}>
-                                    {option.group === '車站書籤'
-                                        ? `${option.label}`
-                                        : option.label}
-                                </li>
-                            )}
-                            disabled={isHistoryMode}
-                            renderInput={params => (
-                                <TextField
-                                    {...params}
-                                    placeholder='選擇或搜尋車站'
-                                    size='small'
-                                />
-                            )}
-                            sx={{ width: 220 }}
+                <Stack direction='row' spacing={1.5} sx={{ alignItems: 'center' }}>
+                    {isEditingTitle ? (
+                        <TextField
+                            value={tripTitle}
+                            onChange={e => setTripTitle(e.target.value)}
+                            onBlur={() => setIsEditingTitle(false)}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter') setIsEditingTitle(false);
+                            }}
+                            size='small'
+                            autoFocus
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    backgroundColor: 'background.paper',
+                                },
+                            }}
                         />
-                    </Stack>
-
-                    <Stack
-                        direction='row'
-                        sx={{ alignItems: 'center', gap: 1 }}
-                    >
-                        <Typography variant='body2' sx={{ flexShrink: 0 }}>
-                            終點車站
+                    ) : (
+                        <Typography variant='h5' sx={{ fontWeight: 700 }}>
+                            {tripTitle}
                         </Typography>
-                        <Autocomplete
-                            value={endStation}
-                            onChange={(_event, newValue) =>
-                                setEndStation(newValue)
-                            }
-                            options={stationOptions}
-                            groupBy={option => option.group}
-                            getOptionLabel={option => option.label}
-                            isOptionEqualToValue={(option, value) =>
-                                option.label === value.label
-                            }
-                            renderOption={(props, option) => (
-                                <li {...props} key={`${option.group}-${option.label}`}>
-                                    {option.group === '車站書籤'
-                                        ? `${option.label}`
-                                        : option.label}
-                                </li>
-                            )}
-                            disabled={isHistoryMode}
-                            renderInput={params => (
-                                <TextField
-                                    {...params}
-                                    placeholder='選擇或搜尋車站'
-                                    size='small'
-                                />
-                            )}
-                            sx={{ width: 220 }}
-                        />
-                    </Stack>
-
-                    <Select
-                        multiple
-                        value={selectedFilters}
-                        onChange={handleFilterChange}
-                        displayEmpty
-                        renderValue={selected =>
-                            selected.length === 0
-                                ? '進階篩選'
-                                : (selected as string[]).join('、')
-                        }
+                    )}
+                    <IconButton
                         size='small'
-                        sx={{ minWidth: 150 }}
+                        onClick={() => setIsEditingTitle(!isEditingTitle)}
+                        color='primary'
                     >
-                        {filterOptions.map(option => (
-                            <MenuItem key={option} value={option}>
-                                <Checkbox
-                                    checked={selectedFilters.includes(option)}
-                                    size='small'
-                                />
-                                <ListItemText primary={option} />
-                            </MenuItem>
-                        ))}
-                    </Select>
-
-                    <IconButton onClick={handleSearch} color='default'>
-                        <SearchIcon />
+                        <EditIcon fontSize='small' />
                     </IconButton>
+                </Stack>
+
+                {/* 搜尋欄 - 藍色背景 */}
+                <Stack
+                    sx={{
+                        backgroundColor: 'primary.main',
+                        px: 3,
+                        py: 1.5,
+                        gap: 1,
+                        borderRadius: 1,
+                        zIndex: 10,
+                    }}
+                >
+                    {/* (1) Info 提示 */}
+
+
+                    {/* (2) 起始、終點車站 + 進階查詢 */}
+                    <Stack
+                        direction='row'
+                        sx={{ alignItems: 'center', gap: 2, flexWrap: 'wrap' }}
+                    >
+                        <Stack
+                            direction='row'
+                            sx={{ alignItems: 'center', gap: 1 }}
+                        >
+                            <Typography
+                                variant='body2'
+                                sx={{
+                                    color: 'primary.contrastText',
+                                    flexShrink: 0,
+                                }}
+                            >
+                                起始車站
+                            </Typography>
+                            <Autocomplete
+                                value={startStation}
+                                onChange={(_event, newValue) =>
+                                    setStartStation(newValue)
+                                }
+                                options={stationOptions}
+                                groupBy={option => option.group}
+                                getOptionLabel={option => option.label}
+                                isOptionEqualToValue={(option, value) =>
+                                    option.label === value.label
+                                }
+                                renderOption={(props, option) => (
+                                    <li
+                                        {...props}
+                                        key={`${option.group}-${option.label}`}
+                                    >
+                                        {option.label}
+                                    </li>
+                                )}
+                                disabled={isHistoryMode}
+                                renderInput={params => (
+                                    <TextField
+                                        {...params}
+                                        placeholder='選擇或搜尋車站'
+                                        size='small'
+                                    />
+                                )}
+                                sx={{
+                                    width: 200,
+                                    '& .MuiOutlinedInput-root': {
+                                        backgroundColor: 'white',
+                                    },
+                                }}
+                            />
+                        </Stack>
+
+                        <Stack
+                            direction='row'
+                            sx={{ alignItems: 'center', gap: 1 }}
+                        >
+                            <Typography
+                                variant='body2'
+                                sx={{
+                                    color: 'primary.contrastText',
+                                    flexShrink: 0,
+                                }}
+                            >
+                                終點車站
+                            </Typography>
+                            <Autocomplete
+                                value={endStation}
+                                onChange={(_event, newValue) =>
+                                    setEndStation(newValue)
+                                }
+                                options={stationOptions}
+                                groupBy={option => option.group}
+                                getOptionLabel={option => option.label}
+                                isOptionEqualToValue={(option, value) =>
+                                    option.label === value.label
+                                }
+                                renderOption={(props, option) => (
+                                    <li
+                                        {...props}
+                                        key={`${option.group}-${option.label}`}
+                                    >
+                                        {option.label}
+                                    </li>
+                                )}
+                                disabled={isHistoryMode}
+                                renderInput={params => (
+                                    <TextField
+                                        {...params}
+                                        placeholder='選擇或搜尋車站'
+                                        size='small'
+                                    />
+                                )}
+                                sx={{
+                                    width: 200,
+                                    '& .MuiOutlinedInput-root': {
+                                        backgroundColor: 'white',
+                                    },
+                                }}
+                            />
+                        </Stack>
+
+                        {/* 進階查詢按鈕 */}
+                        <Button
+                            startIcon={<TuneIcon />}
+                            onClick={e => setMenuAnchorEl(e.currentTarget)}
+                            variant='outlined'
+                            size='small'
+                            sx={{
+                                color: 'primary.contrastText',
+                                borderColor: 'rgba(255, 255, 255, 0.5)',
+                                '&:hover': {
+                                    borderColor: 'white',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                },
+                            }}
+                        >
+                            進階查詢
+                            {totalFilterCount > 0 && ` (${totalFilterCount})`}
+                        </Button>
+
+                        {/* 開始查詢按鈕 */}
+                        <Button
+                            startIcon={<SearchIcon />}
+                            onClick={handleSearch}
+                            variant='contained'
+                            size='small'
+                            sx={{
+                                backgroundColor: 'primary.contrastText',
+                                color: 'primary.main',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                                },
+                            }}
+                        >
+                            開始查詢
+                        </Button>
+
+                        {/* 進階查詢下拉選單 */}
+                        <Menu
+                            anchorEl={menuAnchorEl}
+                            open={isMenuOpen}
+                            onClose={() => setMenuAnchorEl(null)}
+                        >
+                            {/* 設備分組 */}
+                            <ListSubheader sx={{ fontWeight: 700 }}>
+                                設備
+                            </ListSubheader>
+                            {equipmentFilterOptions.map(option => (
+                                <MenuItem
+                                    key={option}
+                                    onClick={() =>
+                                        toggleFilter('equipment', option)
+                                    }
+                                >
+                                    <Checkbox
+                                        checked={advancedFilters.equipment.includes(
+                                            option
+                                        )}
+                                        size='small'
+                                    />
+                                    <ListItemText primary={option} />
+                                </MenuItem>
+                            ))}
+
+                            <Divider />
+
+                            {/* 票價種類分組 - 無終點站時禁用 */}
+                            <ListSubheader
+                                sx={{
+                                    fontWeight: 700,
+                                    color: hasEndStation
+                                        ? 'text.primary'
+                                        : 'text.disabled',
+                                    backgroundColor: hasEndStation
+                                        ? 'inherit'
+                                        : 'tertiary.dark',
+                                }}
+                            >
+                                票價種類
+                            </ListSubheader>
+                            {fareTypeFilterOptions.map(option => (
+                                <MenuItem
+                                    key={option}
+                                    disabled={!hasEndStation}
+                                    onClick={() => toggleFilter('fare', option)}
+                                    sx={{
+                                        ...(!hasEndStation && {
+                                            backgroundColor: 'tertiary.dark',
+                                            '&.Mui-disabled': {
+                                                backgroundColor: 'tertiary.dark',
+                                                opacity: 1,
+                                            },
+                                        }),
+                                    }}
+                                >
+                                    <Checkbox
+                                        checked={advancedFilters.fare.includes(
+                                            option
+                                        )}
+                                        size='small'
+                                        disabled={!hasEndStation}
+                                    />
+                                    <ListItemText
+                                        primary={option}
+                                        sx={{
+                                            color: hasEndStation
+                                                ? 'text.primary'
+                                                : 'text.disabled',
+                                        }}
+                                    />
+                                </MenuItem>
+                            ))}
+
+                            <Divider />
+
+                            {/* 乘車時間分組 - 無終點站時禁用 */}
+                            <ListSubheader
+                                sx={{
+                                    fontWeight: 700,
+                                    color: hasEndStation
+                                        ? 'text.primary'
+                                        : 'text.disabled',
+                                    backgroundColor: hasEndStation
+                                        ? 'inherit'
+                                        : 'tertiary.dark',
+                                }}
+                            >
+                                乘車時間
+                            </ListSubheader>
+                            {travelTimeFilterOptions.map(option => (
+                                <MenuItem
+                                    key={option}
+                                    disabled={!hasEndStation}
+                                    onClick={() => toggleFilter('time', option)}
+                                    sx={{
+                                        ...(!hasEndStation && {
+                                            backgroundColor: 'tertiary.dark',
+                                            '&.Mui-disabled': {
+                                                backgroundColor: 'tertiary.dark',
+                                                opacity: 1,
+                                            },
+                                        }),
+                                    }}
+                                >
+                                    <Checkbox
+                                        checked={advancedFilters.time.includes(
+                                            option
+                                        )}
+                                        size='small'
+                                        disabled={!hasEndStation}
+                                    />
+                                    <ListItemText
+                                        primary={option}
+                                        sx={{
+                                            color: hasEndStation
+                                                ? 'text.primary'
+                                                : 'text.disabled',
+                                        }}
+                                    />
+                                </MenuItem>
+                            ))}
+                        </Menu>
+                    </Stack>
                 </Stack>
 
                 {!tripResult ? (

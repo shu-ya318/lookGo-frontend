@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { /* useCallback, useEffect, */ useMemo, useState } from 'react';
+import * as XLSX from 'xlsx';
 
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
@@ -7,23 +8,76 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import { DataGrid } from '@mui/x-data-grid';
-import { enqueueSnackbar } from 'notistack';
+// import { enqueueSnackbar } from 'notistack';
 
-import { getStations } from '@/services/station';
+// import { getStations } from '@/services/station';
 
-import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import type { GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid';
 import type { StationInfo } from '@/services/station/interface';
 
+const mockStations: StationInfo[] = [
+    {
+        id: 1,
+        nameZhTw: '淡水',
+        nameEn: 'Tamsui',
+        status: 1,
+        atm: '站內大廳',
+        nursingRoom: '付費區內',
+        diaperTable: '付費區內',
+        chargingStation: '大廳',
+        ticketMachine: '大廳',
+        locker: '大廳',
+        drinkingWater: '付費區內',
+        restroom: '付費區內',
+    },
+    {
+        id: 2,
+        nameZhTw: '民權西路',
+        nameEn: 'Minquan W. Rd.',
+        status: 1,
+        atm: '站內大廳',
+        nursingRoom: '付費區內',
+        diaperTable: '付費區內',
+        chargingStation: '大廳',
+        ticketMachine: '大廳',
+        locker: '大廳',
+        drinkingWater: '付費區內',
+        restroom: '付費區內',
+    },
+];
+
+const exportColumnMap: Record<string, string> = {
+    id: 'ID',
+    nameZhTw: '中文站名',
+    nameEn: '英文站名',
+    status: '狀態',
+    atm: 'ATM',
+    nursingRoom: '哺乳室',
+    diaperTable: '尿布台',
+    chargingStation: '充電站',
+    ticketMachine: '售票機',
+    locker: '置物櫃',
+    drinkingWater: '飲水機',
+    restroom: '廁所',
+};
+
 const StationManagementPage = () => {
-    const [rows, setRows] = useState<StationInfo[]>([]);
-    const [rowCount, setRowCount] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
+    const [rows, /* setRows */] = useState<StationInfo[]>(mockStations);
+    const [rowCount, /* setRowCount */] = useState(mockStations.length);
+    const [isLoading, /* setIsLoading */] = useState(false);
     const [paginationModel, setPaginationModel] = useState({
         page: 0,
         pageSize: 10,
     });
     const [searchValue, setSearchValue] = useState<string | null>(null);
+    const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>({ type: 'include', ids: new Set() });
+
+    const selectedRows = rowSelectionModel.type === 'include'
+        ? rows.filter(row => rowSelectionModel.ids.has(row.id))
+        : rows.filter(row => !rowSelectionModel.ids.has(row.id));
+    const selectedCount = selectedRows.length;
 
     const handleEdit = (_id: number) => {
         // TODO
@@ -31,6 +85,23 @@ const StationManagementPage = () => {
 
     const handleUploadCsv = () => {
         // TODO
+    };
+
+    const handleExportExcel = () => {
+        if (selectedRows.length === 0) return;
+
+        const exportData = selectedRows.map(row => {
+            const mapped: Record<string, unknown> = {};
+            for (const [key, header] of Object.entries(exportColumnMap)) {
+                mapped[header] = row[key as keyof StationInfo] ?? '-';
+            }
+            return mapped;
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, '車站資訊');
+        XLSX.writeFile(workbook, '車站資訊.xlsx');
     };
 
     const columns: GridColDef[] = useMemo(
@@ -56,6 +127,7 @@ const StationManagementPage = () => {
                 headerName: '狀態',
                 flex: 0.6,
                 minWidth: 80,
+                valueGetter: (value: number) => value === 1 ? '啟用' : '停用',
             },
             {
                 field: 'atm',
@@ -189,13 +261,25 @@ const StationManagementPage = () => {
                     )}
                     sx={{ width: 300 }}
                 />
-                <Button
-                    variant='outlined'
-                    color='neutral'
-                    onClick={handleUploadCsv}
-                >
-                    批次上傳 CSV
-                </Button>
+                <Stack direction='row' sx={{ gap: '1rem' }}>
+                    {selectedCount > 0 && (
+                        <Button
+                            variant='contained'
+                            color='neutral'
+                            startIcon={<FileDownloadOutlinedIcon />}
+                            onClick={handleExportExcel}
+                        >
+                            匯出 Excel（{selectedCount}）
+                        </Button>
+                    )}
+                    <Button
+                        variant='outlined'
+                        color='neutral'
+                        onClick={handleUploadCsv}
+                    >
+                        批次上傳 CSV
+                    </Button>
+                </Stack>
             </Stack>
 
             <DataGrid
@@ -209,6 +293,8 @@ const StationManagementPage = () => {
                 pageSizeOptions={[10, 25, 50, 100]}
                 checkboxSelection
                 disableRowSelectionOnClick
+                rowSelectionModel={rowSelectionModel}
+                onRowSelectionModelChange={setRowSelectionModel}
                 columnHeaderHeight={64}
                 initialState={{
                     columns: {

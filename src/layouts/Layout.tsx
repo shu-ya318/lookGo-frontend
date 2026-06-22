@@ -12,9 +12,9 @@ export const Layout = () => {
 
   const sidebarItems = [
     { name: '路網圖查詢', path: '/network-map' },
-    { name: '車站聊天室', path: '/chat-room' },
-    { name: '客製化旅程', path: '/trip-planner' },
-    { name: '車站書籤', path: '/station-bookmark' }
+    { name: '車站書籤', path: '/station-bookmark' },
+    { name: '旅程規劃', path: '/trip-planner' },
+    { name: '車站聊天室', path: '/station-chat-room' }
   ];
 
   return (
@@ -41,7 +41,7 @@ export const Layout = () => {
           justifyContent: 'flex-start',
           marginTop: '4.375rem',
           backgroundColor: 'background.default',
-          px: { xs: 2, sm: 4, md: 6 },
+          //px: { xs: 2, sm: 4, md: 6 },
           boxSizing: 'border-box',
         }}
       >
