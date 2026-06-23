@@ -43,7 +43,7 @@ service.interceptors.request.use(
           console.error("[API Request] Refresh failed", error);
 
           useAuthStore.getState().clearAuth();
-          window.location.href = "/auth/login";
+          window.location.href = "/auth/log-in";
 
           return Promise.reject(error);
         }
@@ -74,8 +74,8 @@ service.interceptors.response.use(
   ) => {
     if (error.response?.status === 401) {
       useAuthStore.getState().clearAuth();
-      if (!window.location.pathname.includes("/auth/login")) {
-        window.location.href = "/auth/login";
+      if (!window.location.pathname.includes("/auth/log-in")) {
+        window.location.href = "/auth/log-in";
       }
     }
 
