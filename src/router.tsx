@@ -1,4 +1,9 @@
-import { createBrowserRouter, Navigate, Outlet, redirect } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  Outlet,
+  redirect,
+} from "react-router-dom";
 
 import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
@@ -25,8 +30,8 @@ import UserPermissionPage from "@/pages/admin/UserPermissionPage";
 import StationManagementPage from "@/pages/admin/StationManagementPage";
 
 const AdminGuard = () => {
-  const role = useUserStore(state => state.userInfo?.role);
-  if (role !== 'ADMIN') return <Navigate to='/unauthorized' replace />;
+  const role = useUserStore((state) => state.userInfo?.role);
+  if (role !== "ADMIN") return <Navigate to='/unauthorized' replace />;
   return <Outlet />;
 };
 
@@ -87,7 +92,7 @@ const mainRoutes = {
   loader: async () => {
     const accessToken = getAccessToken();
     if (!accessToken) {
-      return redirect("/auth/login");
+      return redirect("/auth/log-in");
     }
 
     try {
@@ -97,7 +102,7 @@ const mainRoutes = {
     } catch (error) {
       console.error(error);
 
-      return redirect("/auth/login");
+      return redirect("/auth/log-in");
     }
   },
   children: [
