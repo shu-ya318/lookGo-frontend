@@ -146,9 +146,7 @@ const UserPermissionPage = () => {
                 justifyContent: 'center',
             }}
         >
-            <Typography variant='h5'>
-                使用者管理
-            </Typography>
+            <Typography variant='h5'>使用者權限管理</Typography>
             <DataGrid
                 rows={rows}
                 columns={columns}
