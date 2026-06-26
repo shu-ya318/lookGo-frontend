@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -17,6 +17,7 @@
     "@mui/material": "^9.0.1",
     "@mui/x-data-grid": "^9.6.0",
     "axios": "^1.16.1",
+    "d3": "^7.9.0",
     "jwt-decode": "^4.0.0",
     "notistack": "^3.0.2",
     "react": "^19.2.6",
@@ -30,10 +31,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/d3": "^7.4.3",
     "@types/node": "^24.12.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "cross-env": "^10.1.0",
     "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",

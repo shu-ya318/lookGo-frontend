@@ -1,12 +1,8 @@
-import {
-  createBrowserRouter,
-  Navigate,
-  Outlet,
-  redirect,
-} from "react-router-dom";
+import { createBrowserRouter, Navigate, redirect } from "react-router-dom";
 
 import { useAuthStore } from "./stores/authStore";
 import { useUserStore } from "./stores/userStore";
+import { AdminGuard } from "./AdminGuard";
 
 import { getCurrentUser } from "@/services/user";
 
@@ -28,12 +24,7 @@ import StationBookmarkPage from "@/pages/bookmark/StationBookmarkPage";
 import ChatRoomPage from "@/pages/chat/ChatRoomPage";
 import UserPermissionPage from "@/pages/admin/UserPermissionPage";
 import StationManagementPage from "@/pages/admin/StationManagementPage";
-
-const AdminGuard = () => {
-  const role = useUserStore((state) => state.userInfo?.role);
-  if (role !== "ADMIN") return <Navigate to='/unauthorized' replace />;
-  return <Outlet />;
-};
+import FakeNetworkMapPage from "./pages/station/FakePage";
 
 const getAccessToken = () => useAuthStore.getState().accessToken;
 
@@ -82,6 +73,10 @@ const authRoutes = {
     {
       path: "reset-password",
       element: <ResetPasswordPage />,
+    },
+    {
+      path: "fake-network-map",
+      element: <FakeNetworkMapPage />,
     },
   ],
 };
