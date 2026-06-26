@@ -4,6 +4,9 @@ import path from "path";
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ["d3", "xlsx", "@mui/x-data-grid"],
+  },
   resolve: {
     alias: {
       "@/services": path.resolve(__dirname, "src/services"),

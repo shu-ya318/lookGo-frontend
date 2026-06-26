@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { DataGrid } from '@mui/x-data-grid';
 
-import { getAllUsers } from '@/services/user';
+import { getAllUser, updateStatus } from '@/services/user';
 
 import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import type {
@@ -22,10 +22,31 @@ const UserPermissionPage = () => {
         pageSize: 10,
     });
 
-    const handleToggleStatus = (userId: number, currentStatus: UserStatus) => {
-        // TODO: call API to toggle user status
-        console.log('toggle status', userId, currentStatus);
-    };
+    const fetchUser = useCallback(async () => {
+        setIsLoading(true);
+
+        try {
+            const { content } = await getAllUser();
+            setRows(content);
+        } catch (error) {
+            enqueueSnackbar((error as string) || '取得使用者列表失敗', {
+                variant: 'error',
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const handleToggleStatus = useCallback(async (userId: string, currentStatus: UserStatus): Promise<void> => {
+        const newStatus = currentStatus === 'ACTIVE' ? 'DISABLED' : 'ACTIVE';
+        try {
+            await updateStatus({ userId, status: newStatus });
+            enqueueSnackbar('使用者狀態已更新', { variant: 'success' });
+            await fetchUser();
+        } catch (error) {
+            enqueueSnackbar((error as string) || '更新使用者狀態失敗', { variant: 'error' });
+        }
+    }, [fetchUser]);
 
     const columns: GridColDef[] = useMemo(
         () => [
@@ -103,7 +124,7 @@ const UserPermissionPage = () => {
                             color={isActive ? 'error' : 'success'}
                             onClick={() =>
                                 handleToggleStatus(
-                                    params.row.id,
+                                    String(params.row.id),
                                     params.row.status
                                 )
                             }
@@ -114,23 +135,8 @@ const UserPermissionPage = () => {
                 },
             },
         ],
-        []
+        [handleToggleStatus]
     );
-
-    const fetchUser = useCallback(async () => {
-        setIsLoading(true);
-
-        try {
-            const users = await getAllUsers();
-            setRows(users);
-        } catch (error) {
-            enqueueSnackbar((error as string) || '取得使用者列表失敗', {
-                variant: 'error',
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
 
     useEffect(() => {
         fetchUser();

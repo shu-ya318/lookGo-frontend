@@ -74,10 +74,6 @@ const authRoutes = {
       path: "reset-password",
       element: <ResetPasswordPage />,
     },
-    {
-      path: "fake-network-map",
-      element: <FakeNetworkMapPage />,
-    },
   ],
 };
 
@@ -87,7 +83,7 @@ const mainRoutes = {
   loader: async () => {
     const accessToken = getAccessToken();
     if (!accessToken) {
-      return redirect("/auth/log-in");
+      return redirect("/auth/login");
     }
 
     try {
@@ -97,7 +93,7 @@ const mainRoutes = {
     } catch (error) {
       console.error(error);
 
-      return redirect("/auth/log-in");
+      return redirect("/auth/login");
     }
   },
   children: [
@@ -128,6 +124,10 @@ const mainRoutes = {
     {
       path: "station-chat-room",
       element: <ChatRoomPage />,
+    },
+    {
+      path: "fake-network-map",
+      element: <FakeNetworkMapPage />,
     },
     {
       path: "admin",

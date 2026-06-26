@@ -16,6 +16,9 @@ dist
 dist-ssr
 *.local
 
+# Package lock
+package-lock.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -27,3 +30,6 @@ dist-ssr
 *.sln
 *.sw?
 .history
+
+# Tools
+CLAUDE.md
