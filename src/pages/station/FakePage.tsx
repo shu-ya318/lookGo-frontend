@@ -12,11 +12,23 @@
  */
 
 import { useRef, useEffect, useState } from "react";
-import * as d3 from "d3";
+import { select } from "d3-selection";
+import { zoom } from "d3-zoom";
+import { line, curveCatmullRom } from "d3-shape";
+import { easeCubicInOut, easeBackOut } from "d3-ease";
+// Resolve: Property 'transition' does not exist on type 'Selection<SVGPathElement, unknown, null, undefined>
+import { transition } from "d3-transition";
+select.prototype.transition = transition;
 
-// ─────────────────────────────────────────────
-// 1. 型別
-// ─────────────────────────────────────────────
+const d3 = {
+  select,
+  zoom,
+  line,
+  curveCatmullRom,
+  easeCubicInOut,
+  easeBackOut,
+} as const;
+
 interface BLStation {
   id: string; // "BL01" … "BL23"
   code: string; // 顯示用編號
@@ -27,11 +39,6 @@ interface BLStation {
   isTransfer: boolean;
 }
 
-// ─────────────────────────────────────────────
-// 2. 假資料：BL 板南線 01→23
-//    對應圖片：頂埔(左端) → 南港展覽館(右端)
-//    y=300 為主幹，頂埔~板橋段微微往下做轉折感
-// ─────────────────────────────────────────────
 const BL_COLOR = "#0070BD";
 const SVG_W = 1400;
 const SVG_H = 500;
@@ -310,10 +317,10 @@ export default function FakeNetworkMapPage() {
         setTooltip((prev) =>
           prev
             ? {
-                ...prev,
-                x: event.clientX - rect.left,
-                y: event.clientY - rect.top,
-              }
+              ...prev,
+              x: event.clientX - rect.left,
+              y: event.clientY - rect.top,
+            }
             : null
         );
       })
