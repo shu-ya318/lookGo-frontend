@@ -103,11 +103,13 @@ const UserPermissionPage = () => {
                 filterable: false,
                 renderCell: (params: GridRenderCellParams<GetCurrentUserResponse>) => {
                     const isActive = params.row.status === 'ACTIVE';
+                    const isAdmin = params.row.role === 'ADMIN';
                     return (
                         <Button
                             variant='contained'
                             size='small'
                             color={isActive ? 'error' : 'success'}
+                            disabled={isAdmin}
                             onClick={() => handleToggleStatus(String(params.row.id), params.row.status)}
                         >
                             {isActive ? '禁用' : '重啟'}

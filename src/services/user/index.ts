@@ -15,7 +15,7 @@ export const getCurrentUser = async (): Promise<GetCurrentUserResponse> => {
 };
 
 export const getAllUser = async (request: GetAllUserRequest = {}): Promise<PageResponse<GetCurrentUserResponse>> => {
-    return await postRequest<PageResponse<GetCurrentUserResponse>>('/user/get-all-user', request);
+    return await postRequest<PageResponse<GetCurrentUserResponse>>('/user/get-all-user', undefined, { params: request });
 };
 
 export const updateUsername = async (
