@@ -32,7 +32,7 @@ export function MetroMapLegend({ lines }: Props): React.ReactElement {
       </Typography>
       <Stack spacing={0.75}>
         {lines.map((line) => (
-          <Stack key={line.letter} direction='row' alignItems='center' spacing={1}>
+          <Stack key={line.letter} direction='row' spacing={1} sx={{ alignItems: 'center' }}>
             <Box
               sx={{
                 width: 28,
@@ -55,7 +55,7 @@ export function MetroMapLegend({ lines }: Props): React.ReactElement {
 
         {/* 圖示說明 */}
         <Box sx={{ pt: 0.5, borderTop: '1px solid', borderColor: 'divider' }}>
-          <Stack direction='row' alignItems='center' spacing={0.75}>
+          <Stack direction='row' spacing={0.75} sx={{ alignItems: 'center' }}>
             <svg width={18} height={18}>
               <circle cx={9} cy={9} r={5} fill='#666' />
             </svg>
@@ -63,7 +63,7 @@ export function MetroMapLegend({ lines }: Props): React.ReactElement {
               一般站
             </Typography>
           </Stack>
-          <Stack direction='row' alignItems='center' spacing={0.75} sx={{ mt: 0.5 }}>
+          <Stack direction='row' spacing={0.75} sx={{ mt: 0.5, alignItems: 'center' }}>
             <svg width={18} height={18}>
               <circle cx={9} cy={9} r={6} fill='#fff' stroke='#666' strokeWidth={2.5} />
             </svg>

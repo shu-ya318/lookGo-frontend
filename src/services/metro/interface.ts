@@ -25,17 +25,18 @@ export interface StationInfo {
     id: number;
     nameZhTw: string;
     nameEn: string;
-    atm: string | null;
-    nursingRoom: string | null;
-    diaperTable: string | null;
-    chargingStation: string | null;
-    ticketMachine: string | null;
-    locker: string | null;
-    drinkingWater: string | null;
-    restroom: string | null;
-    elevator: string | null;
-    escalator: string | null;
-    updatedAt: string;
+    status?: number;
+    atm?: string | null;
+    nursingRoom?: string | null;
+    diaperTable?: string | null;
+    chargingStation?: string | null;
+    ticketMachine?: string | null;
+    locker?: string | null;
+    drinkingWater?: string | null;
+    restroom?: string | null;
+    elevator?: string | null;
+    escalator?: string | null;
+    updatedAt?: string;
 }
 
 export type GetAllStationResponse = StationInfo[];
