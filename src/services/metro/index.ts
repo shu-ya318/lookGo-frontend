@@ -7,10 +7,20 @@ import type {
     GetAllLineResponse,
     GetAllLineTransferResponse,
     GetAllLineStationResponse,
+    StationDetails,
 } from './interface';
 
 export const getMetroMap = async (): Promise<GetMetroMapResponse> => {
     return await postRequest<GetMetroMapResponse>('/metro/get-metro-map');
+};
+
+export const getStationByCode = async (
+    stationCode: string
+): Promise<StationDetails> => {
+    return await postRequest<StationDetails>(
+        '/metro/get-station-by-code',
+        { stationCode }
+    );
 };
 
 export const getAllStation = async (): Promise<GetAllStationResponse> => {

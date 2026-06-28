@@ -2,6 +2,7 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
@@ -9,12 +10,13 @@ import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 
-import type { PositionedLine, PositionedStation } from './computeLayout';
+import { useStationStore } from '@/stores/useStationStore';
+import type { MetroMapLine, MetroMapStation, StationDetails } from '@/services/metro/interface';
 
 interface Props {
-  station: PositionedStation;
-  line: PositionedLine;
-  allLines: PositionedLine[];
+  station: MetroMapStation;
+  line: MetroMapLine;
+  allLines: MetroMapLine[];
   onClose: () => void;
 }
 
@@ -22,14 +24,37 @@ function normalize(raw: string): string {
   return raw.startsWith('#') ? raw : `#${raw}`;
 }
 
+type FacilityKey = Extract<
+  keyof StationDetails,
+  'atm' | 'nursingRoom' | 'diaperTable' | 'chargingStation' | 'ticketMachine' | 'locker' | 'drinkingWater' | 'restroom' | 'elevator' | 'escalator'
+>;
+
+const FACILITY_LABELS: { key: FacilityKey; label: string }[] = [
+  { key: 'elevator', label: '電梯' },
+  { key: 'escalator', label: '電扶梯' },
+  { key: 'atm', label: 'ATM' },
+  { key: 'restroom', label: '廁所' },
+  { key: 'drinkingWater', label: '飲水機' },
+  { key: 'locker', label: '置物櫃' },
+  { key: 'chargingStation', label: '充電站' },
+  { key: 'ticketMachine', label: '售票機' },
+  { key: 'nursingRoom', label: '哺乳室' },
+  { key: 'diaperTable', label: '尿布台' },
+];
+
 export function StationInfoCard({ station, line, allLines, onClose }: Props): React.ReactElement {
-  // 找出同名轉乘路線
-  const transferLines = station.isTransfer
-    ? allLines.filter(
-        (l) =>
-          l.letter !== line.letter &&
-          l.stations.some((s) => s.nameZhTw === station.nameZhTw)
-      )
+  const stationDetails = useStationStore((state) => state.stationDetails);
+  const isLoading = useStationStore((state) => state.isLoading);
+
+  const transferLines = allLines.filter(
+    (l) =>
+      l.letter !== line.letter &&
+      l.stations.some((s) => s.nameZhTw === station.nameZhTw)
+  );
+  const isTransfer = transferLines.length > 0;
+
+  const availableFacilities = stationDetails
+    ? FACILITY_LABELS.filter(({ key }) => stationDetails[key] !== null)
     : [];
 
   return (
@@ -93,7 +118,7 @@ export function StationInfoCard({ station, line, allLines, onClose }: Props): Re
         </Stack>
 
         {/* 轉乘提示 */}
-        {station.isTransfer && (
+        {isTransfer && (
           <Stack direction='row' spacing={0.5} sx={{ mt: 1, alignItems: 'center' }}>
             <SwapHorizIcon sx={{ fontSize: 16, color: 'warning.main' }} />
             <Typography variant='caption' color='warning.main' sx={{ fontWeight: 600 }}>
@@ -101,6 +126,36 @@ export function StationInfoCard({ station, line, allLines, onClose }: Props): Re
             </Typography>
           </Stack>
         )}
+
+        {/* 設施資訊 */}
+        <Divider sx={{ my: 1 }} />
+        {isLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
+            <CircularProgress size={20} />
+          </Box>
+        ) : availableFacilities.length > 0 ? (
+          <>
+            <Typography variant='caption' color='text.secondary' sx={{ display: 'block', mb: 0.75 }}>
+              站內設施
+            </Typography>
+            <Stack spacing={0.5}>
+              {availableFacilities.map(({ key, label }) => (
+                <Stack key={key} direction='row' sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <Typography variant='caption' color='text.secondary' sx={{ fontSize: 11, flexShrink: 0 }}>
+                    {label}
+                  </Typography>
+                  <Typography variant='caption' sx={{ fontSize: 11, fontWeight: 500, textAlign: 'right', ml: 1 }}>
+                    {stationDetails![key] as string}
+                  </Typography>
+                </Stack>
+              ))}
+            </Stack>
+          </>
+        ) : stationDetails !== null ? (
+          <Typography variant='caption' color='text.secondary'>
+            無特殊設施資訊
+          </Typography>
+        ) : null}
       </CardContent>
     </Card>
   );

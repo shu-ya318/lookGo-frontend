@@ -15,14 +15,13 @@ import { DataGrid } from '@mui/x-data-grid';
 // import { getStations } from '@/services/station';
 
 import type { GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid';
-import type { StationInfo } from '@/services/metro/interface';
+import type { StationDetails } from '@/services/metro/interface';
 
-const mockStations: StationInfo[] = [
+const mockStations: StationDetails[] = [
     {
         id: 1,
         nameZhTw: '淡水',
         nameEn: 'Tamsui',
-        status: 1,
         atm: '站內大廳',
         nursingRoom: '付費區內',
         diaperTable: '付費區內',
@@ -31,12 +30,14 @@ const mockStations: StationInfo[] = [
         locker: '大廳',
         drinkingWater: '付費區內',
         restroom: '付費區內',
+        elevator: '大廳',
+        escalator: '大廳',
+        updatedAt: '',
     },
     {
         id: 2,
         nameZhTw: '民權西路',
         nameEn: 'Minquan W. Rd.',
-        status: 1,
         atm: '站內大廳',
         nursingRoom: '付費區內',
         diaperTable: '付費區內',
@@ -45,6 +46,9 @@ const mockStations: StationInfo[] = [
         locker: '大廳',
         drinkingWater: '付費區內',
         restroom: '付費區內',
+        elevator: '大廳',
+        escalator: '大廳',
+        updatedAt: '',
     },
 ];
 
@@ -52,7 +56,6 @@ const exportColumnMap: Record<string, string> = {
     id: 'ID',
     nameZhTw: '中文站名',
     nameEn: '英文站名',
-    status: '狀態',
     atm: 'ATM',
     nursingRoom: '哺乳室',
     diaperTable: '尿布台',
@@ -64,7 +67,7 @@ const exportColumnMap: Record<string, string> = {
 };
 
 const StationManagementPage = () => {
-    const [rows, /* setRows */] = useState<StationInfo[]>(mockStations);
+    const [rows, /* setRows */] = useState<StationDetails[]>(mockStations);
     const [rowCount, /* setRowCount */] = useState(mockStations.length);
     const [isLoading, /* setIsLoading */] = useState(false);
     const [paginationModel, setPaginationModel] = useState({
@@ -93,7 +96,7 @@ const StationManagementPage = () => {
         const exportData = selectedRows.map(row => {
             const mapped: Record<string, unknown> = {};
             for (const [key, header] of Object.entries(exportColumnMap)) {
-                mapped[header] = row[key as keyof StationInfo] ?? '-';
+                mapped[header] = row[key as keyof StationDetails] ?? '-';
             }
             return mapped;
         });
@@ -121,13 +124,6 @@ const StationManagementPage = () => {
                 headerName: '英文站名',
                 flex: 1.2,
                 minWidth: 150,
-            },
-            {
-                field: 'status',
-                headerName: '狀態',
-                flex: 0.6,
-                minWidth: 80,
-                valueGetter: (value: number) => value === 1 ? '啟用' : '停用',
             },
             {
                 field: 'atm',
@@ -193,7 +189,7 @@ const StationManagementPage = () => {
                 sortable: false,
                 filterable: false,
                 renderCell: (
-                    params: GridRenderCellParams<StationInfo>
+                    params: GridRenderCellParams<StationDetails>
                 ) => (
                     <IconButton
                         size='small'

@@ -21,25 +21,24 @@ export interface GetMetroMapResponse {
 
 // All Station 
 
-export interface StationInfo {
+export interface StationDetails {
     id: number;
     nameZhTw: string;
     nameEn: string;
-    status?: number;
-    atm?: string | null;
-    nursingRoom?: string | null;
-    diaperTable?: string | null;
-    chargingStation?: string | null;
-    ticketMachine?: string | null;
-    locker?: string | null;
-    drinkingWater?: string | null;
-    restroom?: string | null;
-    elevator?: string | null;
-    escalator?: string | null;
-    updatedAt?: string;
+    atm: string | null;
+    nursingRoom: string | null;
+    diaperTable: string | null;
+    chargingStation: string | null;
+    ticketMachine: string | null;
+    locker: string | null;
+    drinkingWater: string | null;
+    restroom: string | null;
+    elevator: string | null;
+    escalator: string | null;
+    updatedAt: string;
 }
 
-export type GetAllStationResponse = StationInfo[];
+export type GetAllStationResponse = StationDetails[];
 
 // All Station Fare 
 

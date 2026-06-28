@@ -1,43 +1,37 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 
 import { useMetroMapStore } from '@/stores/metroMapStore';
-import { computeLayout, type PositionedLine, type PositionedStation } from './computeLayout';
-import { MetroMapCanvas } from './MetroMapCanvas';
-import { MetroMapLegend } from './MetroMapLegend';
+import { useStationStore } from '@/stores/useStationStore';
+import type { MetroMapLine, MetroMapStation } from '@/services/metro/interface';
+import { MetroMapImageViewer } from './MetroMapImageViewer';
+//import { MetroMapLegend } from './MetroMapLegend';
 import { StationInfoCard } from './StationInfoCard';
-
-interface SelectedStation {
-  station: PositionedStation;
-  line: PositionedLine;
-}
 
 export function MetroMapContainer(): React.ReactElement {
   const { lines, isLoading, error, fetchMetroMap } = useMetroMapStore();
-  const [selected, setSelected] = useState<SelectedStation | null>(null);
+  const currentStationCode = useStationStore((state) => state.currentStationCode);
+  const clearSelection = useStationStore((state) => state.clearSelection);
 
   useEffect(() => {
     fetchMetroMap();
   }, [fetchMetroMap]);
 
-  const positionedLines = useMemo(() => computeLayout(lines), [lines]);
-
-  const handleStationClick = useCallback(
-    (station: PositionedStation, line: PositionedLine) => {
-      setSelected((prev) =>
-        prev?.station.stationCode === station.stationCode &&
-        prev?.line.letter === line.letter
-          ? null
-          : { station, line }
-      );
-    },
-    []
-  );
-
-  const handleClose = useCallback(() => setSelected(null), []);
+  let selectedStation: MetroMapStation | null = null;
+  let selectedLine: MetroMapLine | null = null;
+  if (currentStationCode) {
+    for (const line of lines) {
+      const station = line.stations.find((s) => s.stationCode === currentStationCode);
+      if (station) {
+        selectedStation = station;
+        selectedLine = line;
+        break;
+      }
+    }
+  }
 
   if (isLoading) {
     return (
@@ -78,21 +72,16 @@ export function MetroMapContainer(): React.ReactElement {
 
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* D3 可視化層 */}
-      <MetroMapCanvas lines={positionedLines} onStationClick={handleStationClick} />
+      <MetroMapImageViewer lines={lines} />
 
-      {/* 圖例面板 */}
-      {positionedLines.length > 0 && (
-        <MetroMapLegend lines={positionedLines} />
-      )}
+      {/* {lines.length > 0 && <MetroMapLegend lines={lines} />} */}
 
-      {/* 車站資訊彈窗 */}
-      {selected && (
+      {selectedStation && selectedLine && (
         <StationInfoCard
-          station={selected.station}
-          line={selected.line}
-          allLines={positionedLines}
-          onClose={handleClose}
+          station={selectedStation}
+          line={selectedLine}
+          allLines={lines}
+          onClose={clearSelection}
         />
       )}
     </Box>

@@ -3,10 +3,10 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import type { PositionedLine } from './computeLayout';
+import type { MetroMapLine } from '@/services/metro/interface';
 
 interface Props {
-  lines: PositionedLine[];
+  lines: MetroMapLine[];
 }
 
 function normalize(raw: string): string {
