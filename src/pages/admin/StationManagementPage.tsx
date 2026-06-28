@@ -15,7 +15,7 @@ import { DataGrid } from '@mui/x-data-grid';
 // import { getStations } from '@/services/station';
 
 import type { GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid';
-import type { StationInfo } from '@/services/station/interface';
+import type { StationInfo } from '@/services/metro/interface';
 
 const mockStations: StationInfo[] = [
     {

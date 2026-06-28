@@ -18,13 +18,12 @@ import NotAuthorizedPage from "@/pages/auth/NotAuthorizedPage";
 
 import HomePage from "@/pages/HomePage";
 import SettingPage from "@/pages/user/SettingPage";
-import NetworkMapPage from "@/pages/station/NetworkMapPage";
+import MetroMapPage from "@/pages/metroMap/MetroMapPage";
 import TripPlannerPage from "@/pages/tripPlan/TripPlannerPage";
 import StationBookmarkPage from "@/pages/bookmark/StationBookmarkPage";
 import ChatRoomPage from "@/pages/chat/ChatRoomPage";
 import UserPermissionPage from "@/pages/admin/UserPermissionPage";
 import StationManagementPage from "@/pages/admin/StationManagementPage";
-import FakeNetworkMapPage from "./pages/station/FakePage";
 
 const getAccessToken = () => useAuthStore.getState().accessToken;
 
@@ -111,7 +110,7 @@ const mainRoutes = {
     },
     {
       path: "network-map",
-      element: <NetworkMapPage />,
+      element: <MetroMapPage />,
     },
     {
       path: "trip-planner",
@@ -124,10 +123,6 @@ const mainRoutes = {
     {
       path: "station-chat-room",
       element: <ChatRoomPage />,
-    },
-    {
-      path: "fake-network-map",
-      element: <FakeNetworkMapPage />,
     },
     {
       path: "admin",

@@ -1,5 +1,5 @@
 /**
- * NetworkMapPage.tsx
+ * MetroMapPage.tsx
  *
  * 測試用：只畫板南線 BL01–BL23，用固定座標（非 force simulation）
  * 對應真實路網圖的水平走向，搭配 D3 做：
@@ -233,7 +233,7 @@ const LABEL_OFFSET = 26; // 站名離圓心距離
 // ─────────────────────────────────────────────
 // 4. 元件
 // ─────────────────────────────────────────────
-export default function FakeNetworkMapPage() {
+export default function FakeMetroMapPage() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [tooltip, setTooltip] = useState<{
     x: number;
