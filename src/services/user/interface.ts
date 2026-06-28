@@ -28,6 +28,12 @@ export interface UpdateBirthDateRequest {
     birthDate: string;
 }
 
+export interface GetAllUserRequest {
+    keyword?: string;
+    page?: number;
+    size?: number;
+}
+
 export interface UpdateStatusRequest {
     userId: string;
     status: UserStatus;

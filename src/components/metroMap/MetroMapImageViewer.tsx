@@ -118,7 +118,7 @@ export function MetroMapImageViewer({ lines }: Props): React.ReactElement {
       </svg>
 
       {/* 路線站點選擇面板 */}
-      <Box
+      {/* <Box
         sx={{
           position: 'absolute',
           top: 16,
@@ -200,7 +200,7 @@ export function MetroMapImageViewer({ lines }: Props): React.ReactElement {
             </Stack>
           </Paper>
         </Collapse>
-      </Box>
+      </Box> */}
     </Box>
   );
 }

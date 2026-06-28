@@ -8,7 +8,6 @@ import { useMetroMapStore } from '@/stores/metroMapStore';
 import { useStationStore } from '@/stores/useStationStore';
 import type { MetroMapLine, MetroMapStation } from '@/services/metro/interface';
 import { MetroMapImageViewer } from './MetroMapImageViewer';
-//import { MetroMapLegend } from './MetroMapLegend';
 import { StationInfoCard } from './StationInfoCard';
 
 export function MetroMapContainer(): React.ReactElement {
@@ -73,9 +72,6 @@ export function MetroMapContainer(): React.ReactElement {
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
       <MetroMapImageViewer lines={lines} />
-
-      {/* {lines.length > 0 && <MetroMapLegend lines={lines} />} */}
-
       {selectedStation && selectedLine && (
         <StationInfoCard
           station={selectedStation}

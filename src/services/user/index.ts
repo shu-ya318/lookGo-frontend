@@ -2,6 +2,7 @@ import postRequest from '../api';
 
 import type { ApiResponse, PageResponse } from '../common/interface';
 import type {
+    GetAllUserRequest,
     GetCurrentUserResponse,
     UpdateBirthDateRequest,
     UpdatePasswordRequest,
@@ -13,8 +14,8 @@ export const getCurrentUser = async (): Promise<GetCurrentUserResponse> => {
     return await postRequest<GetCurrentUserResponse>('/user/get-current-user');
 };
 
-export const getAllUser = async (): Promise<PageResponse<GetCurrentUserResponse>> => {
-    return await postRequest<PageResponse<GetCurrentUserResponse>>('/user/get-all-user');
+export const getAllUser = async (request: GetAllUserRequest = {}): Promise<PageResponse<GetCurrentUserResponse>> => {
+    return await postRequest<PageResponse<GetCurrentUserResponse>>('/user/get-all-user', request);
 };
 
 export const updateUsername = async (

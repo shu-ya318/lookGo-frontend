@@ -78,7 +78,7 @@ const MetroMapPage = (): React.ReactElement => {
         backgroundColor: 'tertiary.light',
       }}
     >
-      {/* ── 搜尋列 ──────────────────────────────── */}
+      {/* 搜尋列*/}
       <Stack
         sx={{
           flexShrink: 0,
@@ -236,8 +236,7 @@ const MetroMapPage = (): React.ReactElement => {
           </Menu>
         </Stack>
       </Stack>
-
-      {/* ── D3 路網圖核心容器 ────────────────────── */}
+      {/* D3 路網圖核心容器 */}
       <Box sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <MetroMapContainer />
       </Box>
