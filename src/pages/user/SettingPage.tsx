@@ -5,8 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { enqueueSnackbar } from 'notistack';
 
 import Avatar from '@mui/material/Avatar';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import IconButton from '@mui/material/IconButton';
@@ -38,8 +38,7 @@ interface FieldConfig {
     editable: boolean;
 }
 
-const fields: FieldConfig[] = [
-    { label: '使用者名稱', key: 'username', editable: true },
+const profileFields: FieldConfig[] = [
     { label: '電子郵件', key: 'email', editable: false },
     { label: '密碼', key: 'password', editable: true },
     { label: '會員等級', key: 'membershipTier', editable: false },
@@ -269,89 +268,104 @@ const SettingPage = () => {
     };
 
     return (
-        <Stack
-            sx={{
-                width: '100%',
-                maxWidth: '1280px',
-                margin: '3.75rem auto',
-                gap: '2rem',
-            }}
-        >
+        <Box sx={{ width: '100%', maxWidth: '1280px', mx: 'auto', mt: '3.75rem', mb: '3.75rem' }}>
+            {/* Gradient Banner */}
+            <Box
+                sx={{
+                    height: '130px',
+                    borderRadius: 2,
+                    background: 'linear-gradient(to right, #5fa6f0, #6de69d)',
+                }}
+            />
+
+            {/* Profile Section */}
             <Stack
+                direction='row'
                 sx={{
                     alignItems: 'center',
-                    gap: '1rem',
+                    px: 3,
                     py: 3,
-                    backgroundColor: 'quaternary.dark',
-                    borderRadius: 2,
+                    gap: 2,
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    mb: 4,
                 }}
             >
-                <Typography variant='h5'>個人檔案</Typography>
-                <Avatar sx={{ width: 48, height: 48, bgcolor: '#C5CAE9' }}>
-                    <PersonOutlinedIcon
-                        sx={{ fontSize: 32, color: '#3F51B5' }}
-                    />
+                <Avatar
+                    sx={{
+                        width: 80,
+                        height: 80,
+                        bgcolor: '#C5CAE9',
+                        border: '3px solid white',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                        mt: -5,
+                    }}
+                >
+                    <PersonOutlinedIcon sx={{ fontSize: 48, color: '#3F51B5' }} />
                 </Avatar>
+                <Box sx={{ flex: 1 }}>
+                    <Typography variant='h6' sx={{ fontWeight: 700 }}>
+                        {userInfo?.username || '-'}
+                    </Typography>
+                    <Typography variant='body2' color='text.secondary'>
+                        {userInfo?.email || '-'}
+                    </Typography>
+                </Box>
+                <Button
+                    variant='contained'
+                    onClick={() => handleEdit('username')}
+                    sx={{ px: 3 }}
+                >
+                    編輯使用者名稱
+                </Button>
             </Stack>
 
-            <Stack
+            {/* Fields Grid */}
+            <Box
                 sx={{
-                    borderRadius: 2,
-                    overflow: 'hidden',
+                    display: 'grid',
+                    gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                    gap: 3,
+                    px: 3,
+                    pb: 4,
                 }}
             >
-                {fields.map((field, index) => (
-                    <Stack key={field.key}>
-                        {index > 0 && (
-                            <Divider sx={{ borderColor: 'tertiary.dark' }} />
-                        )}
+                {profileFields.map((field) => (
+                    <Box key={field.key}>
+                        <Typography variant='body2' sx={{ mb: 1, fontWeight: 700 }}>
+                            {field.label}
+                        </Typography>
                         <Stack
                             direction='row'
                             sx={{
                                 alignItems: 'center',
-                                px: 4,
-                                py: 3,
-                                backgroundColor: 'tertiary.dark',
+                                backgroundColor: '#F5F5F5',
+                                borderRadius: 1,
+                                px: 2,
+                                py: 1.5,
+                                minHeight: '48px',
                             }}
                         >
-                            <Typography
-                                variant='body2'
-                                sx={{
-                                    width: '120px',
-                                    flexShrink: 0,
-                                    fontWeight: 500,
-                                }}
-                            >
-                                {field.label}
+                            <Typography variant='body2' sx={{ flex: 1, color: 'text.secondary' }}>
+                                {getFieldValue(field.key)}
                             </Typography>
-                            <Stack direction='row' spacing={1} sx={{ flex: 1, alignItems: 'center' }}>
-                                <Typography variant='body2'>
-                                    {getFieldValue(field.key)}
-                                </Typography>
-                                {field.key === 'membershipTier' && userInfo?.membershipTier === 'BASIC' && (
-                                    <Stack direction='row' spacing={0.5} sx={{ alignItems: 'center', color: 'info.main' }}>
-                                        <InfoOutlinedIcon sx={{ fontSize: 16 }} />
-                                        <Typography variant='caption' sx={{ color: 'info.main' }}>
-                                            完整填寫個人資料即可升級
-                                        </Typography>
-                                    </Stack>
-                                )}
-                            </Stack>
                             {field.editable && (
-                                <IconButton
-                                    size='small'
-                                    onClick={() => handleEdit(field.key)}
-                                >
+                                <IconButton size='small' onClick={() => handleEdit(field.key)}>
                                     <EditOutlinedIcon fontSize='small' />
-                                    <Typography variant='body2' sx={{ paddingLeft: '4px' }} >
-                                        編輯
-                                    </Typography>
                                 </IconButton>
                             )}
                         </Stack>
-                    </Stack>
+                        {field.key === 'membershipTier' && userInfo?.membershipTier === 'BASIC' && (
+                            <Stack direction='row' spacing={0.5} sx={{ alignItems: 'center', color: 'info.main', mt: 0.5 }}>
+                                <InfoOutlinedIcon sx={{ fontSize: 14 }} />
+                                <Typography variant='caption' sx={{ color: 'info.main' }}>
+                                    完整填寫個人資料即可升級
+                                </Typography>
+                            </Stack>
+                        )}
+                    </Box>
                 ))}
-            </Stack>
+            </Box>
 
             {/* Update Password Dialog */}
             <Dialog
@@ -632,7 +646,7 @@ const SettingPage = () => {
                     </FormControl>
                 </Stack>
             </Dialog>
-        </Stack>
+        </Box>
     );
 };
 
