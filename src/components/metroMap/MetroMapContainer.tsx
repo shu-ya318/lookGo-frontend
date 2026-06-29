@@ -11,7 +11,7 @@ import { MetroMapImageViewer } from './MetroMapImageViewer';
 import { StationInfoCard } from './StationInfoCard';
 
 export function MetroMapContainer(): React.ReactElement {
-  const { lines, isLoading, error, fetchMetroMap } = useMetroMapStore();
+  const { lines, isLoading, error, fetchMetroMap, routeResult, clearRoute } = useMetroMapStore();
   const currentStationCode = useStationStore((state) => state.currentStationCode);
   const clearSelection = useStationStore((state) => state.clearSelection);
 
@@ -78,6 +78,12 @@ export function MetroMapContainer(): React.ReactElement {
           line={selectedLine}
           allLines={lines}
           onClose={clearSelection}
+        />
+      )}
+      {!selectedStation && routeResult && (
+        <StationInfoCard
+          routeResult={routeResult}
+          onClose={clearRoute}
         />
       )}
     </Box>

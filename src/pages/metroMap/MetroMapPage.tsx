@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
@@ -17,18 +17,14 @@ import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 
 import { MetroMapContainer } from '@/components/metroMap/MetroMapContainer';
+import { useMetroMapStore } from '@/stores/metroMapStore';
+import { useStationStore } from '@/stores/useStationStore';
 
 interface StationOption {
   label: string;
+  stationCode: string;
   group: string;
 }
-
-const stationOptions: StationOption[] = [
-  { label: '淡水站', group: '書籤車站' },
-  { label: '民權西路站', group: '書籤車站' },
-  { label: '台北車站', group: '所有車站' },
-  { label: '板橋站', group: '所有車站' },
-];
 
 const equipmentFilterOptions = ['廁所', '電梯', '無障礙設施', '哺乳室', 'ATM', '置物櫃', '充電站'];
 const fareTypeFilterOptions = ['全票', '優惠票'];
@@ -43,6 +39,19 @@ interface AdvancedFilters {
 const SEARCH_BAR_HEIGHT = '5.5rem';
 
 const MetroMapPage = (): React.ReactElement => {
+  const { allStations, fetchRoute, isRouteLoading } = useMetroMapStore();
+  const clearSelection = useStationStore((state) => state.clearSelection);
+
+  const stationOptions = useMemo<StationOption[]>(
+    () =>
+      allStations.map((s) => ({
+        label: `${s.nameZhTw}（${s.stationCode}）`,
+        stationCode: s.stationCode,
+        group: '所有車站',
+      })),
+    [allStations]
+  );
+
   const [startStation, setStartStation] = useState<StationOption | null>(null);
   const [endStation, setEndStation] = useState<StationOption | null>(null);
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
@@ -64,6 +73,19 @@ const MetroMapPage = (): React.ReactElement => {
         ? current.filter((v) => v !== value)
         : [...current, value];
       return { ...prev, [category]: updated };
+    });
+  };
+
+  const handleSearch = async (): Promise<void> => {
+    if (!startStation || !endStation) return;
+    clearSelection();
+    const fareType = advancedFilters.fare.includes('優惠票') ? 2 : 1;
+    const routingStrategy = advancedFilters.time.includes('最短車程時間') ? 2 : 1;
+    await fetchRoute({
+      fromStationCode: startStation.stationCode,
+      toStationCode: endStation.stationCode,
+      fareType,
+      routingStrategy,
     });
   };
 
@@ -109,7 +131,7 @@ const MetroMapPage = (): React.ReactElement => {
               options={stationOptions}
               groupBy={(o) => o.group}
               getOptionLabel={(o) => o.label}
-              isOptionEqualToValue={(o, v) => o.label === v.label}
+              isOptionEqualToValue={(o, v) => o.stationCode === v.stationCode}
               renderOption={(props, option) => (
                 <li {...props} key={`${option.group}-${option.label}`}>
                   {option.label}
@@ -133,7 +155,7 @@ const MetroMapPage = (): React.ReactElement => {
               options={stationOptions}
               groupBy={(o) => o.group}
               getOptionLabel={(o) => o.label}
-              isOptionEqualToValue={(o, v) => o.label === v.label}
+              isOptionEqualToValue={(o, v) => o.stationCode === v.stationCode}
               renderOption={(props, option) => (
                 <li {...props} key={`${option.group}-${option.label}`}>
                   {option.label}
@@ -165,13 +187,15 @@ const MetroMapPage = (): React.ReactElement => {
             startIcon={<SearchIcon />}
             variant='contained'
             size='small'
+            disabled={!startStation || !endStation || isRouteLoading}
+            onClick={handleSearch}
             sx={{
               backgroundColor: 'primary.contrastText',
               color: 'primary.main',
               '&:hover': { backgroundColor: 'rgba(255,255,255,0.85)' },
             }}
           >
-            開始查詢
+            {isRouteLoading ? '查詢中…' : '開始查詢'}
           </Button>
 
           {/* 進階查詢下拉 */}

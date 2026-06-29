@@ -78,7 +78,7 @@ export interface LineTransfer {
 
 export type GetAllLineTransferResponse = LineTransfer[];
 
-// All Line Station 
+// All Line Station
 
 export interface LineStation {
     id: number;
@@ -92,3 +92,37 @@ export interface LineStation {
 }
 
 export type GetAllLineStationResponse = LineStation[];
+
+// Origin Destination Detail
+
+export interface GetOriginDestinationDetailRequest {
+    fromStationCode: string;
+    toStationCode: string;
+    fareType: number;
+    routingStrategy: number;
+}
+
+export interface RouteStation {
+    stationCode: string;
+    nameZhTw: string;
+    nameEn: string;
+}
+
+export interface RouteSegment {
+    lineCode: string;
+    lineNameZhTw: string;
+    lineColor: string;
+    stations: RouteStation[];
+    segmentTimeSeconds: number;
+}
+
+export interface GetOriginDestinationDetailResponse {
+    fromStationCode: string;
+    toStationCode: string;
+    fareType: number;
+    routingStrategy: number;
+    route: RouteSegment[];
+    transferCount: number;
+    totalTravelTimeSeconds: number;
+    farePrice: number;
+}
