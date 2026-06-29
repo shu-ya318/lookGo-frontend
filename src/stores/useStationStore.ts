@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import { getStationByCode } from '@/services/metro';
 import { handleApiError } from '@/services/error';
+import { useMetroMapStore } from '@/stores/metroMapStore';
 
 import type { StationDetails } from '@/services/metro/interface';
 
@@ -24,7 +25,11 @@ export const useStationStore = create<StationState>((set) => ({
     set({ currentStationCode: stationCode, isLoading: true, error: null });
 
     try {
-      const details = await getStationByCode(stationCode);
+      const { selectedFacilities } = useMetroMapStore.getState();
+      const details = await getStationByCode({
+        stationCode,
+        stationFacilities: selectedFacilities.length > 0 ? selectedFacilities : undefined,
+      });
 
       set({ stationDetails: details });
     } catch (error) {

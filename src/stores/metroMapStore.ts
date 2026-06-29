@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { enqueueSnackbar } from 'notistack';
 
 import { getMetroMap, getOriginDestinationDetail } from '@/services/metro';
+import { StationFacility } from '@/services/metro/enum';
 import type {
   MetroMapLine,
   MetroMapStation,
@@ -16,9 +17,11 @@ interface MetroMapState {
   error: string | null;
   routeResult: GetOriginDestinationDetailResponse | null;
   isRouteLoading: boolean;
+  selectedFacilities: StationFacility[];
   fetchMetroMap: () => Promise<void>;
   fetchRoute: (request: GetOriginDestinationDetailRequest) => Promise<void>;
   clearRoute: () => void;
+  setSelectedFacilities: (facilities: StationFacility[]) => void;
 }
 
 export const useMetroMapStore = create<MetroMapState>((set) => ({
@@ -28,6 +31,7 @@ export const useMetroMapStore = create<MetroMapState>((set) => ({
   error: null,
   routeResult: null,
   isRouteLoading: false,
+  selectedFacilities: [],
 
   fetchMetroMap: async () => {
     set({ isLoading: true, error: null });
@@ -64,4 +68,5 @@ export const useMetroMapStore = create<MetroMapState>((set) => ({
   },
 
   clearRoute: () => set({ routeResult: null }),
+  setSelectedFacilities: (facilities) => set({ selectedFacilities: facilities }),
 }));

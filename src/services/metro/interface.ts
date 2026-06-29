@@ -1,4 +1,6 @@
-// Metro Map 
+import type { StationFacility } from './enum';
+
+// Metro Map
 export interface MetroMapStation {
     stationCode: string;
     stationId: number;
@@ -19,7 +21,14 @@ export interface GetMetroMapResponse {
     lines: MetroMapLine[];
 }
 
-// All Station 
+// Station By Code
+
+export interface GetStationByCodeRequest {
+    stationCode: string;
+    stationFacilities?: StationFacility[];
+}
+
+// All Station
 
 export interface StationDetails {
     id: number;

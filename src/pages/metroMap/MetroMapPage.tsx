@@ -18,6 +18,7 @@ import TuneIcon from "@mui/icons-material/Tune";
 
 import { useMetroMapStore } from "@/stores/metroMapStore";
 import { useStationStore } from "@/stores/useStationStore";
+import { StationFacility, labelToFacility } from "@/services/metro/enum";
 
 import { MetroMapContainer } from "@/components/metroMap/MetroMapContainer";
 
@@ -48,7 +49,7 @@ interface AdvancedFilters {
 const SEARCH_BAR_HEIGHT = "5.5rem";
 
 const MetroMapPage = (): React.ReactElement => {
-  const { allStations, fetchRoute, isRouteLoading } = useMetroMapStore();
+  const { allStations, fetchRoute, isRouteLoading, setSelectedFacilities } = useMetroMapStore();
   const clearSelection = useStationStore((state) => state.clearSelection);
 
   const stationOptions = useMemo<StationOption[]>(
@@ -86,6 +87,14 @@ const MetroMapPage = (): React.ReactElement => {
       const updated = current.includes(value)
         ? current.filter((v) => v !== value)
         : [...current, value];
+
+      if (category === 'equipment') {
+        const facilities = updated
+          .map(labelToFacility)
+          .filter((f): f is StationFacility => f !== undefined);
+        setSelectedFacilities(facilities);
+      }
+
       return { ...prev, [category]: updated };
     });
   };
