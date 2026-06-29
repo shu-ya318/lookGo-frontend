@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { enqueueSnackbar } from 'notistack';
 
 import { getMetroMap, getOriginDestinationDetail } from '@/services/metro';
-import { StationFacility } from '@/services/metro/enum';
+import { StationFacility } from '@/services/metro/constants';
 import type {
   MetroMapLine,
   MetroMapStation,

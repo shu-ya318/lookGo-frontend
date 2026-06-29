@@ -18,7 +18,7 @@ import TuneIcon from "@mui/icons-material/Tune";
 
 import { useMetroMapStore } from "@/stores/metroMapStore";
 import { useStationStore } from "@/stores/useStationStore";
-import { StationFacility, labelToFacility } from "@/services/metro/enum";
+import { FareType, RoutingStrategy, StationFacility, labelToFacility } from "@/services/metro/constants";
 
 import { MetroMapContainer } from "@/components/metroMap/MetroMapContainer";
 
@@ -37,8 +37,21 @@ const equipmentFilterOptions = [
   "置物櫃",
   "充電站",
 ];
-const fareTypeFilterOptions = ["全票", "優惠票"];
-const travelTimeFilterOptions = ["最少轉乘次數", "最短車程時間"];
+const fareTypeFilterOptions = ["全票", "學生票", "兒童票", "愛心票"] as const;
+type FareLabel = typeof fareTypeFilterOptions[number];
+const fareLabelToType: Record<FareLabel, FareType> = {
+  全票: FareType.FULL,
+  學生票: FareType.STUDENT,
+  兒童票: FareType.CHILD,
+  愛心票: FareType.LOVE,
+};
+
+const travelTimeFilterOptions = ["最少轉乘次數", "最短車程時間"] as const;
+type TimeLabel = typeof travelTimeFilterOptions[number];
+const timeLabelToStrategy: Record<TimeLabel, RoutingStrategy> = {
+  最少轉乘次數: RoutingStrategy.MIN_TRANSFER,
+  最短車程時間: RoutingStrategy.MIN_TIME,
+};
 
 interface AdvancedFilters {
   equipment: string[];
@@ -102,10 +115,23 @@ const MetroMapPage = (): React.ReactElement => {
   const handleSearch = async (): Promise<void> => {
     if (!startStation || !endStation) return;
     clearSelection();
-    const fareType = advancedFilters.fare.includes("優惠票") ? 2 : 1;
-    const routingStrategy = advancedFilters.time.includes("最短車程時間")
-      ? 2
-      : 1;
+
+    // 找出使用者選取的票種（預設全票）
+    const selectedFareLabel = fareTypeFilterOptions.find((label) =>
+      advancedFilters.fare.includes(label)
+    );
+    const fareType: FareType = selectedFareLabel
+      ? fareLabelToType[selectedFareLabel]
+      : FareType.FULL;
+
+    // 找出使用者選取的路線策略（預設最少轉乘）
+    const selectedTimeLabel = travelTimeFilterOptions.find((label) =>
+      advancedFilters.time.includes(label)
+    );
+    const routingStrategy: RoutingStrategy = selectedTimeLabel
+      ? timeLabelToStrategy[selectedTimeLabel]
+      : RoutingStrategy.MIN_TRANSFER;
+
     await fetchRoute({
       fromStationCode: startStation.stationCode,
       toStationCode: endStation.stationCode,
@@ -287,12 +313,12 @@ const MetroMapPage = (): React.ReactElement => {
                 sx={
                   !hasEndStation
                     ? {
+                      backgroundColor: "tertiary.dark",
+                      "&.Mui-disabled": {
                         backgroundColor: "tertiary.dark",
-                        "&.Mui-disabled": {
-                          backgroundColor: "tertiary.dark",
-                          opacity: 1,
-                        },
-                      }
+                        opacity: 1,
+                      },
+                    }
                     : {}
                 }
               >
@@ -329,12 +355,12 @@ const MetroMapPage = (): React.ReactElement => {
                 sx={
                   !hasEndStation
                     ? {
+                      backgroundColor: "tertiary.dark",
+                      "&.Mui-disabled": {
                         backgroundColor: "tertiary.dark",
-                        "&.Mui-disabled": {
-                          backgroundColor: "tertiary.dark",
-                          opacity: 1,
-                        },
-                      }
+                        opacity: 1,
+                      },
+                    }
                     : {}
                 }
               >

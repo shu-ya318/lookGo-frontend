@@ -1,4 +1,4 @@
-import type { StationFacility } from './enum';
+import type { StationFacility } from './constants';
 
 // Metro Map
 export interface MetroMapStation {
