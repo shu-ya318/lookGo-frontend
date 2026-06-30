@@ -12,24 +12,27 @@ import TrainOutlinedIcon from '@mui/icons-material/TrainOutlined';
 import { Header } from '@/components/header/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { Footer } from '@/components/Footer';
-import { useUserStore } from '@/stores/userStore';
-import type { NavItem } from '@/components/header/Header';
 
-const BASE_NAV_ITEMS: NavItem[] = [
+import { useUserStore } from '@/stores/userStore';
+
+const BASE_NAV_ITEMS = [
   { label: '路網圖查詢', path: '/network-map', icon: <MapOutlinedIcon /> },
   { label: '車站書籤', path: '/station-bookmark', icon: <BookmarkBorderIcon /> },
   { label: '旅程規劃', path: '/trip-planner', icon: <RouteOutlinedIcon /> },
   { label: '車站聊天室', path: '/station-chat-room', icon: <ChatBubbleOutlineOutlined /> },
 ];
 
-const ADMIN_NAV_ITEMS: NavItem[] = [
+const ADMIN_NAV_ITEMS = [
   { label: '使用者管理', path: '/admin/user-management', icon: <PeopleOutlinedIcon /> },
   { label: '車站管理', path: '/admin/station-management', icon: <TrainOutlinedIcon /> },
 ];
 
 export const Layout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { userInfo } = useUserStore();
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+
   const isAdmin = userInfo?.role === 'ADMIN';
 
   const navItems = isAdmin ? [...BASE_NAV_ITEMS, ...ADMIN_NAV_ITEMS] : BASE_NAV_ITEMS;

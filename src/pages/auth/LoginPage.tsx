@@ -62,14 +62,14 @@ const LoginPage = () => {
 
   const handleLogin = async (request: LoginRequest) => {
     try {
-      const { accessToken, refreshToken } = await login(request);
+      const response = await login(request);
       useAuthStore.setState({
-        accessToken: accessToken,
-        refreshToken: refreshToken,
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
       });
 
-      const response = await getCurrentUser();
-      useUserStore.setState({ userInfo: response });
+      const userInfo = await getCurrentUser();
+      useUserStore.setState({ userInfo });
 
       navigate("/", { replace: true });
       enqueueSnackbar("登入成功，歡迎回來", { variant: "success" });

@@ -22,6 +22,7 @@ import { useUserStore } from "@/stores/userStore";
 
 import { getCurrentUser } from "@/services/user";
 import { signup } from "@/services/auth";
+import { isValidDateFormat, isValidBirthDate } from "@/utils/validation";
 
 import type { SignupRequest } from "@/services/auth/interface";
 
@@ -43,26 +44,8 @@ const formSchema = z.object({
   birthDate: z
     .string()
     .optional()
-    .refine((val) => {
-      if (!val) return true;
-      return /^\d{4}-\d{2}-\d{2}$/.test(val);
-    }, "出生日期格式必須為 yyyy-MM-dd!")
-    .refine((val) => {
-      if (!val) return true;
-      const parts = val.split("-");
-
-      if (parts.length !== 3) return false;
-
-      const year = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const day = parseInt(parts[2], 10);
-
-      const inputDate = new Date(year, month, day);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      return inputDate <= today;
-    }, "出生日期不得大於今日!"),
+    .refine(isValidDateFormat, "出生日期格式必須為 yyyy-MM-dd!")
+    .refine(isValidBirthDate, "出生日期不得大於今日!"),
 });
 
 export type FormSchemaData = z.infer<typeof formSchema>;
@@ -92,9 +75,11 @@ const SignupPage = () => {
 
   const onSubmit: SubmitHandler<FormSchemaData> = async (data) => {
     const submitData = { ...data };
+
     if (!submitData.cellphone) {
       delete submitData.cellphone;
     }
+
     if (!submitData.birthDate) {
       delete submitData.birthDate;
     }

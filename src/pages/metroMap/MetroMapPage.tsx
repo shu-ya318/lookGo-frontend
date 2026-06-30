@@ -66,7 +66,7 @@ interface AdvancedFilters {
 
 const SEARCH_BAR_HEIGHT = "5.5rem";
 
-const MetroMapPage = (): React.ReactElement => {
+const MetroMapPage = () => {
   const { allStations, fetchRoute, isRouteLoading, setSelectedFacilities, clearRoute } =
     useMetroMapStore();
   const selectAndFetchStation = useStationStore(

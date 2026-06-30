@@ -81,7 +81,7 @@ export const AuthLayout = () => {
               textShadow: '0 2px 6px rgba(0, 0, 0, 0.25)',
             }}
           >
-            立即成為會員，蒐藏更多你最愛的車站、規劃專屬的旅程，並能和管理員及時互動!
+            立即成為會員，蒐藏更多你最愛的車站、規劃專屬的旅程，並參與即時的車站聊天室共享資訊!
           </Typography>
         </Box>
         {/* Right Panel */}

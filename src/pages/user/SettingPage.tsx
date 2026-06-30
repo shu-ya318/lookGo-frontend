@@ -24,6 +24,7 @@ import { useUserStore } from '@/stores/userStore';
 import { getCurrentUser, updateBirthDate, updateCellphone, updatePassword, updateUsername } from '@/services/user';
 
 import { Dialog } from '@/components/Dialog';
+import { isValidDateFormat, isValidBirthDate } from '@/utils/validation';
 
 import type { MembershipTier } from '@/services/user/interface';
 
@@ -95,26 +96,8 @@ const updateBirthDateFormSchema = z.object({
     birthDate: z
         .string()
         .min(1, '請選擇出生日期(西元年份)!')
-        .refine((val) => {
-            if (!val) return true;
-            return /^\d{4}-\d{2}-\d{2}$/.test(val);
-        }, '出生日期格式必須為 yyyy-MM-dd!')
-        .refine((val) => {
-            if (!val) return true;
-            const parts = val.split('-');
-
-            if (parts.length !== 3) return false;
-
-            const year = parseInt(parts[0], 10);
-            const month = parseInt(parts[1], 10) - 1;
-            const day = parseInt(parts[2], 10);
-
-            const inputDate = new Date(year, month, day);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            return inputDate <= today;
-        }, '出生日期不得大於今日!'),
+        .refine(isValidDateFormat, '出生日期格式必須為 yyyy-MM-dd!')
+        .refine(isValidBirthDate, '出生日期不得大於今日!'),
 });
 
 type UpdateBirthDateFormData = z.infer<typeof updateBirthDateFormSchema>;
