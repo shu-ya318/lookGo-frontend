@@ -63,6 +63,8 @@ const SEARCH_BAR_HEIGHT = "5.5rem";
 
 const MetroMapPage = (): React.ReactElement => {
   const { allStations, fetchRoute, isRouteLoading, setSelectedFacilities } = useMetroMapStore();
+  const selectAndFetchStation = useStationStore((state) => state.selectAndFetchStation);
+  const isStationLoading = useStationStore((state) => state.isLoading);
   const clearSelection = useStationStore((state) => state.clearSelection);
 
   const stationOptions = useMemo<StationOption[]>(
@@ -84,12 +86,23 @@ const MetroMapPage = (): React.ReactElement => {
   });
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
 
+  const hasStartStation = startStation !== null;
   const hasEndStation = endStation !== null;
+  const isSingleStationMode = hasStartStation && !hasEndStation;
+  const isRouteMode = hasStartStation && hasEndStation;
+  const canSearch = hasStartStation && !isRouteLoading && !isStationLoading;
   const isMenuOpen = Boolean(menuAnchorEl);
   const totalFilterCount =
     advancedFilters.equipment.length +
     advancedFilters.fare.length +
     advancedFilters.time.length;
+
+  // 動態提示文字
+  const infoText = !hasStartStation
+    ? "點擊站點查看站點資訊，或選擇起始車站進行查詢"
+    : isSingleStationMode
+    ? `已選起始站「${startStation.label}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
+    : `已選起訖站，可查詢路徑（${startStation.label} → ${endStation!.label}）`;
 
   const toggleFilter = (
     category: keyof AdvancedFilters,
@@ -113,10 +126,17 @@ const MetroMapPage = (): React.ReactElement => {
   };
 
   const handleSearch = async (): Promise<void> => {
-    if (!startStation || !endStation) return;
+    if (!startStation) return;
+
+    // 單站查詢模式：呼叫單站詳細資訊 API（與點擊地圖站點行為一致）
+    if (!endStation) {
+      await selectAndFetchStation(startStation.stationCode);
+      return;
+    }
+
     clearSelection();
 
-    // 找出使用者選取的票種（預設全票）
+    // 路徑查詢模式：找出使用者選取的票種（預設全票）
     const selectedFareLabel = fareTypeFilterOptions.find((label) =>
       advancedFilters.fare.includes(label)
     );
@@ -167,8 +187,18 @@ const MetroMapPage = (): React.ReactElement => {
           <InfoOutlinedIcon
             sx={{ color: "primary.contrastText", fontSize: 20 }}
           />
-          <Typography variant='caption' sx={{ color: "primary.contrastText" }}>
-            點擊站點查看資訊，或選擇起訖車站後查詢路徑
+          <Typography
+            variant='caption'
+            sx={{
+              color: isSingleStationMode
+                ? "rgba(255,255,160,0.95)"
+                : isRouteMode
+                ? "rgba(180,255,180,0.95)"
+                : "primary.contrastText",
+              transition: "color 0.3s ease",
+            }}
+          >
+            {infoText}
           </Typography>
         </Stack>
 
@@ -266,7 +296,7 @@ const MetroMapPage = (): React.ReactElement => {
             startIcon={<SearchIcon />}
             variant='contained'
             size='small'
-            disabled={!startStation || !endStation || isRouteLoading}
+            disabled={!canSearch}
             onClick={handleSearch}
             sx={{
               backgroundColor: "primary.contrastText",
@@ -274,7 +304,11 @@ const MetroMapPage = (): React.ReactElement => {
               "&:hover": { backgroundColor: "rgba(255,255,255,0.85)" },
             }}
           >
-            {isRouteLoading ? "查詢中…" : "開始查詢"}
+            {(isRouteLoading || isStationLoading)
+              ? "查詢中…"
+              : isSingleStationMode
+              ? "查看站點"
+              : "開始查詢"}
           </Button>
 
           {/* 進階查詢下拉 */}

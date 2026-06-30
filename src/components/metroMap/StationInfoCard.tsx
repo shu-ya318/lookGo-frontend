@@ -59,13 +59,17 @@ export function StationInfoCard({ station, line, allLines = [], routeResult, onC
 
   const transferLines = station && line
     ? allLines.filter(
-        (l) => l.letter !== line.letter && l.stations.some((s) => s.nameZhTw === station.nameZhTw)
-      )
+      (l) => l.letter !== line.letter && l.stations.some((s) => s.nameZhTw === station.nameZhTw)
+    )
     : [];
   const isTransfer = transferLines.length > 0;
 
+  // 只保留有值（非 null、非 undefined、非空字串）的設備
   const availableFacilities = stationDetails
-    ? FACILITY_LABELS.filter(({ key }) => stationDetails[key] !== null)
+    ? FACILITY_LABELS.filter(({ key }) => {
+      const val = stationDetails[key];
+      return val != null && val !== '';  // != null 同時排除 null 與 undefined
+    })
     : [];
 
   const fromName =
@@ -156,22 +160,23 @@ export function StationInfoCard({ station, line, allLines = [], routeResult, onC
                 站內設施
               </Typography>
               <Stack spacing={0.5}>
-                {availableFacilities.map(({ key, label }) => (
-                  <Stack key={key} direction='row' sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
-                    <Typography variant='caption' color='text.secondary' sx={{ fontSize: 11, flexShrink: 0 }}>
-                      {label}
-                    </Typography>
-                    <Typography variant='caption' sx={{ fontSize: 11, fontWeight: 500, textAlign: 'right', ml: 1 }}>
-                      {stationDetails![key] as string}
-                    </Typography>
-                  </Stack>
-                ))}
+                {availableFacilities.map(({ key, label }) => {
+                  const note = stationDetails![key] as string;
+                  return (
+                    <Stack key={key} direction='row' sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+                      <Typography variant='caption' color='text.secondary' sx={{ fontSize: 11, flexShrink: 0 }}>
+                        {label}
+                      </Typography>
+                      {note && note.trim() !== '' && (
+                        <Typography variant='caption' sx={{ fontSize: 11, fontWeight: 500, textAlign: 'right', ml: 1 }}>
+                          {note}
+                        </Typography>
+                      )}
+                    </Stack>
+                  );
+                })}
               </Stack>
             </>
-          ) : stationDetails !== null ? (
-            <Typography variant='caption' color='text.secondary'>
-              無特殊設施資訊
-            </Typography>
           ) : null}
         </CardContent>
       )}
