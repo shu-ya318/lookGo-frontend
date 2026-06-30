@@ -2,6 +2,7 @@ export interface SignupRequest {
     email: string;
     username: string;
     password: string;
+    cellphone?: string;
     birthDate?: string;
 }
 
@@ -17,6 +18,11 @@ export interface AuthResponse {
 
 export interface ForgetPasswordRequest {
     email: string;
+    cellphone: string;
+}
+
+export interface ForgetPasswordResponse {
+    resetPasswordToken: string;
 }
 
 export interface ResetPasswordRequest {

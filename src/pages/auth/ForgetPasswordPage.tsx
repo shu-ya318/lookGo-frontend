@@ -14,16 +14,21 @@ import TextField from "@mui/material/TextField";
 
 import { forgetPassword } from "@/services/auth";
 
-import type { ForgetPasswordRequest } from "@/services/auth/interface";
+import type { ForgetPasswordRequest, ForgetPasswordResponse } from "@/services/auth/interface";
 
 const formSchema = z.object({
   email: z.email("請輸入有效格式的電子郵件!"),
+  cellphone: z
+    .string()
+    .min(1, "請輸入手機號碼!")
+    .regex(/^0\d{9}$/, "請輸入 0 開頭的 10 碼手機號碼!"),
 });
 
 export type FormSchemaData = z.infer<typeof formSchema>;
 
 const defaultValues = {
   email: "",
+  cellphone: "",
 };
 
 const ForgetPasswordPage = () => {
@@ -45,8 +50,8 @@ const ForgetPasswordPage = () => {
 
   const handleForgetPassword = async (request: ForgetPasswordRequest) => {
     try {
-      await forgetPassword(request);
-      enqueueSnackbar("重設密碼信件已發送至電子郵件", { variant: "success" });
+      const { resetPasswordToken }: ForgetPasswordResponse = await forgetPassword(request);
+      navigate("/auth/reset-password", { state: { resetPasswordToken } });
     } catch (error) {
       enqueueSnackbar((error as string) || "發送失敗!", { variant: "error" });
     }
@@ -76,7 +81,7 @@ const ForgetPasswordPage = () => {
           variant='caption'
           sx={{ color: "neutral.main", mt: 1, textAlign: "center" }}
         >
-          請輸入帳號註冊的電子郵件
+          請輸入帳號註冊的電子郵件與手機號碼
         </Typography>
       </Stack>
       <Stack sx={{ gap: "2rem" }}>
@@ -103,6 +108,34 @@ const ForgetPasswordPage = () => {
                 placeholder='請輸入電子郵件'
                 error={!!errors.email}
                 helperText={errors.email?.message}
+                variant='outlined'
+              />
+            )}
+          />
+        </FormControl>
+        {/* Phone Number */}
+        <FormControl fullWidth>
+          <FormLabel
+            htmlFor='PhoneNumber'
+            required
+            sx={{
+              color: "neutral.dark",
+              "& .MuiFormLabel-asterisk": { color: "error.main" },
+            }}
+          >
+            手機號碼
+          </FormLabel>
+          <Controller
+            name='cellphone'
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                id='PhoneNumber'
+                type='tel'
+                placeholder='請輸入手機號碼'
+                error={!!errors.cellphone}
+                helperText={errors.cellphone?.message}
                 variant='outlined'
               />
             )}
@@ -136,7 +169,7 @@ const ForgetPasswordPage = () => {
         variant='button'
         underline='hover'
         color='secondary'
-        onClick={() => navigate("/auth/log-in")}
+        onClick={() => navigate("/auth/login")}
       >
         返回登入
       </Link>

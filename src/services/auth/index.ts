@@ -6,6 +6,7 @@ import type {
   SignupRequest,
   AuthResponse,
   ForgetPasswordRequest,
+  ForgetPasswordResponse,
   ResetPasswordRequest,
 } from "./interface";
 
@@ -27,8 +28,8 @@ export const logout = async (): Promise<void> => {
 
 export const forgetPassword = async (
   request: ForgetPasswordRequest
-): Promise<ApiResponse> => {
-  return await postRequest("/auth/forget-password", request);
+): Promise<ForgetPasswordResponse> => {
+  return await postRequest<ForgetPasswordResponse>("/auth/forget-password", request);
 };
 
 export const resetPassword = async (

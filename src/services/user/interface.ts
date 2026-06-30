@@ -8,11 +8,16 @@ export interface GetCurrentUserResponse {
     username: string;
     membershipTier: MembershipTier;
     role: UserRole;
+    cellphone?: string;
     birthDate?: string;
     status: UserStatus;
     createdAt: string;
     updatedAt: string;
     lastLoginAt?: string;
+}
+
+export interface UpdateCellphoneRequest {
+    cellphone: string;
 }
 
 export interface UpdateUsernameRequest {

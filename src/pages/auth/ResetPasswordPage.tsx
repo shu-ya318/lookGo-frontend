@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { z } from "zod";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -42,8 +42,8 @@ const defaultValues = {
 
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const resetPasswordToken = searchParams.get("resetPasswordToken") || "";
+  const location = useLocation();
+  const resetPasswordToken: string = (location.state as { resetPasswordToken?: string })?.resetPasswordToken ?? "";
 
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -79,7 +79,7 @@ const ResetPasswordPage = () => {
       enqueueSnackbar(successMessage || "密碼重設成功！", {
         variant: "success",
       });
-      navigate("/auth/log-in", { replace: true });
+      navigate("/auth/login", { replace: true });
     } catch (error) {
       enqueueSnackbar((error as string) || "密碼重設失敗！", {
         variant: "error",
@@ -233,7 +233,7 @@ const ResetPasswordPage = () => {
         variant='button'
         underline='hover'
         color='secondary'
-        onClick={() => navigate("/auth/log-in")}
+        onClick={() => navigate("/auth/login")}
       >
         返回登入
       </Link>

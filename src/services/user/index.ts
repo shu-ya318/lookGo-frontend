@@ -5,6 +5,7 @@ import type {
     GetAllUserRequest,
     GetCurrentUserResponse,
     UpdateBirthDateRequest,
+    UpdateCellphoneRequest,
     UpdatePasswordRequest,
     UpdateStatusRequest,
     UpdateUsernameRequest,
@@ -28,6 +29,12 @@ export const updatePassword = async (
     request: UpdatePasswordRequest
 ): Promise<ApiResponse> => {
     return await postRequest<ApiResponse>('/user/update-password', request);
+};
+
+export const updateCellphone = async (
+    request: UpdateCellphoneRequest
+): Promise<ApiResponse> => {
+    return await postRequest<ApiResponse>('/user/update-cellphone', request);
 };
 
 export const updateBirthDate = async (

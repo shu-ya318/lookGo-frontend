@@ -21,7 +21,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import { useUserStore } from '@/stores/userStore';
-import { getCurrentUser, updateBirthDate, updatePassword, updateUsername } from '@/services/user';
+import { getCurrentUser, updateBirthDate, updateCellphone, updatePassword, updateUsername } from '@/services/user';
 
 import { Dialog } from '@/components/Dialog';
 
@@ -42,7 +42,8 @@ const profileFields: FieldConfig[] = [
     { label: '電子郵件', key: 'email', editable: false },
     { label: '密碼', key: 'password', editable: true },
     { label: '會員等級', key: 'membershipTier', editable: false },
-    { label: '生日', key: 'birthDate', editable: true },
+    { label: '手機號碼 (可選)', key: 'cellphone', editable: true },
+    { label: '生日 (可選)', key: 'birthDate', editable: true },
     { label: '最後登入時間', key: 'lastLoginAt', editable: false },
 ];
 
@@ -81,10 +82,19 @@ const updateUsernameFormSchema = z.object({
 
 type UpdateUsernameFormData = z.infer<typeof updateUsernameFormSchema>;
 
+const updateCellphoneFormSchema = z.object({
+    cellphone: z
+        .string()
+        .min(1, '請輸入手機號碼!')
+        .regex(/^0\d{9}$/, '請輸入 0 開頭的 10 碼手機號碼!'),
+});
+
+type UpdateCellphoneFormData = z.infer<typeof updateCellphoneFormSchema>;
+
 const updateBirthDateFormSchema = z.object({
     birthDate: z
         .string()
-        .min(1, '請選擇出生日期!')
+        .min(1, '請選擇出生日期(西元年份)!')
         .refine((val) => {
             if (!val) return true;
             return /^\d{4}-\d{2}-\d{2}$/.test(val);
@@ -127,6 +137,7 @@ const SettingPage = () => {
 
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
     const [isUsernameDialogOpen, setIsUsernameDialogOpen] = useState(false);
+    const [isCellphoneDialogOpen, setIsCellphoneDialogOpen] = useState(false);
     const [isBirthDateDialogOpen, setIsBirthDateDialogOpen] = useState(false);
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
@@ -151,6 +162,17 @@ const SettingPage = () => {
     } = useForm<UpdateUsernameFormData>({
         defaultValues: { username: '' },
         resolver: zodResolver(updateUsernameFormSchema),
+        mode: 'onChange',
+    });
+
+    const {
+        control: cellphoneControl,
+        handleSubmit: handleCellphoneSubmit,
+        reset: resetCellphone,
+        formState: { errors: cellphoneErrors, isSubmitting: isCellphoneSubmitting },
+    } = useForm<UpdateCellphoneFormData>({
+        defaultValues: { cellphone: '' },
+        resolver: zodResolver(updateCellphoneFormSchema),
         mode: 'onChange',
     });
 
@@ -192,6 +214,9 @@ const SettingPage = () => {
         } else if (field === 'username') {
             resetUsername({ username: userInfo?.username || '' });
             setIsUsernameDialogOpen(true);
+        } else if (field === 'cellphone') {
+            resetCellphone({ cellphone: userInfo?.cellphone || '' });
+            setIsCellphoneDialogOpen(true);
         } else if (field === 'birthDate') {
             resetBirthDate({ birthDate: userInfo?.birthDate || '' });
             setIsBirthDateDialogOpen(true);
@@ -209,6 +234,11 @@ const SettingPage = () => {
     const handleCloseUsernameDialog = (): void => {
         setIsUsernameDialogOpen(false);
         resetUsername({ username: '' });
+    };
+
+    const handleCloseCellphoneDialog = (): void => {
+        setIsCellphoneDialogOpen(false);
+        resetCellphone({ cellphone: '' });
     };
 
     const handleCloseBirthDateDialog = (): void => {
@@ -247,6 +277,21 @@ const SettingPage = () => {
             await refreshUserInfo();
         } catch (error) {
             enqueueSnackbar(error as string || '使用者名稱修改失敗！', { variant: 'error' });
+        }
+    };
+
+    const onSubmitCellphone: SubmitHandler<UpdateCellphoneFormData> = async (data) => {
+        await handleUpdateCellphone(data);
+    };
+
+    const handleUpdateCellphone = async (data: UpdateCellphoneFormData): Promise<void> => {
+        try {
+            const { successMessage } = await updateCellphone({ cellphone: data.cellphone });
+            enqueueSnackbar(successMessage || '手機號碼修改成功！', { variant: 'success' });
+            handleCloseCellphoneDialog();
+            await refreshUserInfo();
+        } catch (error) {
+            enqueueSnackbar(error as string || '手機號碼修改失敗！', { variant: 'error' });
         }
     };
 
@@ -587,10 +632,71 @@ const SettingPage = () => {
                 </Stack>
             </Dialog>
 
+            {/* Update Cellphone Dialog */}
+            <Dialog
+                isOpen={isCellphoneDialogOpen}
+                title='修改手機號碼'
+                width='28rem'
+                action={
+                    <>
+                        <Button
+                            variant='outlined'
+                            onClick={handleCloseCellphoneDialog}
+                            sx={{ color: 'neutral.dark', borderColor: 'neutral.light' }}
+                        >
+                            取消
+                        </Button>
+                        <Button
+                            variant='contained'
+                            disabled={isCellphoneSubmitting}
+                            onClick={handleCellphoneSubmit(onSubmitCellphone)}
+                            sx={{
+                                backgroundColor: 'neutral.light',
+                                color: 'primary.contrastText',
+                                boxShadow: 'none',
+                                '&:hover': { backgroundColor: 'neutral.dark' },
+                            }}
+                        >
+                            確認修改
+                        </Button>
+                    </>
+                }
+            >
+                <Stack sx={{ gap: '1.5rem', pt: 1 }}>
+                    <FormControl fullWidth>
+                        <FormLabel
+                            htmlFor='Cellphone'
+                            required
+                            sx={{
+                                color: 'neutral.dark',
+                                '& .MuiFormLabel-asterisk': { color: 'error.main' },
+                            }}
+                        >
+                            手機號碼
+                        </FormLabel>
+                        <Controller
+                            name='cellphone'
+                            control={cellphoneControl}
+                            render={({ field }) => (
+                                <TextField
+                                    {...field}
+                                    id='Cellphone'
+                                    type='tel'
+                                    placeholder='請輸入手機號碼'
+                                    error={!!cellphoneErrors.cellphone}
+                                    helperText={cellphoneErrors.cellphone?.message}
+                                    variant='outlined'
+                                />
+                            )}
+                        />
+                    </FormControl>
+                </Stack>
+            </Dialog>
+
             {/* Update Birth Date Dialog */}
             <Dialog
                 isOpen={isBirthDateDialogOpen}
-                title='修改出生日期'
+                title='修改出生西元年份日期'
                 width='28rem'
                 action={
                     <>

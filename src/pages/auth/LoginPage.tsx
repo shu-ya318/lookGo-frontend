@@ -216,7 +216,7 @@ const LoginPage = () => {
         variant='button'
         underline='hover'
         color='secondary'
-        onClick={() => navigate("/auth/sign-up")}
+        onClick={() => navigate("/auth/signup")}
       >
         還沒有帳號?
         <span style={{ color: "#828282", fontWeight: 700 }}>點此註冊</span>

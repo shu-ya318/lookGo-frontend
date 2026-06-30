@@ -33,6 +33,13 @@ const formSchema = z.object({
     .min(1, "請輸入密碼!")
     .min(8, "密碼長度必須為 8-20 個字!")
     .max(20, "密碼長度必須為 8-20 個字!"),
+  cellphone: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      return /^0\d{9}$/.test(val);
+    }, "請輸入 0 開頭的 10 碼手機號碼!"),
   birthDate: z
     .string()
     .optional()
@@ -64,6 +71,7 @@ const defaultValues = {
   email: "",
   username: "",
   password: "",
+  cellphone: "",
   birthDate: "",
 };
 
@@ -84,6 +92,9 @@ const SignupPage = () => {
 
   const onSubmit: SubmitHandler<FormSchemaData> = async (data) => {
     const submitData = { ...data };
+    if (!submitData.cellphone) {
+      delete submitData.cellphone;
+    }
     if (!submitData.birthDate) {
       delete submitData.birthDate;
     }
@@ -192,6 +203,30 @@ const SignupPage = () => {
             )}
           />
         </FormControl>
+        {/* Phone Number */}
+        <FormControl fullWidth>
+          <FormLabel
+            htmlFor='PhoneNumber'
+            sx={{ color: "neutral.dark" }}
+          >
+            手機號碼
+          </FormLabel>
+          <Controller
+            name='cellphone'
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                id='PhoneNumber'
+                type='tel'
+                placeholder='請輸入手機號碼'
+                error={!!errors.cellphone}
+                helperText={errors.cellphone?.message}
+                variant='outlined'
+              />
+            )}
+          />
+        </FormControl>
         {/* Birth Date */}
         <FormControl fullWidth>
           <FormLabel
@@ -292,7 +327,7 @@ const SignupPage = () => {
         variant='button'
         underline='hover'
         color='secondary'
-        onClick={() => navigate("/auth/log-in")}
+        onClick={() => navigate("/auth/login")}
       >
         已經有帳號?
         <span style={{ color: "#828282", fontWeight: 700 }}>點此登入</span>
