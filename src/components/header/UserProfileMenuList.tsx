@@ -15,9 +15,10 @@ interface UserProfileMenuItem {
 
 interface UserProfileMenuListProps {
   items: UserProfileMenuItem[];
+  onClose: () => void;
 };
 
-export const UserProfileMenuList = ({ items }: UserProfileMenuListProps) => {
+export const UserProfileMenuList = ({ items, onClose }: UserProfileMenuListProps) => {
 
   return (
     <>
@@ -29,7 +30,11 @@ export const UserProfileMenuList = ({ items }: UserProfileMenuListProps) => {
         }
 
         return (
-          <MenuItem key={`user-menu-${index}`} onClick={action} {...props}>
+          <MenuItem
+            key={`user-menu-${index}`}
+            onClick={() => { action?.(); onClose(); }}
+            {...props}
+          >
             {icon && <ListItemIcon>{icon}</ListItemIcon>}
             {text && <ListItemText primary={<Typography variant='body2'>{text}</Typography>} />}
           </MenuItem>

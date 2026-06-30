@@ -11,6 +11,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 
 import { useStationStore } from '@/stores/useStationStore';
+import { FareType, RoutingStrategy } from '@/services/metro/constants';
 import type {
   MetroMapLine,
   MetroMapStation,
@@ -39,6 +40,18 @@ type FacilityKey = Extract<
   keyof StationDetails,
   'atm' | 'nursingRoom' | 'diaperTable' | 'chargingStation' | 'ticketMachine' | 'locker' | 'drinkingWater' | 'restroom' | 'elevator' | 'escalator'
 >;
+
+const FARE_TYPE_LABELS: Record<number, string> = {
+  [FareType.FULL]: '全票',
+  [FareType.STUDENT]: '學生票',
+  [FareType.CHILD]: '兒童票',
+  [FareType.LOVE]: '愛心票',
+};
+
+const ROUTING_STRATEGY_LABELS: Record<number, string> = {
+  [RoutingStrategy.MIN_TRANSFER]: '最少轉乘次數',
+  [RoutingStrategy.MIN_TIME]: '最短車程時間',
+};
 
 const FACILITY_LABELS: { key: FacilityKey; label: string }[] = [
   { key: 'elevator', label: '電梯' },
@@ -241,16 +254,30 @@ export function StationInfoCard({ station, line, allLines = [], routeResult, onC
 
           <Divider sx={{ my: 1 }} />
 
-          <Stack direction='row' sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant='caption' color='text.secondary'>
-              轉乘 {routeResult.transferCount} 次
-            </Typography>
-            <Typography variant='caption' color='text.secondary'>
-              {formatTime(routeResult.totalTravelTimeSeconds)}
-            </Typography>
-            <Typography variant='caption' sx={{ fontWeight: 700, color: 'primary.main' }}>
-              NT${routeResult.farePrice}
-            </Typography>
+          <Stack spacing={0.5}>
+            {[
+              { label: '票價種類', value: FARE_TYPE_LABELS[routeResult.fareType] ?? '全票' },
+              { label: '乘車時間計算依據', value: ROUTING_STRATEGY_LABELS[routeResult.routingStrategy] ?? '最少轉乘次數' },
+              { label: '轉乘次數', value: `${routeResult.transferCount} 次` },
+              { label: '車程時間', value: formatTime(routeResult.totalTravelTimeSeconds) },
+            ].map(({ label, value }) => (
+              <Stack key={label} direction='row' sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <Typography variant='caption' color='text.secondary' sx={{ fontSize: 11, flexShrink: 0 }}>
+                  {label}
+                </Typography>
+                <Typography variant='caption' sx={{ fontSize: 11, fontWeight: 500, textAlign: 'right', ml: 1 }}>
+                  {value}
+                </Typography>
+              </Stack>
+            ))}
+            <Stack direction='row' sx={{ justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <Typography variant='caption' color='text.secondary' sx={{ fontSize: 11, flexShrink: 0 }}>
+                票價
+              </Typography>
+              <Typography variant='caption' sx={{ fontSize: 11, fontWeight: 700, color: 'primary.main', textAlign: 'right', ml: 1 }}>
+                NT${routeResult.farePrice}
+              </Typography>
+            </Stack>
           </Stack>
         </CardContent>
       )}

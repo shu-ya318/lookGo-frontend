@@ -78,7 +78,7 @@ export const UserProfileMenu = ({ items }: UserProfileMenuListProps) => {
         onClose={() => setAnchorEl(null)}
         slotProps={{ list: { 'aria-labelledby': 'user-menu-button' } }}
       >
-        <UserProfileMenuList items={items} />
+        <UserProfileMenuList items={items} onClose={() => setAnchorEl(null)} />
       </Menu>
     </>
   );

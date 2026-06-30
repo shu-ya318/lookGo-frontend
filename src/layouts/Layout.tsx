@@ -2,20 +2,37 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import Stack from '@mui/material/Stack';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import ChatBubbleOutlineOutlined from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
+import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
+import RouteOutlinedIcon from '@mui/icons-material/RouteOutlined';
+import TrainOutlinedIcon from '@mui/icons-material/TrainOutlined';
 
 import { Header } from '@/components/header/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { Footer } from '@/components/Footer';
+import { useUserStore } from '@/stores/userStore';
+import type { NavItem } from '@/components/header/Header';
+
+const BASE_NAV_ITEMS: NavItem[] = [
+  { label: '路網圖查詢', path: '/network-map', icon: <MapOutlinedIcon /> },
+  { label: '車站書籤', path: '/station-bookmark', icon: <BookmarkBorderIcon /> },
+  { label: '旅程規劃', path: '/trip-planner', icon: <RouteOutlinedIcon /> },
+  { label: '車站聊天室', path: '/station-chat-room', icon: <ChatBubbleOutlineOutlined /> },
+];
+
+const ADMIN_NAV_ITEMS: NavItem[] = [
+  { label: '使用者管理', path: '/admin/user-management', icon: <PeopleOutlinedIcon /> },
+  { label: '車站管理', path: '/admin/station-management', icon: <TrainOutlinedIcon /> },
+];
 
 export const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { userInfo } = useUserStore();
+  const isAdmin = userInfo?.role === 'ADMIN';
 
-  const sidebarItems = [
-    { name: '路網圖查詢', path: '/network-map' },
-    { name: '車站書籤', path: '/station-bookmark' },
-    { name: '旅程規劃', path: '/trip-planner' },
-    { name: '車站聊天室', path: '/station-chat-room' }
-  ];
+  const navItems = isAdmin ? [...BASE_NAV_ITEMS, ...ADMIN_NAV_ITEMS] : BASE_NAV_ITEMS;
 
   return (
     <Stack
@@ -26,10 +43,10 @@ export const Layout = () => {
         padding: 0,
       }}
     >
-      <Header onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <Header onToggle={() => setIsSidebarOpen(!isSidebarOpen)} navItems={navItems} />
       <Sidebar
         isOpen={isSidebarOpen}
-        items={sidebarItems}
+        items={navItems}
         onClose={() => setIsSidebarOpen(false)}
       />
       <Stack

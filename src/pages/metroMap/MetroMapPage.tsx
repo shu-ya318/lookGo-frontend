@@ -67,7 +67,7 @@ interface AdvancedFilters {
 const SEARCH_BAR_HEIGHT = "5.5rem";
 
 const MetroMapPage = (): React.ReactElement => {
-  const { allStations, fetchRoute, isRouteLoading, setSelectedFacilities } =
+  const { allStations, fetchRoute, isRouteLoading, setSelectedFacilities, clearRoute } =
     useMetroMapStore();
   const selectAndFetchStation = useStationStore(
     (state) => state.selectAndFetchStation
@@ -137,6 +137,7 @@ const MetroMapPage = (): React.ReactElement => {
 
     // 單站查詢模式：呼叫單站詳細資訊 API（與點擊地圖站點行為一致）
     if (!endStation) {
+      clearRoute();
       await selectAndFetchStation(startStation.stationCode);
       return;
     }
@@ -223,11 +224,11 @@ const MetroMapPage = (): React.ReactElement => {
             </Typography>
             <Autocomplete
               value={startStation}
-              onChange={(_e, v) => setStartStation(v)}
+              onChange={(_event, selectedOption) => setStartStation(selectedOption)}
               options={stationOptions}
-              groupBy={(o) => o.group}
-              getOptionLabel={(o) => o.label}
-              isOptionEqualToValue={(o, v) => o.stationCode === v.stationCode}
+              groupBy={(option) => option.group}
+              getOptionLabel={(option) => option.label}
+              isOptionEqualToValue={(option, value) => option.stationCode === value.stationCode}
               renderOption={(props, option) => (
                 <li {...props} key={`${option.group}-${option.label}`}>
                   {option.label}
@@ -257,11 +258,19 @@ const MetroMapPage = (): React.ReactElement => {
             </Typography>
             <Autocomplete
               value={endStation}
-              onChange={(_e, v) => setEndStation(v)}
+              onChange={(_event, selectedOption) => {
+                setEndStation(selectedOption);
+                if (selectedOption) {
+                  setAdvancedFilters((prev) => ({ ...prev, equipment: [] }));
+                  setSelectedFacilities([]);
+                } else {
+                  setAdvancedFilters((prev) => ({ ...prev, fare: [], time: [] }));
+                }
+              }}
               options={stationOptions}
-              groupBy={(o) => o.group}
-              getOptionLabel={(o) => o.label}
-              isOptionEqualToValue={(o, v) => o.stationCode === v.stationCode}
+              groupBy={(option) => option.group}
+              getOptionLabel={(option) => option.label}
+              isOptionEqualToValue={(option, value) => option.stationCode === value.stationCode}
               renderOption={(props, option) => (
                 <li {...props} key={`${option.group}-${option.label}`}>
                   {option.label}
@@ -284,9 +293,10 @@ const MetroMapPage = (): React.ReactElement => {
           {/* 進階查詢 */}
           <Button
             startIcon={<TuneIcon />}
-            onClick={(e) => setMenuAnchorEl(e.currentTarget)}
+            onClick={(event) => setMenuAnchorEl(event.currentTarget)}
             variant='outlined'
             size='small'
+            disabled={!hasStartStation}
             sx={{
               color: "primary.contrastText",
               borderColor: "rgba(255,255,255,0.5)",
@@ -324,100 +334,39 @@ const MetroMapPage = (): React.ReactElement => {
             open={isMenuOpen}
             onClose={() => setMenuAnchorEl(null)}
           >
-            <ListSubheader sx={{ fontWeight: 700 }}>設備</ListSubheader>
-            {equipmentFilterOptions.map((o) => (
-              <MenuItem key={o} onClick={() => toggleFilter("equipment", o)}>
-                <Checkbox
-                  checked={advancedFilters.equipment.includes(o)}
-                  size='small'
-                />
-                <ListItemText primary={o} />
-              </MenuItem>
-            ))}
+            {isSingleStationMode && (
+              <>
+                <ListSubheader sx={{ fontWeight: 700 }}>設備</ListSubheader>
+                {equipmentFilterOptions.map((option) => (
+                  <MenuItem key={option} onClick={() => toggleFilter("equipment", option)}>
+                    <Checkbox checked={advancedFilters.equipment.includes(option)} size='small' />
+                    <ListItemText primary={option} />
+                  </MenuItem>
+                ))}
+              </>
+            )}
 
-            <Divider />
+            {isRouteMode && (
+              <>
+                <ListSubheader sx={{ fontWeight: 700 }}>票價種類</ListSubheader>
+                {fareTypeFilterOptions.map((option) => (
+                  <MenuItem key={option} onClick={() => toggleFilter("fare", option)}>
+                    <Checkbox checked={advancedFilters.fare.includes(option)} size='small' />
+                    <ListItemText primary={option} />
+                  </MenuItem>
+                ))}
 
-            <ListSubheader
-              sx={{
-                fontWeight: 700,
-                color: hasEndStation ? "text.primary" : "text.disabled",
-                backgroundColor: hasEndStation ? "inherit" : "tertiary.dark",
-              }}
-            >
-              票價種類
-            </ListSubheader>
-            {fareTypeFilterOptions.map((o) => (
-              <MenuItem
-                key={o}
-                disabled={!hasEndStation}
-                onClick={() => toggleFilter("fare", o)}
-                sx={
-                  !hasEndStation
-                    ? {
-                        backgroundColor: "tertiary.dark",
-                        "&.Mui-disabled": {
-                          backgroundColor: "tertiary.dark",
-                          opacity: 1,
-                        },
-                      }
-                    : {}
-                }
-              >
-                <Checkbox
-                  checked={advancedFilters.fare.includes(o)}
-                  size='small'
-                  disabled={!hasEndStation}
-                />
-                <ListItemText
-                  primary={o}
-                  sx={{
-                    color: hasEndStation ? "text.primary" : "text.disabled",
-                  }}
-                />
-              </MenuItem>
-            ))}
+                <Divider />
 
-            <Divider />
-
-            <ListSubheader
-              sx={{
-                fontWeight: 700,
-                color: hasEndStation ? "text.primary" : "text.disabled",
-                backgroundColor: hasEndStation ? "inherit" : "tertiary.dark",
-              }}
-            >
-              乘車時間
-            </ListSubheader>
-            {travelTimeFilterOptions.map((o) => (
-              <MenuItem
-                key={o}
-                disabled={!hasEndStation}
-                onClick={() => toggleFilter("time", o)}
-                sx={
-                  !hasEndStation
-                    ? {
-                        backgroundColor: "tertiary.dark",
-                        "&.Mui-disabled": {
-                          backgroundColor: "tertiary.dark",
-                          opacity: 1,
-                        },
-                      }
-                    : {}
-                }
-              >
-                <Checkbox
-                  checked={advancedFilters.time.includes(o)}
-                  size='small'
-                  disabled={!hasEndStation}
-                />
-                <ListItemText
-                  primary={o}
-                  sx={{
-                    color: hasEndStation ? "text.primary" : "text.disabled",
-                  }}
-                />
-              </MenuItem>
-            ))}
+                <ListSubheader sx={{ fontWeight: 700 }}>乘車時間</ListSubheader>
+                {travelTimeFilterOptions.map((option) => (
+                  <MenuItem key={option} onClick={() => toggleFilter("time", option)}>
+                    <Checkbox checked={advancedFilters.time.includes(option)} size='small' />
+                    <ListItemText primary={option} />
+                  </MenuItem>
+                ))}
+              </>
+            )}
           </Menu>
         </Stack>
       </Stack>

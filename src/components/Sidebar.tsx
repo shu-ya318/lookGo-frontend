@@ -6,15 +6,15 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 
+import type { NavItem } from '@/components/header/Header';
+
 interface SidebarProps {
   isOpen: boolean;
-  items: {
-    name: string;
-    path: string;
-  }[];
+  items: NavItem[];
   onClose: () => void;
 };
 
@@ -69,16 +69,33 @@ export const Sidebar = ({ isOpen, items, onClose }: SidebarProps) => {
           </Stack>
         </Stack>
         {/* Navigation */}
-        <List
-          sx={{
-            fontSize: '1.125rem',
-            fontWeight: 500,
-          }}
-        >
-          {items.map(({ name, path }) => (
-            <ListItem key={name} disablePadding>
-              <ListItemButton onClick={() => onClickOption(path)}>
-                <ListItemText primary={name} sx={{ paddingLeft: '1rem' }} />
+        <List>
+          {items.map(({ label, path, icon }) => (
+            <ListItem key={path} disablePadding>
+              <ListItemButton
+                onClick={() => onClickOption(path)}
+                sx={{
+                  color: 'primary.main',
+                  '&:hover': {
+                    color: 'info.main',
+                    '& .MuiListItemIcon-root': {
+                      color: 'info.main',
+                    },
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 36, color: 'primary.dark', transition: 'color 0.2s' }}>
+                  {icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={label}
+                  sx={{
+                    '& .MuiListItemText-primary': {
+                      fontSize: '1rem',
+                      fontWeight: 500,
+                    },
+                  }}
+                />
               </ListItemButton>
             </ListItem>
           ))}
