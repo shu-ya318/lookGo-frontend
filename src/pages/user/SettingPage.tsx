@@ -1,30 +1,23 @@
 import { useEffect, useState } from 'react';
-import { z } from 'zod';
-import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { enqueueSnackbar } from 'notistack';
 
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import { useUserStore } from '@/stores/userStore';
-import { getCurrentUser, updateBirthDate, updateCellphone, updatePassword, updateUsername } from '@/services/user';
+import { getCurrentUser } from '@/services/user';
 
-import { Dialog } from '@/components/Dialog';
-import { isValidDateFormat, isValidBirthDate } from '@/utils/validation';
+import { UpdatePasswordDialog } from '@/components/user/UpdatePasswordDialog';
+import { UpdateUsernameDialog } from '@/components/user/UpdateUsernameDialog';
+import { UpdateCellphoneDialog } from '@/components/user/UpdateCellphoneDialog';
+import { UpdateBirthDateDialog } from '@/components/user/UpdateBirthDateDialog';
 
 import type { MembershipTier } from '@/services/user/interface';
 
@@ -48,60 +41,6 @@ const profileFields: FieldConfig[] = [
     { label: '最後登入時間', key: 'lastLoginAt', editable: false },
 ];
 
-const updatePasswordFormSchema = z
-    .object({
-        oldPassword: z
-            .string()
-            .min(1, '請輸入舊密碼!'),
-        newPassword: z
-            .string()
-            .min(1, '請輸入新密碼!')
-            .min(8, '密碼長度必須為 8-20 個字元!')
-            .max(20, '密碼長度必須為 8-20 個字元!'),
-        confirmPassword: z
-            .string()
-            .min(1, '請再次輸入新密碼!'),
-    })
-    .refine((data) => data.newPassword === data.confirmPassword, {
-        message: '新密碼與確認密碼不符!',
-        path: ['confirmPassword'],
-    });
-
-type UpdatePasswordFormData = z.infer<typeof updatePasswordFormSchema>;
-
-const passwordDefaultValues: UpdatePasswordFormData = {
-    oldPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-};
-
-const updateUsernameFormSchema = z.object({
-    username: z
-        .string()
-        .min(1, '請輸入使用者名稱!'),
-});
-
-type UpdateUsernameFormData = z.infer<typeof updateUsernameFormSchema>;
-
-const updateCellphoneFormSchema = z.object({
-    cellphone: z
-        .string()
-        .min(1, '請輸入手機號碼!')
-        .regex(/^0\d{9}$/, '請輸入 0 開頭的 10 碼手機號碼!'),
-});
-
-type UpdateCellphoneFormData = z.infer<typeof updateCellphoneFormSchema>;
-
-const updateBirthDateFormSchema = z.object({
-    birthDate: z
-        .string()
-        .min(1, '請選擇出生日期(西元年份)!')
-        .refine(isValidDateFormat, '出生日期格式必須為 yyyy-MM-dd!')
-        .refine(isValidBirthDate, '出生日期不得大於今日!'),
-});
-
-type UpdateBirthDateFormData = z.infer<typeof updateBirthDateFormSchema>;
-
 const SettingPage = () => {
     const userInfo = useUserStore(state => state.userInfo);
 
@@ -122,53 +61,6 @@ const SettingPage = () => {
     const [isUsernameDialogOpen, setIsUsernameDialogOpen] = useState(false);
     const [isCellphoneDialogOpen, setIsCellphoneDialogOpen] = useState(false);
     const [isBirthDateDialogOpen, setIsBirthDateDialogOpen] = useState(false);
-    const [showOldPassword, setShowOldPassword] = useState(false);
-    const [showNewPassword, setShowNewPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    const {
-        control: passwordControl,
-        handleSubmit: handlePasswordSubmit,
-        reset: resetPassword,
-        formState: { errors: passwordErrors, isSubmitting: isPasswordSubmitting },
-    } = useForm<UpdatePasswordFormData>({
-        defaultValues: passwordDefaultValues,
-        resolver: zodResolver(updatePasswordFormSchema),
-        mode: 'onChange',
-    });
-
-    const {
-        control: usernameControl,
-        handleSubmit: handleUsernameSubmit,
-        reset: resetUsername,
-        formState: { errors: usernameErrors, isSubmitting: isUsernameSubmitting },
-    } = useForm<UpdateUsernameFormData>({
-        defaultValues: { username: '' },
-        resolver: zodResolver(updateUsernameFormSchema),
-        mode: 'onChange',
-    });
-
-    const {
-        control: cellphoneControl,
-        handleSubmit: handleCellphoneSubmit,
-        reset: resetCellphone,
-        formState: { errors: cellphoneErrors, isSubmitting: isCellphoneSubmitting },
-    } = useForm<UpdateCellphoneFormData>({
-        defaultValues: { cellphone: '' },
-        resolver: zodResolver(updateCellphoneFormSchema),
-        mode: 'onChange',
-    });
-
-    const {
-        control: birthDateControl,
-        handleSubmit: handleBirthDateSubmit,
-        reset: resetBirthDate,
-        formState: { errors: birthDateErrors, isSubmitting: isBirthDateSubmitting },
-    } = useForm<UpdateBirthDateFormData>({
-        defaultValues: { birthDate: '' },
-        resolver: zodResolver(updateBirthDateFormSchema),
-        mode: 'onChange',
-    });
 
     const refreshUserInfo = async (): Promise<void> => {
         const user = await getCurrentUser();
@@ -195,103 +87,11 @@ const SettingPage = () => {
         if (field === 'password') {
             setIsPasswordDialogOpen(true);
         } else if (field === 'username') {
-            resetUsername({ username: userInfo?.username || '' });
             setIsUsernameDialogOpen(true);
         } else if (field === 'cellphone') {
-            resetCellphone({ cellphone: userInfo?.cellphone || '' });
             setIsCellphoneDialogOpen(true);
         } else if (field === 'birthDate') {
-            resetBirthDate({ birthDate: userInfo?.birthDate || '' });
             setIsBirthDateDialogOpen(true);
-        }
-    };
-
-    const handleClosePasswordDialog = (): void => {
-        setIsPasswordDialogOpen(false);
-        setShowOldPassword(false);
-        setShowNewPassword(false);
-        setShowConfirmPassword(false);
-        resetPassword(passwordDefaultValues);
-    };
-
-    const handleCloseUsernameDialog = (): void => {
-        setIsUsernameDialogOpen(false);
-        resetUsername({ username: '' });
-    };
-
-    const handleCloseCellphoneDialog = (): void => {
-        setIsCellphoneDialogOpen(false);
-        resetCellphone({ cellphone: '' });
-    };
-
-    const handleCloseBirthDateDialog = (): void => {
-        setIsBirthDateDialogOpen(false);
-        resetBirthDate({ birthDate: '' });
-    };
-
-    const onSubmitPassword: SubmitHandler<UpdatePasswordFormData> = async (data) => {
-        await handleUpdatePassword(data);
-    };
-
-    const handleUpdatePassword = async (data: UpdatePasswordFormData): Promise<void> => {
-        try {
-            const { successMessage } = await updatePassword({
-                oldPassword: data.oldPassword,
-                newPassword: data.newPassword,
-            });
-            enqueueSnackbar(successMessage || '密碼修改成功！', { variant: 'success' });
-            handleClosePasswordDialog();
-        } catch (error) {
-            enqueueSnackbar(error as string || '密碼修改失敗！', { variant: 'error' });
-        }
-    };
-
-    const onSubmitUsername: SubmitHandler<UpdateUsernameFormData> = async (data) => {
-        await handleUpdateUsername(data);
-    };
-
-    const handleUpdateUsername = async (data: UpdateUsernameFormData): Promise<void> => {
-        try {
-            const { successMessage } = await updateUsername({
-                username: data.username,
-            });
-            enqueueSnackbar(successMessage || '使用者名稱修改成功！', { variant: 'success' });
-            handleCloseUsernameDialog();
-            await refreshUserInfo();
-        } catch (error) {
-            enqueueSnackbar(error as string || '使用者名稱修改失敗！', { variant: 'error' });
-        }
-    };
-
-    const onSubmitCellphone: SubmitHandler<UpdateCellphoneFormData> = async (data) => {
-        await handleUpdateCellphone(data);
-    };
-
-    const handleUpdateCellphone = async (data: UpdateCellphoneFormData): Promise<void> => {
-        try {
-            const { successMessage } = await updateCellphone({ cellphone: data.cellphone });
-            enqueueSnackbar(successMessage || '手機號碼修改成功！', { variant: 'success' });
-            handleCloseCellphoneDialog();
-            await refreshUserInfo();
-        } catch (error) {
-            enqueueSnackbar(error as string || '手機號碼修改失敗！', { variant: 'error' });
-        }
-    };
-
-    const onSubmitBirthDate: SubmitHandler<UpdateBirthDateFormData> = async (data) => {
-        await handleUpdateBirthDate(data);
-    };
-
-    const handleUpdateBirthDate = async (data: UpdateBirthDateFormData): Promise<void> => {
-        try {
-            const { successMessage } = await updateBirthDate({
-                birthDate: data.birthDate,
-            });
-            enqueueSnackbar(successMessage || '出生日期修改成功！', { variant: 'success' });
-            handleCloseBirthDateDialog();
-            await refreshUserInfo();
-        } catch (error) {
-            enqueueSnackbar(error as string || '出生日期修改失敗！', { variant: 'error' });
         }
     };
 
@@ -395,346 +195,28 @@ const SettingPage = () => {
                 ))}
             </Box>
 
-            {/* Update Password Dialog */}
-            <Dialog
+            <UpdatePasswordDialog
                 isOpen={isPasswordDialogOpen}
-                title='修改密碼'
-                width='28rem'
-                action={
-                    <>
-                        <Button
-                            variant='outlined'
-                            onClick={handleClosePasswordDialog}
-                            sx={{ color: 'neutral.dark', borderColor: 'neutral.light' }}
-                        >
-                            取消
-                        </Button>
-                        <Button
-                            variant='contained'
-                            disabled={isPasswordSubmitting}
-                            onClick={handlePasswordSubmit(onSubmitPassword)}
-                            sx={{
-                                backgroundColor: 'neutral.light',
-                                color: 'primary.contrastText',
-                                boxShadow: 'none',
-                                '&:hover': { backgroundColor: 'neutral.dark' },
-                            }}
-                        >
-                            確認修改
-                        </Button>
-                    </>
-                }
-            >
-                <Stack sx={{ gap: '1.5rem', pt: 1 }}>
-                    <FormControl fullWidth>
-                        <FormLabel
-                            htmlFor='OldPassword'
-                            required
-                            sx={{
-                                color: 'neutral.dark',
-                                '& .MuiFormLabel-asterisk': { color: 'error.main' },
-                            }}
-                        >
-                            舊密碼
-                        </FormLabel>
-                        <Controller
-                            name='oldPassword'
-                            control={passwordControl}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    id='OldPassword'
-                                    type={showOldPassword ? 'text' : 'password'}
-                                    placeholder='請輸入舊密碼'
-                                    error={!!passwordErrors.oldPassword}
-                                    helperText={passwordErrors.oldPassword?.message}
-                                    variant='outlined'
-                                    slotProps={{
-                                        input: {
-                                            endAdornment: (
-                                                <InputAdornment position='end'>
-                                                    <IconButton
-                                                        onClick={() => setShowOldPassword(!showOldPassword)}
-                                                        edge='end'
-                                                    >
-                                                        {showOldPassword ? <Visibility /> : <VisibilityOff />}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        },
-                                    }}
-                                />
-                            )}
-                        />
-                    </FormControl>
-
-                    <FormControl fullWidth>
-                        <FormLabel
-                            htmlFor='NewPassword'
-                            required
-                            sx={{
-                                color: 'neutral.dark',
-                                '& .MuiFormLabel-asterisk': { color: 'error.main' },
-                            }}
-                        >
-                            新密碼
-                        </FormLabel>
-                        <Controller
-                            name='newPassword'
-                            control={passwordControl}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    id='NewPassword'
-                                    type={showNewPassword ? 'text' : 'password'}
-                                    placeholder='請輸入新密碼'
-                                    error={!!passwordErrors.newPassword}
-                                    helperText={passwordErrors.newPassword?.message}
-                                    variant='outlined'
-                                    slotProps={{
-                                        input: {
-                                            endAdornment: (
-                                                <InputAdornment position='end'>
-                                                    <IconButton
-                                                        onClick={() => setShowNewPassword(!showNewPassword)}
-                                                        edge='end'
-                                                    >
-                                                        {showNewPassword ? <Visibility /> : <VisibilityOff />}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        },
-                                    }}
-                                />
-                            )}
-                        />
-                    </FormControl>
-
-                    <FormControl fullWidth>
-                        <FormLabel
-                            htmlFor='ConfirmPassword'
-                            required
-                            sx={{
-                                color: 'neutral.dark',
-                                '& .MuiFormLabel-asterisk': { color: 'error.main' },
-                            }}
-                        >
-                            確認新密碼
-                        </FormLabel>
-                        <Controller
-                            name='confirmPassword'
-                            control={passwordControl}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    id='ConfirmPassword'
-                                    type={showConfirmPassword ? 'text' : 'password'}
-                                    placeholder='請再次輸入新密碼'
-                                    error={!!passwordErrors.confirmPassword}
-                                    helperText={passwordErrors.confirmPassword?.message}
-                                    variant='outlined'
-                                    slotProps={{
-                                        input: {
-                                            endAdornment: (
-                                                <InputAdornment position='end'>
-                                                    <IconButton
-                                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                        edge='end'
-                                                    >
-                                                        {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        },
-                                    }}
-                                />
-                            )}
-                        />
-                    </FormControl>
-                </Stack>
-            </Dialog>
-
-            {/* Update Username Dialog */}
-            <Dialog
+                onClose={() => setIsPasswordDialogOpen(false)}
+            />
+            <UpdateUsernameDialog
                 isOpen={isUsernameDialogOpen}
-                title='修改使用者名稱'
-                width='28rem'
-                action={
-                    <>
-                        <Button
-                            variant='outlined'
-                            onClick={handleCloseUsernameDialog}
-                            sx={{ color: 'neutral.dark', borderColor: 'neutral.light' }}
-                        >
-                            取消
-                        </Button>
-                        <Button
-                            variant='contained'
-                            disabled={isUsernameSubmitting}
-                            onClick={handleUsernameSubmit(onSubmitUsername)}
-                            sx={{
-                                backgroundColor: 'neutral.light',
-                                color: 'primary.contrastText',
-                                boxShadow: 'none',
-                                '&:hover': { backgroundColor: 'neutral.dark' },
-                            }}
-                        >
-                            確認修改
-                        </Button>
-                    </>
-                }
-            >
-                <Stack sx={{ gap: '1.5rem', pt: 1 }}>
-                    <FormControl fullWidth>
-                        <FormLabel
-                            htmlFor='Username'
-                            required
-                            sx={{
-                                color: 'neutral.dark',
-                                '& .MuiFormLabel-asterisk': { color: 'error.main' },
-                            }}
-                        >
-                            使用者名稱
-                        </FormLabel>
-                        <Controller
-                            name='username'
-                            control={usernameControl}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    id='Username'
-                                    type='text'
-                                    placeholder='請輸入新的使用者名稱'
-                                    error={!!usernameErrors.username}
-                                    helperText={usernameErrors.username?.message}
-                                    variant='outlined'
-                                />
-                            )}
-                        />
-                    </FormControl>
-                </Stack>
-            </Dialog>
-
-            {/* Update Cellphone Dialog */}
-            <Dialog
+                onClose={() => setIsUsernameDialogOpen(false)}
+                defaultUsername={userInfo?.username || ''}
+                onSuccess={refreshUserInfo}
+            />
+            <UpdateCellphoneDialog
                 isOpen={isCellphoneDialogOpen}
-                title='修改手機號碼'
-                width='28rem'
-                action={
-                    <>
-                        <Button
-                            variant='outlined'
-                            onClick={handleCloseCellphoneDialog}
-                            sx={{ color: 'neutral.dark', borderColor: 'neutral.light' }}
-                        >
-                            取消
-                        </Button>
-                        <Button
-                            variant='contained'
-                            disabled={isCellphoneSubmitting}
-                            onClick={handleCellphoneSubmit(onSubmitCellphone)}
-                            sx={{
-                                backgroundColor: 'neutral.light',
-                                color: 'primary.contrastText',
-                                boxShadow: 'none',
-                                '&:hover': { backgroundColor: 'neutral.dark' },
-                            }}
-                        >
-                            確認修改
-                        </Button>
-                    </>
-                }
-            >
-                <Stack sx={{ gap: '1.5rem', pt: 1 }}>
-                    <FormControl fullWidth>
-                        <FormLabel
-                            htmlFor='Cellphone'
-                            required
-                            sx={{
-                                color: 'neutral.dark',
-                                '& .MuiFormLabel-asterisk': { color: 'error.main' },
-                            }}
-                        >
-                            手機號碼
-                        </FormLabel>
-                        <Controller
-                            name='cellphone'
-                            control={cellphoneControl}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    id='Cellphone'
-                                    type='tel'
-                                    placeholder='請輸入手機號碼'
-                                    error={!!cellphoneErrors.cellphone}
-                                    helperText={cellphoneErrors.cellphone?.message}
-                                    variant='outlined'
-                                />
-                            )}
-                        />
-                    </FormControl>
-                </Stack>
-            </Dialog>
-
-            {/* Update Birth Date Dialog */}
-            <Dialog
+                onClose={() => setIsCellphoneDialogOpen(false)}
+                defaultCellphone={userInfo?.cellphone || ''}
+                onSuccess={refreshUserInfo}
+            />
+            <UpdateBirthDateDialog
                 isOpen={isBirthDateDialogOpen}
-                title='修改出生西元年份日期'
-                width='28rem'
-                action={
-                    <>
-                        <Button
-                            variant='outlined'
-                            onClick={handleCloseBirthDateDialog}
-                            sx={{ color: 'neutral.dark', borderColor: 'neutral.light' }}
-                        >
-                            取消
-                        </Button>
-                        <Button
-                            variant='contained'
-                            disabled={isBirthDateSubmitting}
-                            onClick={handleBirthDateSubmit(onSubmitBirthDate)}
-                            sx={{
-                                backgroundColor: 'neutral.light',
-                                color: 'primary.contrastText',
-                                boxShadow: 'none',
-                                '&:hover': { backgroundColor: 'neutral.dark' },
-                            }}
-                        >
-                            確認修改
-                        </Button>
-                    </>
-                }
-            >
-                <Stack sx={{ gap: '1.5rem', pt: 1 }}>
-                    <FormControl fullWidth>
-                        <FormLabel
-                            htmlFor='BirthDate'
-                            required
-                            sx={{
-                                color: 'neutral.dark',
-                                '& .MuiFormLabel-asterisk': { color: 'error.main' },
-                            }}
-                        >
-                            出生日期
-                        </FormLabel>
-                        <Controller
-                            name='birthDate'
-                            control={birthDateControl}
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    id='BirthDate'
-                                    type='date'
-                                    error={!!birthDateErrors.birthDate}
-                                    helperText={birthDateErrors.birthDate?.message}
-                                    variant='outlined'
-                                />
-                            )}
-                        />
-                    </FormControl>
-                </Stack>
-            </Dialog>
+                onClose={() => setIsBirthDateDialogOpen(false)}
+                defaultBirthDate={userInfo?.birthDate || ''}
+                onSuccess={refreshUserInfo}
+            />
         </Box>
     );
 };

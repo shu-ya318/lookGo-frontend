@@ -1,0 +1,133 @@
+import { useEffect } from 'react';
+import { z } from 'zod';
+import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { enqueueSnackbar } from 'notistack';
+
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+
+import { Dialog } from '@/components/Dialog';
+import { updateBirthDate } from '@/services/user';
+import { isValidDateFormat, isValidBirthDate } from '@/utils/validation';
+
+const formSchema = z.object({
+    birthDate: z
+        .string()
+        .min(1, '請選擇出生日期(西元年份)!')
+        .refine(isValidDateFormat, '出生日期格式必須為 yyyy-MM-dd!')
+        .refine(isValidBirthDate, '出生日期不得大於今日!'),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+interface UpdateBirthDateDialogProps {
+    isOpen: boolean;
+    onClose: () => void;
+    defaultBirthDate: string;
+    onSuccess: () => Promise<void>;
+}
+
+export const UpdateBirthDateDialog = ({
+    isOpen,
+    onClose,
+    defaultBirthDate,
+    onSuccess,
+}: UpdateBirthDateDialogProps) => {
+    const {
+        control,
+        handleSubmit,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<FormData>({
+        defaultValues: { birthDate: '' },
+        resolver: zodResolver(formSchema),
+        mode: 'onChange',
+    });
+
+    useEffect(() => {
+        if (isOpen) {
+            reset({ birthDate: defaultBirthDate });
+        }
+    }, [isOpen]);
+
+    const handleClose = (): void => {
+        onClose();
+        reset({ birthDate: '' });
+    };
+
+    const onSubmit: SubmitHandler<FormData> = async (data) => {
+        try {
+            const { successMessage } = await updateBirthDate({ birthDate: data.birthDate });
+            enqueueSnackbar(successMessage || '出生日期修改成功！', { variant: 'success' });
+            onClose();
+            await onSuccess();
+        } catch (error) {
+            enqueueSnackbar(error as string || '出生日期修改失敗！', { variant: 'error' });
+        }
+    };
+
+    return (
+        <Dialog
+            isOpen={isOpen}
+            title='修改出生西元年份日期'
+            width='28rem'
+            action={
+                <>
+                    <Button
+                        variant='outlined'
+                        onClick={handleClose}
+                        sx={{ color: 'neutral.dark', borderColor: 'neutral.light' }}
+                    >
+                        取消
+                    </Button>
+                    <Button
+                        variant='contained'
+                        disabled={isSubmitting}
+                        onClick={handleSubmit(onSubmit)}
+                        sx={{
+                            backgroundColor: 'neutral.light',
+                            color: 'primary.contrastText',
+                            boxShadow: 'none',
+                            '&:hover': { backgroundColor: 'neutral.dark' },
+                        }}
+                    >
+                        確認修改
+                    </Button>
+                </>
+            }
+        >
+            <Stack sx={{ gap: '1.5rem', pt: 1 }}>
+                <FormControl fullWidth>
+                    <FormLabel
+                        htmlFor='BirthDate'
+                        required
+                        sx={{
+                            color: 'neutral.dark',
+                            '& .MuiFormLabel-asterisk': { color: 'error.main' },
+                        }}
+                    >
+                        出生日期
+                    </FormLabel>
+                    <Controller
+                        name='birthDate'
+                        control={control}
+                        render={({ field }) => (
+                            <TextField
+                                {...field}
+                                id='BirthDate'
+                                type='date'
+                                error={!!errors.birthDate}
+                                helperText={errors.birthDate?.message}
+                                variant='outlined'
+                            />
+                        )}
+                    />
+                </FormControl>
+            </Stack>
+        </Dialog>
+    );
+};
