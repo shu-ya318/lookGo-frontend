@@ -18,7 +18,12 @@ import TuneIcon from "@mui/icons-material/Tune";
 
 import { useMetroMapStore } from "@/stores/metroMapStore";
 import { useStationStore } from "@/stores/useStationStore";
-import { FareType, RoutingStrategy, StationFacility, labelToFacility } from "@/services/metro/constants";
+import {
+  FareType,
+  RoutingStrategy,
+  StationFacility,
+  labelToFacility,
+} from "@/services/metro/constants";
 
 import { MetroMapContainer } from "@/components/metroMap/MetroMapContainer";
 
@@ -38,7 +43,7 @@ const equipmentFilterOptions = [
   "充電站",
 ];
 const fareTypeFilterOptions = ["全票", "學生票", "兒童票", "愛心票"] as const;
-type FareLabel = typeof fareTypeFilterOptions[number];
+type FareLabel = (typeof fareTypeFilterOptions)[number];
 const fareLabelToType: Record<FareLabel, FareType> = {
   全票: FareType.FULL,
   學生票: FareType.STUDENT,
@@ -47,7 +52,7 @@ const fareLabelToType: Record<FareLabel, FareType> = {
 };
 
 const travelTimeFilterOptions = ["最少轉乘次數", "最短車程時間"] as const;
-type TimeLabel = typeof travelTimeFilterOptions[number];
+type TimeLabel = (typeof travelTimeFilterOptions)[number];
 const timeLabelToStrategy: Record<TimeLabel, RoutingStrategy> = {
   最少轉乘次數: RoutingStrategy.MIN_TRANSFER,
   最短車程時間: RoutingStrategy.MIN_TIME,
@@ -62,8 +67,11 @@ interface AdvancedFilters {
 const SEARCH_BAR_HEIGHT = "5.5rem";
 
 const MetroMapPage = (): React.ReactElement => {
-  const { allStations, fetchRoute, isRouteLoading, setSelectedFacilities } = useMetroMapStore();
-  const selectAndFetchStation = useStationStore((state) => state.selectAndFetchStation);
+  const { allStations, fetchRoute, isRouteLoading, setSelectedFacilities } =
+    useMetroMapStore();
+  const selectAndFetchStation = useStationStore(
+    (state) => state.selectAndFetchStation
+  );
   const isStationLoading = useStationStore((state) => state.isLoading);
   const clearSelection = useStationStore((state) => state.clearSelection);
 
@@ -97,12 +105,11 @@ const MetroMapPage = (): React.ReactElement => {
     advancedFilters.fare.length +
     advancedFilters.time.length;
 
-  // 動態提示文字
   const infoText = !hasStartStation
-    ? "點擊站點查看站點資訊，或選擇起始車站進行查詢"
+    ? "可點擊地圖任意車站代碼，或選擇起始車站進行查詢"
     : isSingleStationMode
-    ? `已選起始站「${startStation.label}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
-    : `已選起訖站，可查詢路徑（${startStation.label} → ${endStation!.label}）`;
+      ? `已選起始站「${startStation.label}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
+      : `已選起訖站，可查詢路徑（${startStation.label} → ${endStation!.label}）`;
 
   const toggleFilter = (
     category: keyof AdvancedFilters,
@@ -114,7 +121,7 @@ const MetroMapPage = (): React.ReactElement => {
         ? current.filter((v) => v !== value)
         : [...current, value];
 
-      if (category === 'equipment') {
+      if (category === "equipment") {
         const facilities = updated
           .map(labelToFacility)
           .filter((f): f is StationFacility => f !== undefined);
@@ -193,8 +200,8 @@ const MetroMapPage = (): React.ReactElement => {
               color: isSingleStationMode
                 ? "rgba(255,255,160,0.95)"
                 : isRouteMode
-                ? "rgba(180,255,180,0.95)"
-                : "primary.contrastText",
+                  ? "rgba(180,255,180,0.95)"
+                  : "primary.contrastText",
               transition: "color 0.3s ease",
             }}
           >
@@ -304,11 +311,11 @@ const MetroMapPage = (): React.ReactElement => {
               "&:hover": { backgroundColor: "rgba(255,255,255,0.85)" },
             }}
           >
-            {(isRouteLoading || isStationLoading)
+            {isRouteLoading || isStationLoading
               ? "查詢中…"
               : isSingleStationMode
-              ? "查看站點"
-              : "開始查詢"}
+                ? "查看站點"
+                : "開始查詢"}
           </Button>
 
           {/* 進階查詢下拉 */}
@@ -347,12 +354,12 @@ const MetroMapPage = (): React.ReactElement => {
                 sx={
                   !hasEndStation
                     ? {
-                      backgroundColor: "tertiary.dark",
-                      "&.Mui-disabled": {
                         backgroundColor: "tertiary.dark",
-                        opacity: 1,
-                      },
-                    }
+                        "&.Mui-disabled": {
+                          backgroundColor: "tertiary.dark",
+                          opacity: 1,
+                        },
+                      }
                     : {}
                 }
               >
@@ -389,12 +396,12 @@ const MetroMapPage = (): React.ReactElement => {
                 sx={
                   !hasEndStation
                     ? {
-                      backgroundColor: "tertiary.dark",
-                      "&.Mui-disabled": {
                         backgroundColor: "tertiary.dark",
-                        opacity: 1,
-                      },
-                    }
+                        "&.Mui-disabled": {
+                          backgroundColor: "tertiary.dark",
+                          opacity: 1,
+                        },
+                      }
                     : {}
                 }
               >
