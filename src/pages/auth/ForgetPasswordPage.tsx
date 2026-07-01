@@ -21,7 +21,7 @@ const formSchema = z.object({
   cellphone: z
     .string()
     .min(1, "請輸入手機號碼!")
-    .regex(/^0\d{9}$/, "請輸入 0 開頭的 10 碼臺灣手機號碼!"),
+    .regex(/^0\d{9}$/, "請輸入 0 開頭的 10 碼手機號碼!"),
 });
 
 export type FormSchemaData = z.infer<typeof formSchema>;
@@ -125,7 +125,7 @@ const ForgetPasswordPage = () => {
               "& .MuiFormLabel-asterisk": { color: "error.main" },
             }}
           >
-            臺灣手機號碼
+            手機號碼
           </FormLabel>
           <Controller
             name='cellphone'
@@ -161,7 +161,7 @@ const ForgetPasswordPage = () => {
             },
           }}
         >
-          發送重設密碼信件
+          驗證身分
         </Button>
       </Stack>
       {/* Return to Login Link */}

@@ -36,8 +36,8 @@ const profileFields: FieldConfig[] = [
   { label: "電子郵件", key: "email", editable: false },
   { label: "密碼", key: "password", editable: true },
   { label: "會員等級", key: "membershipTier", editable: false },
-  { label: "臺灣手機號碼", key: "cellphone", editable: true },
-  { label: "西元年份生日 (可選)", key: "birthDate", editable: true },
+  { label: "手機號碼", key: "cellphone", editable: true },
+  { label: "出生日期 (選填)", key: "birthDate", editable: true },
   { label: "最後登入時間", key: "lastLoginAt", editable: false },
 ];
 

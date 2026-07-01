@@ -16,8 +16,8 @@ import { updateCellphone } from "@/services/user";
 const formSchema = z.object({
   cellphone: z
     .string()
-    .min(1, "請輸入臺灣手機號碼!")
-    .regex(/^0\d{9}$/, "請輸入 0 開頭的 10 碼臺灣手機號碼!"),
+    .min(1, "請輸入手機號碼!")
+    .regex(/^0\d{9}$/, "請輸入 0 開頭的 10 碼手機號碼!"),
 });
 
 type FormData = z.infer<typeof formSchema>;

@@ -46,7 +46,6 @@ const ResetPasswordPage = () => {
   const resetPasswordToken =
     (location.state as { resetPasswordToken?: string })?.resetPasswordToken ??
     "";
-  console.log(resetPasswordToken);
 
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

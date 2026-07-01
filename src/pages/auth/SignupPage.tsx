@@ -36,12 +36,12 @@ const formSchema = z.object({
     .max(20, "密碼長度必須為 8-20 個字!"),
   cellphone: z
     .string()
-    .min(1, "請輸入臺灣手機號碼!")
+    .min(1, "請輸入手機號碼!")
     .refine((value) => {
       if (!value) return true;
 
       return /^0\d{9}$/.test(value);
-    }, "請輸入 0 開頭的 10 碼臺灣手機號碼!"),
+    }, "請輸入 0 開頭的 10 碼手機號碼!"),
   birthDate: z
     .string()
     .optional()
@@ -199,7 +199,7 @@ const SignupPage = () => {
               "& .MuiFormLabel-asterisk": { color: "error.main" },
             }}
           >
-            臺灣手機號碼
+            手機號碼
           </FormLabel>
           <Controller
             name='cellphone'
@@ -209,7 +209,7 @@ const SignupPage = () => {
                 {...field}
                 id='cellphone'
                 type='tel'
-                placeholder='請輸入臺灣手機號碼'
+                placeholder='請輸入手機號碼'
                 error={!!errors.cellphone}
                 helperText={errors.cellphone?.message}
                 variant='outlined'
