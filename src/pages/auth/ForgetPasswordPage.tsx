@@ -14,14 +14,14 @@ import TextField from "@mui/material/TextField";
 
 import { forgetPassword } from "@/services/auth";
 
-import type { ForgetPasswordRequest, ForgetPasswordResponse } from "@/services/auth/interface";
+import type { ForgetPasswordRequest } from "@/services/auth/interface";
 
 const formSchema = z.object({
   email: z.email("請輸入有效格式的電子郵件!"),
   cellphone: z
     .string()
     .min(1, "請輸入手機號碼!")
-    .regex(/^0\d{9}$/, "請輸入 0 開頭的 10 碼手機號碼!"),
+    .regex(/^0\d{9}$/, "請輸入 0 開頭的 10 碼臺灣手機號碼!"),
 });
 
 export type FormSchemaData = z.infer<typeof formSchema>;
@@ -50,8 +50,10 @@ const ForgetPasswordPage = () => {
 
   const handleForgetPassword = async (request: ForgetPasswordRequest) => {
     try {
-      const { resetPasswordToken }: ForgetPasswordResponse = await forgetPassword(request);
-      navigate("/auth/reset-password", { state: { resetPasswordToken } });
+      const response = await forgetPassword(request);
+      navigate("/auth/reset-password", {
+        state: { resetPasswordToken: response.resetPasswordToken },
+      });
     } catch (error) {
       enqueueSnackbar((error as string) || "發送失敗!", { variant: "error" });
     }
@@ -116,14 +118,14 @@ const ForgetPasswordPage = () => {
         {/* Phone Number */}
         <FormControl fullWidth>
           <FormLabel
-            htmlFor='PhoneNumber'
+            htmlFor='cellphone'
             required
             sx={{
               color: "neutral.dark",
               "& .MuiFormLabel-asterisk": { color: "error.main" },
             }}
           >
-            手機號碼
+            臺灣手機號碼
           </FormLabel>
           <Controller
             name='cellphone'
@@ -131,7 +133,7 @@ const ForgetPasswordPage = () => {
             render={({ field }) => (
               <TextField
                 {...field}
-                id='PhoneNumber'
+                id='cellphone'
                 type='tel'
                 placeholder='請輸入手機號碼'
                 error={!!errors.cellphone}

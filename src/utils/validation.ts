@@ -1,17 +1,17 @@
 /**
  * 驗證是否為 yyyy-MM-dd 格式
  */
-export const isValidDateFormat = (val: string | undefined): boolean => {
-  if (!val) return true;
-  return /^\d{4}-\d{2}-\d{2}$/.test(val);
+export const isValidDateFormat = (value: string | undefined): boolean => {
+  if (!value) return true;
+  return /^\d{4}-\d{2}-\d{2}$/.test(value);
 };
 
 /**
  * 驗證出生日期是否不大於今日
  */
-export const isValidBirthDate = (val: string | undefined): boolean => {
-  if (!val) return true;
-  const parts = val.split("-");
+export const isValidBirthDate = (value: string | undefined): boolean => {
+  if (!value) return true;
+  const parts = value.split("-");
   if (parts.length !== 3) return false;
 
   const year = parseInt(parts[0], 10);

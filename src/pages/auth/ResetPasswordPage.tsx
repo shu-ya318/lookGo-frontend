@@ -43,7 +43,10 @@ const defaultValues = {
 const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const resetPasswordToken: string = (location.state as { resetPasswordToken?: string })?.resetPasswordToken ?? "";
+  const resetPasswordToken =
+    (location.state as { resetPasswordToken?: string })?.resetPasswordToken ??
+    "";
+  console.log(resetPasswordToken);
 
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -65,9 +68,10 @@ const ResetPasswordPage = () => {
   const handleResetPassword = async (newPassword: string) => {
     try {
       if (!resetPasswordToken) {
-        enqueueSnackbar("重設驗證碼失效，請從正確的電子郵件連結進入！", {
+        enqueueSnackbar("重設驗證碼無效！", {
           variant: "error",
         });
+
         return;
       }
 

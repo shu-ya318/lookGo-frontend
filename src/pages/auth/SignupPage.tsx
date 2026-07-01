@@ -36,11 +36,12 @@ const formSchema = z.object({
     .max(20, "密碼長度必須為 8-20 個字!"),
   cellphone: z
     .string()
-    .optional()
-    .refine((val) => {
-      if (!val) return true;
-      return /^0\d{9}$/.test(val);
-    }, "請輸入 0 開頭的 10 碼手機號碼!"),
+    .min(1, "請輸入臺灣手機號碼!")
+    .refine((value) => {
+      if (!value) return true;
+
+      return /^0\d{9}$/.test(value);
+    }, "請輸入 0 開頭的 10 碼臺灣手機號碼!"),
   birthDate: z
     .string()
     .optional()
@@ -188,13 +189,17 @@ const SignupPage = () => {
             )}
           />
         </FormControl>
-        {/* Phone Number */}
+        {/* Cellphone*/}
         <FormControl fullWidth>
           <FormLabel
-            htmlFor='PhoneNumber'
-            sx={{ color: "neutral.dark" }}
+            htmlFor='cellphone'
+            required
+            sx={{
+              color: "neutral.dark",
+              "& .MuiFormLabel-asterisk": { color: "error.main" },
+            }}
           >
-            手機號碼
+            臺灣手機號碼
           </FormLabel>
           <Controller
             name='cellphone'
@@ -202,9 +207,9 @@ const SignupPage = () => {
             render={({ field }) => (
               <TextField
                 {...field}
-                id='PhoneNumber'
+                id='cellphone'
                 type='tel'
-                placeholder='請輸入手機號碼'
+                placeholder='請輸入臺灣手機號碼'
                 error={!!errors.cellphone}
                 helperText={errors.cellphone?.message}
                 variant='outlined'
@@ -220,7 +225,7 @@ const SignupPage = () => {
               color: "neutral.dark",
             }}
           >
-            出生西元日期
+            出生日期(西元年份)
           </FormLabel>
           <Controller
             name='birthDate'
