@@ -1,0 +1,5 @@
+# 指定下載套件走內網
+registry=https://nexus.mli.com.corp/repository/npm-group/
+
+# 關閉 SSL 憑證檢查（解決內網自簽憑證問題）
+strict-ssl=false
