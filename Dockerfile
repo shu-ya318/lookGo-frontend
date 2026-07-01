@@ -3,7 +3,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json .npmrc ./
+ARG NPM_RC_FILE=.npmrc-public
+COPY ${NPM_RC_FILE} ./.npmrc
+
+COPY package*.json ./
 
 RUN npm install
 
