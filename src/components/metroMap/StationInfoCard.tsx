@@ -90,7 +90,7 @@ export function StationInfoCard({
       ? allLines.filter(
         (l) =>
           l.letter !== line.letter &&
-          l.stations.some((station) => station.nameZhTw === station.nameZhTw)
+          l.stations.some((s) => s.nameZhTw === station.nameZhTw)
       )
       : [];
   const isTransfer = transferLines.length > 0;

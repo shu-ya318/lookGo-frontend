@@ -97,7 +97,7 @@ export function MetroMapImageViewer({ lines }: Props): React.ReactElement {
                       width: "100%",
                       height: "100%",
                       cursor: "pointer",
-                      // background: "rgba(255, 0, 0, 0.4)",
+                      background: "transparent",
                       border: "none",
                       outline: "none",
                     }}
