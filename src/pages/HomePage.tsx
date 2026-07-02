@@ -15,276 +15,272 @@ import ChatBubbleOutlineOutlined from "@mui/icons-material/ChatBubbleOutlineOutl
 import trtcBanner from "@/assets/trtc_banner.jpg";
 
 const featureSections: {
-    title: string;
-    subtitle: string;
-    description: string;
-    path: string;
-    icon: React.ReactNode;
+  title: string;
+  subtitle: string;
+  description: string;
+  path: string;
+  icon: React.ReactNode;
 }[] = [
-        {
-            title: "路網圖查詢",
-            subtitle: "互動式路網圖",
-            description:
-                "透過動態路網圖，輕鬆瀏覽臺北捷運各站資訊，快速掌握路線與轉乘方式。",
-            path: "/network-map",
-            icon: <MapOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
-        },
-        {
-            title: "車站書籤",
-            subtitle: "收藏常用車站",
-            description:
-                "將常用或感興趣的車站加入書籤，隨時快速查看車站資訊。",
-            path: "/station-bookmark",
-            icon: <BookmarkBorderIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
-        },
-        {
-            title: "旅程規劃",
-            subtitle: "專屬旅程規劃",
-            description:
-                "依據您的需求客製化規劃捷運旅程，打造最適合您的出行路線。",
-            path: "/trip-planner",
-            icon: <RouteOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
-        },
-        {
-            title: "車站聊天室",
-            subtitle: "即時交流平台",
-            description:
-                "在車站專屬聊天室中與其他旅客即時交流，分享搭乘心得與周邊資訊。",
-            path: "/station-chat-room",
-            icon: <ChatBubbleOutlineOutlined sx={{ fontSize: { xs: 40, md: 56 } }} />,
-        },
-    ];
+  {
+    title: "路網圖查詢",
+    subtitle: "互動式路網圖",
+    description:
+      "透過動態路網圖，輕鬆瀏覽臺北捷運各站資訊，快速掌握路線與轉乘方式。",
+    path: "/network-map",
+    icon: <MapOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
+  },
+  {
+    title: "車站書籤",
+    subtitle: "收藏常用車站",
+    description: "將常用或感興趣的車站加入書籤，隨時快速查看車站資訊。",
+    path: "/station-bookmark",
+    icon: <BookmarkBorderIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
+  },
+  {
+    title: "旅程規劃",
+    subtitle: "專屬旅程規劃",
+    description: "依據您的需求客製化規劃捷運旅程，打造最適合您的出行路線。",
+    path: "/trip-planner",
+    icon: <RouteOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
+  },
+  {
+    title: "車站聊天室",
+    subtitle: "即時交流平台",
+    description:
+      "在車站專屬聊天室中與其他旅客即時交流，分享搭乘心得與周邊資訊。",
+    path: "/station-chat-room",
+    icon: <ChatBubbleOutlineOutlined sx={{ fontSize: { xs: 40, md: 56 } }} />,
+  },
+];
 
 const HomePage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState("");
 
-    const handleSearch = (): void => {
-        const trimmedValue = searchValue.trim();
-        if (trimmedValue) {
-            navigate(`/network-map?search=${encodeURIComponent(trimmedValue)}`);
-        } else {
-            navigate("/network-map");
-        }
-    };
+  const handleSearch = (): void => {
+    const trimmedValue = searchValue.trim();
+    if (trimmedValue) {
+      navigate(`/network-map?search=${encodeURIComponent(trimmedValue)}`);
+    } else {
+      navigate("/network-map");
+    }
+  };
 
-    const handleKeyDown = (event: React.KeyboardEvent): void => {
-        if (event.key === "Enter") {
-            handleSearch();
-        }
-    };
+  const handleKeyDown = (event: React.KeyboardEvent): void => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
 
-    return (
-        <Box>
-            {/* Banner Section */}
-            <Box
-                sx={{
-                    position: "relative",
-                    width: "100%",
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    minHeight: "640px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-end",
-                    overflow: "hidden",
-                }}
-            >
-                <Box
-                    component="img"
-                    src={trtcBanner}
-                    alt="背景圖片"
-                    sx={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                        zIndex: 0,
-                    }}
-                />
-                <Box
-                    sx={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        backgroundColor: "rgba(0, 0, 0, 0.13)",
-                        zIndex: 1,
-                    }}
-                />
-                <Box
-                    sx={{
-                        position: "relative",
-                        zIndex: 2,
-                        pr: { xs: 4, md: 10 },
-                        pl: { xs: 4, md: 0 },
-                        py: 6,
-                        maxWidth: "600px",
-                    }}
-                >
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            color: "#FFFFFF",
-                            mb: 1.5,
-                            fontSize: { xs: "1.5rem", md: "2rem" },
-                        }}
-                    >
-                        查詢您有興趣的臺北捷運車站
-                    </Typography>
-                    <Typography
-                        variant="subtitle1"
-                        sx={{
-                            color: "rgba(255, 255, 255, 0.85)",
-                            mb: 4,
-                        }}
-                    >
-                        使用 LookGo 讓您查完立即出發
-                    </Typography>
-                    <Box
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            backgroundColor: "rgba(255, 255, 255, 0.9)",
-                            borderRadius: "28px",
-                            px: 2,
-                            py: 0.5,
-                        }}
-                    >
-                        <InputBase
-                            placeholder="您想找哪個臺北捷運車站?"
-                            value={searchValue}
-                            onChange={(event) => setSearchValue(event.target.value)}
-                            onKeyDown={handleKeyDown}
-                            sx={{
-                                flex: 1,
-                                fontSize: "0.95rem",
-                                "& .MuiInputBase-input": {
-                                    py: 1,
-                                },
-                            }}
-                        />
-                        <IconButton onClick={handleSearch} sx={{ color: "neutral.main" }}>
-                            <SearchIcon />
-                        </IconButton>
-                    </Box>
-                </Box>
-            </Box>
-
-            {featureSections.map((section, index) => {
-                const isOdd = index % 2 === 0;
-
-                const imageBlock = (
-                    <Box
-                        sx={{
-                            flex: "0 0 auto",
-                            width: { xs: "100%", md: "35%" },
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            py: { xs: 2, md: 0 },
-                        }}
-                    >
-                        <Box
-                            sx={{
-                                width: { xs: 88, md: 120 },
-                                height: { xs: 88, md: 120 },
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                color: "primary.main",
-                                backgroundColor: "primary.light",
-                                opacity: 0.9,
-                                borderRadius: isOdd
-                                    ? "16px 0 16px 0"
-                                    : "0 16px 0 16px",
-                            }}
-                        >
-                            {section.icon}
-                        </Box>
-                    </Box>
-                );
-                const textBlock = (
-                    <Box
-                        sx={{
-                            flex: 1,
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            px: { xs: 2, md: 4 },
-                            py: { xs: 2, md: 0 },
-                        }}
-                    >
-                        <Typography
-                            variant="h6"
-                            sx={{ mb: 0.5, color: "neutral.dark" }}
-                        >
-                            {section.title}
-                        </Typography>
-                        <Typography
-                            variant="caption"
-                            sx={{ mb: 1, color: "secondary.dark" }}
-                        >
-                            {section.subtitle}
-                        </Typography>
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                mb: 2,
-                                color: "text.secondary",
-                                lineHeight: 1.6,
-                                fontSize: "0.8125rem",
-                            }}
-                        >
-                            {section.description}
-                        </Typography>
-                        <Box>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                size="small"
-                                onClick={() => navigate(section.path)}
-                                sx={{
-                                    borderRadius: "6px",
-                                    px: 2.5,
-                                    py: 0.75,
-                                }}
-                            >
-                                立即前往
-                            </Button>
-                        </Box>
-                    </Box>
-                );
-                return (
-                    <Box
-                        key={section.title}
-                        sx={{
-                            maxWidth: '1280px',
-                            display: "flex",
-                            flexDirection: {
-                                xs: "column",
-                                md: isOdd ? "row" : "row-reverse",
-                            },
-                            alignItems: "center",
-                            // backgroundColor: index % 2 === 0
-                            //     ? "quaternary.main"
-                            //     : "background.default",
-                            margin: "0 auto",
-                            py: { xs: 3, md: 4 },
-                            px: { xs: 2, md: 8 },
-                        }}
-                    >
-                        {imageBlock}
-                        {textBlock}
-                    </Box>
-                );
-            })}
+  return (
+    <Box>
+      {/* Banner Section */}
+      <Box
+        sx={{
+          position: "relative",
+          width: "100%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          minHeight: "640px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          component='img'
+          src={trtcBanner}
+          alt='背景圖片'
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.13)",
+            zIndex: 1,
+          }}
+        />
+        <Box
+          sx={{
+            position: "relative",
+            zIndex: 2,
+            pr: { xs: 4, md: 10 },
+            pl: { xs: 4, md: 0 },
+            py: 6,
+            maxWidth: "600px",
+          }}
+        >
+          <Typography
+            variant='h4'
+            sx={{
+              color: "#FFFFFF",
+              mb: 1.5,
+              fontSize: { xs: "1.5rem", md: "2rem" },
+            }}
+          >
+            查詢您有興趣的臺北捷運車站
+          </Typography>
+          <Typography
+            variant='subtitle1'
+            sx={{
+              color: "rgba(255, 255, 255, 0.85)",
+              mb: 4,
+            }}
+          >
+            使用 LookGo 讓您查完立即出發
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              backgroundColor: "rgba(255, 255, 255, 0.9)",
+              borderRadius: "28px",
+              px: 2,
+              py: 0.5,
+            }}
+          >
+            <InputBase
+              placeholder='您想找哪個臺北捷運車站?'
+              value={searchValue}
+              onChange={(event) => setSearchValue(event.target.value)}
+              onKeyDown={handleKeyDown}
+              sx={{
+                flex: 1,
+                fontSize: "0.95rem",
+                "& .MuiInputBase-input": {
+                  py: 1,
+                },
+              }}
+            />
+            <IconButton onClick={handleSearch} sx={{ color: "neutral.main" }}>
+              <SearchIcon />
+            </IconButton>
+          </Box>
         </Box>
-    );
+      </Box>
+      {/* Feature Section */}
+      {featureSections.map((section) => {
+        // const isOdd = index % 2 === 0;
+
+        const imageBlock = (
+          <Box
+            sx={{
+              flex: "0 0 auto",
+              width: { xs: "100%", md: "35%" },
+              display: "flex",
+              // justifyContent: isOdd ? "flex-start" : "flex-end",
+              justifyContent: "center",
+              alignItems: "center",
+              py: { xs: 2, md: 0 },
+            }}
+          >
+            <Box
+              sx={{
+                width: { xs: 88, md: 120 },
+                height: { xs: 88, md: 120 },
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "primary.main",
+                backgroundColor: "primary.light",
+                opacity: 0.9,
+                // borderRadius: isOdd ? "16px 0 16px 0" : "0 16px 0 16px",
+                borderRadius: "16px 0 16px 0",
+              }}
+            >
+              {section.icon}
+            </Box>
+          </Box>
+        );
+        const textBlock = (
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              px: { xs: 2, md: 4 },
+              py: { xs: 2, md: 0 },
+            }}
+          >
+            <Typography variant='h6' sx={{ mb: 0.5, color: "neutral.dark" }}>
+              {section.title}
+            </Typography>
+            <Typography
+              variant='caption'
+              sx={{ mb: 1, color: "secondary.dark" }}
+            >
+              {section.subtitle}
+            </Typography>
+            <Typography
+              variant='body2'
+              sx={{
+                mb: 2,
+                color: "text.secondary",
+                lineHeight: 1.6,
+                fontSize: "0.8125rem",
+              }}
+            >
+              {section.description}
+            </Typography>
+            <Box>
+              <Button
+                variant='contained'
+                color='primary'
+                size='small'
+                onClick={() => navigate(section.path)}
+                sx={{
+                  borderRadius: "6px",
+                  px: 2.5,
+                  py: 0.75,
+                }}
+              >
+                立即前往
+              </Button>
+            </Box>
+          </Box>
+        );
+
+        return (
+          <Box
+            key={section.title}
+            sx={{
+              maxWidth: "960px",
+              display: "flex",
+              flexDirection: {
+                xs: "column",
+                // md: isOdd ? "row" : "row-reverse",
+                md: "row",
+              },
+              alignItems: "center",
+              // backgroundColor:
+              //   index % 2 === 0 ? "quaternary.main" : "background.default",
+              margin: "0 auto",
+              py: { xs: 3, md: 4 },
+              px: { xs: 2, md: 8 },
+            }}
+          >
+            {imageBlock}
+            {textBlock}
+          </Box>
+        );
+      })}
+    </Box>
+  );
 };
 
 export default HomePage;

@@ -20,6 +20,7 @@ import { UpdateCellphoneDialog } from "@/components/user/UpdateCellphoneDialog";
 import { UpdateBirthDateDialog } from "@/components/user/UpdateBirthDateDialog";
 
 import type { MembershipTier } from "@/services/user/interface";
+import { formatDateTime } from "@/utils/date";
 
 const membershipTierLabel: Record<MembershipTier, string> = {
   BASIC: "基本",
@@ -80,8 +81,11 @@ const SettingPage = () => {
       );
     }
 
-    const value = userInfo[key as keyof typeof userInfo];
+    if (key === "lastLoginAt") {
+      return userInfo.lastLoginAt ? formatDateTime(userInfo.lastLoginAt) : "-";
+    }
 
+    const value = userInfo[key as keyof typeof userInfo];
     if (value === null || value === undefined) return "-";
 
     return String(value);

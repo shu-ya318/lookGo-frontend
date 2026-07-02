@@ -65,8 +65,13 @@ const SEARCH_BAR_HEIGHT = "5.5rem";
 const SEARCH_CONTROL_HEIGHT = "2.5rem";
 
 const MetroMapPage = () => {
-  const { allStations, fetchRoute, isRouteLoading, setSelectedFacilities, clearRoute } =
-    useMetroMapStore();
+  const {
+    allStations,
+    fetchRoute,
+    isRouteLoading,
+    setSelectedFacilities,
+    clearRoute,
+  } = useMetroMapStore();
   const selectAndFetchStation = useStationStore(
     (state) => state.selectAndFetchStation
   );
@@ -108,6 +113,7 @@ const MetroMapPage = () => {
     );
 
     if (matchedStation) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStartStation({
         label: `${matchedStation.nameZhTw}（${matchedStation.stationCode}）`,
         stationCode: matchedStation.stationCode,
@@ -135,7 +141,7 @@ const MetroMapPage = () => {
     advancedFilters.time.length;
 
   const infoText = !hasStartStation
-    ? "可點擊地圖任意車站代碼，或選擇起始車站進行查詢"
+    ? "可點擊地圖路線(文湖、淡水信義、松山新店、中和新蘆、板南)的任意車站代碼，或選擇起始車站進行查詢"
     : isSingleStationMode
       ? `已選起始站「${startStation.label}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
       : `已選起訖站，可查詢路徑（${startStation.label} → ${endStation!.label}）`;
@@ -212,7 +218,7 @@ const MetroMapPage = () => {
       <Stack
         sx={{
           position: "sticky",
-          top: HEADER_HEIGHT,
+          // top: HEADER_HEIGHT,
           flexShrink: 0,
           backgroundColor: "primary.main",
           px: 3,
@@ -254,11 +260,15 @@ const MetroMapPage = () => {
             </Typography>
             <Autocomplete
               value={startStation}
-              onChange={(_event, selectedOption) => setStartStation(selectedOption)}
+              onChange={(_event, selectedOption) =>
+                setStartStation(selectedOption)
+              }
               options={stationOptions}
               groupBy={(option) => option.group}
               getOptionLabel={(option) => option.label}
-              isOptionEqualToValue={(option, value) => option.stationCode === value.stationCode}
+              isOptionEqualToValue={(option, value) =>
+                option.stationCode === value.stationCode
+              }
               renderOption={(props, option) => (
                 <li {...props} key={`${option.group}-${option.label}`}>
                   {option.label}
@@ -296,13 +306,19 @@ const MetroMapPage = () => {
                   setAdvancedFilters((prev) => ({ ...prev, equipment: [] }));
                   setSelectedFacilities([]);
                 } else {
-                  setAdvancedFilters((prev) => ({ ...prev, fare: [], time: [] }));
+                  setAdvancedFilters((prev) => ({
+                    ...prev,
+                    fare: [],
+                    time: [],
+                  }));
                 }
               }}
               options={stationOptions}
               groupBy={(option) => option.group}
               getOptionLabel={(option) => option.label}
-              isOptionEqualToValue={(option, value) => option.stationCode === value.stationCode}
+              isOptionEqualToValue={(option, value) =>
+                option.stationCode === value.stationCode
+              }
               renderOption={(props, option) => (
                 <li {...props} key={`${option.group}-${option.label}`}>
                   {option.label}
@@ -374,8 +390,14 @@ const MetroMapPage = () => {
               <>
                 <ListSubheader sx={{ fontWeight: 700 }}>設備</ListSubheader>
                 {facilityFilterOptions.map((option) => (
-                  <MenuItem key={option} onClick={() => toggleFilter("equipment", option)}>
-                    <Checkbox checked={advancedFilters.equipment.includes(option)} size='small' />
+                  <MenuItem
+                    key={option}
+                    onClick={() => toggleFilter("equipment", option)}
+                  >
+                    <Checkbox
+                      checked={advancedFilters.equipment.includes(option)}
+                      size='small'
+                    />
                     <ListItemText primary={option} />
                   </MenuItem>
                 ))}
@@ -386,16 +408,28 @@ const MetroMapPage = () => {
               <>
                 <ListSubheader sx={{ fontWeight: 700 }}>票價種類</ListSubheader>
                 {fareTypeFilterOptions.map((option) => (
-                  <MenuItem key={option} onClick={() => toggleFilter("fare", option)}>
-                    <Checkbox checked={advancedFilters.fare.includes(option)} size='small' />
+                  <MenuItem
+                    key={option}
+                    onClick={() => toggleFilter("fare", option)}
+                  >
+                    <Checkbox
+                      checked={advancedFilters.fare.includes(option)}
+                      size='small'
+                    />
                     <ListItemText primary={option} />
                   </MenuItem>
                 ))}
                 <Divider />
                 <ListSubheader sx={{ fontWeight: 700 }}>乘車時間</ListSubheader>
                 {travelTimeFilterOptions.map((option) => (
-                  <MenuItem key={option} onClick={() => toggleFilter("time", option)}>
-                    <Checkbox checked={advancedFilters.time.includes(option)} size='small' />
+                  <MenuItem
+                    key={option}
+                    onClick={() => toggleFilter("time", option)}
+                  >
+                    <Checkbox
+                      checked={advancedFilters.time.includes(option)}
+                      size='small'
+                    />
                     <ListItemText primary={option} />
                   </MenuItem>
                 ))}
