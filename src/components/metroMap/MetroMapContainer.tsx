@@ -5,7 +5,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 
 import { useMetroMapStore } from '@/stores/metroMapStore';
-import { useStationStore } from '@/stores/useStationStore';
+import { useStationStore } from '@/stores/stationStore';
 import type { MetroMapLine, MetroMapStation } from '@/services/metro/interface';
 import { MetroMapImageViewer } from './MetroMapImageViewer';
 import { StationInfoCard } from './StationInfoCard';
@@ -23,7 +23,7 @@ export function MetroMapContainer(): React.ReactElement {
   let selectedLine: MetroMapLine | null = null;
   if (currentStationCode) {
     for (const line of lines) {
-      const station = line.stations.find((s) => s.stationCode === currentStationCode);
+      const station = line.stations.find((station) => station.stationCode === currentStationCode);
       if (station) {
         selectedStation = station;
         selectedLine = line;

@@ -10,8 +10,8 @@ import Typography from "@mui/material/Typography";
 import CloseIcon from "@mui/icons-material/Close";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
-import { useStationStore } from "@/stores/useStationStore";
-import { FareType, RoutingStrategy } from "@/services/metro/constants";
+import { useStationStore } from "@/stores/stationStore";
+import { FareType, RoutingStrategy } from "@/services/metro/types";
 import type {
   MetroMapLine,
   MetroMapStation,
@@ -88,19 +88,19 @@ export function StationInfoCard({
   const transferLines =
     station && line
       ? allLines.filter(
-          (l) =>
-            l.letter !== line.letter &&
-            l.stations.some((s) => s.nameZhTw === station.nameZhTw)
-        )
+        (l) =>
+          l.letter !== line.letter &&
+          l.stations.some((station) => station.nameZhTw === station.nameZhTw)
+      )
       : [];
   const isTransfer = transferLines.length > 0;
 
   // 只保留有值（非 null、非 undefined、非空字串）的設備
   const availableFacilities = stationDetails
     ? FACILITY_LABELS.filter(({ key }) => {
-        const value = stationDetails[key];
-        return value != null && value !== ""; // != null 同時排除 null 與 undefined
-      })
+      const value = stationDetails[key];
+      return value != null && value !== ""; // != null 同時排除 null 與 undefined
+    })
     : [];
 
   const fromName =
@@ -169,7 +169,7 @@ export function StationInfoCard({
             />
             {transferLines.map((tl) => {
               const ts = tl.stations.find(
-                (s) => s.nameZhTw === station.nameZhTw
+                (station) => station.nameZhTw === station.nameZhTw
               );
               return (
                 <Chip

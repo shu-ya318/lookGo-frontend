@@ -190,9 +190,9 @@ const TripPlannerPage = () => {
         }
         setSelectedHistoryId(trip.id);
         const start =
-            stationOptions.find(s => s.label === trip.startStation) ?? null;
+            stationOptions.find(station => station.label === trip.startStation) ?? null;
         const end =
-            stationOptions.find(s => s.label === trip.endStation) ?? null;
+            stationOptions.find(station => station.label === trip.endStation) ?? null;
         setStartStation(start);
         setEndStation(end);
         setAdvancedFilters({
@@ -301,10 +301,10 @@ const TripPlannerPage = () => {
                     {isEditingTitle ? (
                         <TextField
                             value={tripTitle}
-                            onChange={e => setTripTitle(e.target.value)}
+                            onChange={event => setTripTitle(event.target.value)}
                             onBlur={() => setIsEditingTitle(false)}
-                            onKeyDown={e => {
-                                if (e.key === 'Enter') setIsEditingTitle(false);
+                            onKeyDown={event => {
+                                if (event.key === 'Enter') setIsEditingTitle(false);
                             }}
                             size='small'
                             autoFocus
@@ -448,7 +448,7 @@ const TripPlannerPage = () => {
                         {/* 進階查詢按鈕 */}
                         <Button
                             startIcon={<TuneIcon />}
-                            onClick={e => setMenuAnchorEl(e.currentTarget)}
+                            onClick={event => setMenuAnchorEl(event.currentTarget)}
                             variant='outlined'
                             size='small'
                             sx={{
@@ -730,7 +730,7 @@ const TripPlannerPage = () => {
                                 </Typography>
                                 <TextField
                                     value={note}
-                                    onChange={e => setNote(e.target.value)}
+                                    onChange={event => setNote(event.target.value)}
                                     multiline
                                     rows={4}
                                     fullWidth

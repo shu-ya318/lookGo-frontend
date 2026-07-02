@@ -23,7 +23,7 @@ export const StationFacility = {
 } as const;
 export type StationFacility = typeof StationFacility[keyof typeof StationFacility];
 
-const facilityLabelMap: Record<string, StationFacility> = {
+export const facilityLabelMap = {
     '廁所': StationFacility.TOILET,
     '電梯': StationFacility.ELEVATOR,
     '無障礙設施': StationFacility.ACCESSIBLE_FACILITIES,
@@ -31,7 +31,12 @@ const facilityLabelMap: Record<string, StationFacility> = {
     'ATM': StationFacility.ATM,
     '置物櫃': StationFacility.LOCKER,
     '充電站': StationFacility.CHARGING_STATION,
-};
+} as const;
+
+export type FacilityLabel = keyof typeof facilityLabelMap;
+
+export const facilityFilterOptions = Object.keys(facilityLabelMap) as FacilityLabel[];
 
 export const labelToFacility = (label: string): StationFacility | undefined =>
-    facilityLabelMap[label];
+    facilityLabelMap[label as FacilityLabel];
+

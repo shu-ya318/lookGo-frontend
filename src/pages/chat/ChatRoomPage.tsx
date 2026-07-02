@@ -430,7 +430,7 @@ const ChatRoomPage = () => {
 
                     <TextField
                         value={inputMessage}
-                        onChange={e => setInputMessage(e.target.value)}
+                        onChange={event => setInputMessage(event.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder='請輸入訊息'
                         size='small'

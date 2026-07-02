@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { enqueueSnackbar } from "notistack";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
@@ -16,16 +18,19 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneIcon from "@mui/icons-material/Tune";
 
+import { MetroMapContainer } from "@/components/metroMap/MetroMapContainer";
+
 import { useMetroMapStore } from "@/stores/metroMapStore";
-import { useStationStore } from "@/stores/useStationStore";
+import { useStationStore } from "@/stores/stationStore";
+
 import {
   FareType,
   RoutingStrategy,
   StationFacility,
   labelToFacility,
-} from "@/services/metro/constants";
-
-import { MetroMapContainer } from "@/components/metroMap/MetroMapContainer";
+  facilityFilterOptions,
+  type FacilityLabel,
+} from "@/services/metro/types";
 
 interface StationOption {
   label: string;
@@ -33,18 +38,15 @@ interface StationOption {
   group: string;
 }
 
-const equipmentFilterOptions = [
-  "廁所",
-  "電梯",
-  "無障礙設施",
-  "哺乳室",
-  "ATM",
-  "置物櫃",
-  "充電站",
-];
+interface AdvancedFilters {
+  equipment: FacilityLabel[];
+  fare: FareLabel[];
+  time: TimeLabel[];
+}
+
 const fareTypeFilterOptions = ["全票", "學生票", "兒童票", "愛心票"] as const;
 type FareLabel = (typeof fareTypeFilterOptions)[number];
-const fareLabelToType: Record<FareLabel, FareType> = {
+const fareLabelToType = {
   全票: FareType.FULL,
   學生票: FareType.STUDENT,
   兒童票: FareType.CHILD,
@@ -53,18 +55,14 @@ const fareLabelToType: Record<FareLabel, FareType> = {
 
 const travelTimeFilterOptions = ["最少轉乘次數", "最短車程時間"] as const;
 type TimeLabel = (typeof travelTimeFilterOptions)[number];
-const timeLabelToStrategy: Record<TimeLabel, RoutingStrategy> = {
+const timeLabelToStrategy = {
   最少轉乘次數: RoutingStrategy.MIN_TRANSFER,
   最短車程時間: RoutingStrategy.MIN_TIME,
 };
 
-interface AdvancedFilters {
-  equipment: string[];
-  fare: string[];
-  time: string[];
-}
-
+const HEADER_HEIGHT = "4.375rem";
 const SEARCH_BAR_HEIGHT = "5.5rem";
+const SEARCH_CONTROL_HEIGHT = "2.5rem";
 
 const MetroMapPage = () => {
   const { allStations, fetchRoute, isRouteLoading, setSelectedFacilities, clearRoute } =
@@ -75,11 +73,11 @@ const MetroMapPage = () => {
   const isStationLoading = useStationStore((state) => state.isLoading);
   const clearSelection = useStationStore((state) => state.clearSelection);
 
-  const stationOptions = useMemo<StationOption[]>(
+  const stationOptions = useMemo(
     () =>
-      allStations.map((s) => ({
-        label: `${s.nameZhTw}（${s.stationCode}）`,
-        stationCode: s.stationCode,
+      allStations.map((station) => ({
+        label: `${station.nameZhTw}（${station.stationCode}）`,
+        stationCode: station.stationCode,
         group: "所有車站",
       })),
     [allStations]
@@ -93,6 +91,37 @@ const MetroMapPage = () => {
     time: [],
   });
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const hasAppliedSearchParam = useRef(false);
+
+  useEffect(() => {
+    const keyword = searchParams.get("search")?.trim();
+    if (!keyword || hasAppliedSearchParam.current || allStations.length === 0) {
+      return;
+    }
+    hasAppliedSearchParam.current = true;
+
+    const matchedStation = allStations.find(
+      (station) =>
+        station.stationCode === keyword || station.nameZhTw.includes(keyword)
+    );
+
+    if (matchedStation) {
+      setStartStation({
+        label: `${matchedStation.nameZhTw}（${matchedStation.stationCode}）`,
+        stationCode: matchedStation.stationCode,
+        group: "所有車站",
+      });
+      selectAndFetchStation(matchedStation.stationCode);
+    } else {
+      enqueueSnackbar(`找不到符合「${keyword}」的車站，請重新查詢`, {
+        variant: "warning",
+      });
+    }
+
+    setSearchParams({}, { replace: true });
+  }, [allStations, searchParams, setSearchParams, selectAndFetchStation]);
 
   const hasStartStation = startStation !== null;
   const hasEndStation = endStation !== null;
@@ -111,18 +140,18 @@ const MetroMapPage = () => {
       ? `已選起始站「${startStation.label}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
       : `已選起訖站，可查詢路徑（${startStation.label} → ${endStation!.label}）`;
 
-  const toggleFilter = (
-    category: keyof AdvancedFilters,
-    value: string
+  const toggleFilter = <K extends keyof AdvancedFilters>(
+    category: K,
+    value: AdvancedFilters[K][number]
   ): void => {
     setAdvancedFilters((prev) => {
-      const current = prev[category];
+      const current = prev[category] as Array<AdvancedFilters[K][number]>;
       const updated = current.includes(value)
         ? current.filter((v) => v !== value)
         : [...current, value];
 
       if (category === "equipment") {
-        const facilities = updated
+        const facilities = (updated as FacilityLabel[])
           .map(labelToFacility)
           .filter((f): f is StationFacility => f !== undefined);
         setSelectedFacilities(facilities);
@@ -172,16 +201,18 @@ const MetroMapPage = () => {
     <Box
       sx={{
         position: "relative",
-        height: "calc(100vh - 4.375rem)",
+        height: `calc(100vh - ${HEADER_HEIGHT})`,
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "tertiary.light",
       }}
     >
-      {/* 搜尋列*/}
+      {/* search bar */}
       <Stack
         sx={{
+          position: "sticky",
+          top: HEADER_HEIGHT,
           flexShrink: 0,
           backgroundColor: "primary.main",
           px: 3,
@@ -209,12 +240,11 @@ const MetroMapPage = () => {
             {infoText}
           </Typography>
         </Stack>
-
         <Stack
           direction='row'
           sx={{ alignItems: "center", gap: 2, flexWrap: "wrap" }}
         >
-          {/* 起始車站 */}
+          {/* start station */}
           <Stack direction='row' sx={{ alignItems: "center", gap: 1 }}>
             <Typography
               variant='body2'
@@ -243,12 +273,14 @@ const MetroMapPage = () => {
               )}
               sx={{
                 width: 180,
-                "& .MuiOutlinedInput-root": { backgroundColor: "white" },
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "white",
+                  height: SEARCH_CONTROL_HEIGHT,
+                },
               }}
             />
           </Stack>
-
-          {/* 終點車站 */}
+          {/* destination station */}
           <Stack direction='row' sx={{ alignItems: "center", gap: 1 }}>
             <Typography
               variant='body2'
@@ -285,12 +317,14 @@ const MetroMapPage = () => {
               )}
               sx={{
                 width: 180,
-                "& .MuiOutlinedInput-root": { backgroundColor: "white" },
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "white",
+                  height: SEARCH_CONTROL_HEIGHT,
+                },
               }}
             />
           </Stack>
-
-          {/* 進階查詢 */}
+          {/* advanced filter */}
           <Button
             startIcon={<TuneIcon />}
             onClick={(event) => setMenuAnchorEl(event.currentTarget)}
@@ -298,6 +332,8 @@ const MetroMapPage = () => {
             size='small'
             disabled={!hasStartStation}
             sx={{
+              height: SEARCH_CONTROL_HEIGHT,
+              minWidth: 140,
               color: "primary.contrastText",
               borderColor: "rgba(255,255,255,0.5)",
               "&:hover": {
@@ -308,7 +344,6 @@ const MetroMapPage = () => {
           >
             進階查詢{totalFilterCount > 0 && ` (${totalFilterCount})`}
           </Button>
-
           <Button
             startIcon={<SearchIcon />}
             variant='contained'
@@ -316,6 +351,8 @@ const MetroMapPage = () => {
             disabled={!canSearch}
             onClick={handleSearch}
             sx={{
+              height: SEARCH_CONTROL_HEIGHT,
+              minWidth: 140,
               backgroundColor: "primary.contrastText",
               color: "primary.main",
               "&:hover": { backgroundColor: "rgba(255,255,255,0.85)" },
@@ -327,8 +364,7 @@ const MetroMapPage = () => {
                 ? "查看站點"
                 : "開始查詢"}
           </Button>
-
-          {/* 進階查詢下拉 */}
+          {/* advance filter menu */}
           <Menu
             anchorEl={menuAnchorEl}
             open={isMenuOpen}
@@ -337,7 +373,7 @@ const MetroMapPage = () => {
             {isSingleStationMode && (
               <>
                 <ListSubheader sx={{ fontWeight: 700 }}>設備</ListSubheader>
-                {equipmentFilterOptions.map((option) => (
+                {facilityFilterOptions.map((option) => (
                   <MenuItem key={option} onClick={() => toggleFilter("equipment", option)}>
                     <Checkbox checked={advancedFilters.equipment.includes(option)} size='small' />
                     <ListItemText primary={option} />
@@ -355,9 +391,7 @@ const MetroMapPage = () => {
                     <ListItemText primary={option} />
                   </MenuItem>
                 ))}
-
                 <Divider />
-
                 <ListSubheader sx={{ fontWeight: 700 }}>乘車時間</ListSubheader>
                 {travelTimeFilterOptions.map((option) => (
                   <MenuItem key={option} onClick={() => toggleFilter("time", option)}>
@@ -370,7 +404,7 @@ const MetroMapPage = () => {
           </Menu>
         </Stack>
       </Stack>
-      {/* D3 路網圖核心容器 */}
+      {/* Metro Map */}
       <Box sx={{ flex: 1, position: "relative", overflow: "hidden" }}>
         <MetroMapContainer />
       </Box>

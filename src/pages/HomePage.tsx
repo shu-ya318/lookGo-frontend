@@ -7,15 +7,19 @@ import InputBase from "@mui/material/InputBase";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 import SearchIcon from "@mui/icons-material/Search";
+import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import RouteOutlinedIcon from "@mui/icons-material/RouteOutlined";
+import ChatBubbleOutlineOutlined from "@mui/icons-material/ChatBubbleOutlineOutlined";
 
 import trtcBanner from "@/assets/trtc_banner.jpg";
-import placeholderImg from "@/assets/placeholder.png";
 
 const featureSections: {
     title: string;
     subtitle: string;
     description: string;
     path: string;
+    icon: React.ReactNode;
 }[] = [
         {
             title: "路網圖查詢",
@@ -23,6 +27,7 @@ const featureSections: {
             description:
                 "透過動態路網圖，輕鬆瀏覽臺北捷運各站資訊，快速掌握路線與轉乘方式。",
             path: "/network-map",
+            icon: <MapOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
         },
         {
             title: "車站書籤",
@@ -30,6 +35,7 @@ const featureSections: {
             description:
                 "將常用或感興趣的車站加入書籤，隨時快速查看車站資訊。",
             path: "/station-bookmark",
+            icon: <BookmarkBorderIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
         },
         {
             title: "旅程規劃",
@@ -37,6 +43,7 @@ const featureSections: {
             description:
                 "依據您的需求客製化規劃捷運旅程，打造最適合您的出行路線。",
             path: "/trip-planner",
+            icon: <RouteOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
         },
         {
             title: "車站聊天室",
@@ -44,6 +51,7 @@ const featureSections: {
             description:
                 "在車站專屬聊天室中與其他旅客即時交流，分享搭乘心得與周邊資訊。",
             path: "/station-chat-room",
+            icon: <ChatBubbleOutlineOutlined sx={{ fontSize: { xs: 40, md: 56 } }} />,
         },
     ];
 
@@ -53,11 +61,16 @@ const HomePage = () => {
     const [searchValue, setSearchValue] = useState("");
 
     const handleSearch = (): void => {
-        navigate("/network-map");
+        const trimmedValue = searchValue.trim();
+        if (trimmedValue) {
+            navigate(`/network-map?search=${encodeURIComponent(trimmedValue)}`);
+        } else {
+            navigate("/network-map");
+        }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent): void => {
-        if (e.key === "Enter") {
+    const handleKeyDown = (event: React.KeyboardEvent): void => {
+        if (event.key === "Enter") {
             handleSearch();
         }
     };
@@ -145,7 +158,7 @@ const HomePage = () => {
                         <InputBase
                             placeholder="您想找哪個臺北捷運車站?"
                             value={searchValue}
-                            onChange={(e) => setSearchValue(e.target.value)}
+                            onChange={(event) => setSearchValue(event.target.value)}
                             onKeyDown={handleKeyDown}
                             sx={{
                                 flex: 1,
@@ -161,34 +174,40 @@ const HomePage = () => {
                     </Box>
                 </Box>
             </Box>
-            {/* Feature Sections */}
+
             {featureSections.map((section, index) => {
                 const isOdd = index % 2 === 0;
 
                 const imageBlock = (
                     <Box
                         sx={{
-                            flex: 1,
-                            minHeight: { xs: "240px", md: "320px" },
+                            flex: "0 0 auto",
+                            width: { xs: "100%", md: "35%" },
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            py: { xs: 2, md: 0 },
                         }}
                     >
                         <Box
-                            component="img"
-                            src={placeholderImg}
-                            alt={section.title}
                             sx={{
-                                width: "100%",
-                                height: "100%",
-                                minHeight: { xs: "240px", md: "320px" },
-                                objectFit: "cover",
+                                width: { xs: 88, md: 120 },
+                                height: { xs: 88, md: 120 },
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                color: "primary.main",
+                                backgroundColor: "primary.light",
+                                opacity: 0.9,
                                 borderRadius: isOdd
                                     ? "16px 0 16px 0"
                                     : "0 16px 0 16px",
                             }}
-                        />
+                        >
+                            {section.icon}
+                        </Box>
                     </Box>
                 );
-
                 const textBlock = (
                     <Box
                         sx={{
@@ -196,25 +215,30 @@ const HomePage = () => {
                             display: "flex",
                             flexDirection: "column",
                             justifyContent: "center",
-                            px: { xs: 3, md: 6 },
-                            py: { xs: 4, md: 0 },
+                            px: { xs: 2, md: 4 },
+                            py: { xs: 2, md: 0 },
                         }}
                     >
                         <Typography
-                            variant="h5"
-                            sx={{ mb: 1, color: "neutral.dark" }}
+                            variant="h6"
+                            sx={{ mb: 0.5, color: "neutral.dark" }}
                         >
                             {section.title}
                         </Typography>
                         <Typography
-                            variant="subtitle2"
-                            sx={{ mb: 2, color: "secondary.dark" }}
+                            variant="caption"
+                            sx={{ mb: 1, color: "secondary.dark" }}
                         >
                             {section.subtitle}
                         </Typography>
                         <Typography
                             variant="body2"
-                            sx={{ mb: 3, color: "text.secondary", lineHeight: 1.8 }}
+                            sx={{
+                                mb: 2,
+                                color: "text.secondary",
+                                lineHeight: 1.6,
+                                fontSize: "0.8125rem",
+                            }}
                         >
                             {section.description}
                         </Typography>
@@ -222,11 +246,12 @@ const HomePage = () => {
                             <Button
                                 variant="contained"
                                 color="primary"
+                                size="small"
                                 onClick={() => navigate(section.path)}
                                 sx={{
                                     borderRadius: "6px",
-                                    px: 3,
-                                    py: 1,
+                                    px: 2.5,
+                                    py: 0.75,
                                 }}
                             >
                                 立即前往
@@ -234,7 +259,6 @@ const HomePage = () => {
                         </Box>
                     </Box>
                 );
-
                 return (
                     <Box
                         key={section.title}
@@ -245,12 +269,12 @@ const HomePage = () => {
                                 xs: "column",
                                 md: isOdd ? "row" : "row-reverse",
                             },
-                            alignItems: "stretch",
+                            alignItems: "center",
                             // backgroundColor: index % 2 === 0
                             //     ? "quaternary.main"
                             //     : "background.default",
                             margin: "0 auto",
-                            py: { xs: 4, md: 6 },
+                            py: { xs: 3, md: 4 },
                             px: { xs: 2, md: 8 },
                         }}
                     >

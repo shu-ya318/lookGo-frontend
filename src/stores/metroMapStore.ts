@@ -2,7 +2,8 @@ import { create } from 'zustand';
 import { enqueueSnackbar } from 'notistack';
 
 import { getMetroMap, getOriginDestinationDetail } from '@/services/metro';
-import { StationFacility } from '@/services/metro/constants';
+
+import type { StationFacility } from '@/services/metro/types';
 import type {
   MetroMapLine,
   MetroMapStation,
@@ -35,10 +36,12 @@ export const useMetroMapStore = create<MetroMapState>((set) => ({
 
   fetchMetroMap: async () => {
     set({ isLoading: true, error: null });
+
     try {
       const { lines } = await getMetroMap();
       const seen = new Set<string>();
       const allStations: MetroMapStation[] = [];
+
       for (const line of lines) {
         for (const station of line.stations) {
           if (!seen.has(station.stationCode)) {

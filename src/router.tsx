@@ -34,6 +34,15 @@ const loadUserInfo = async () => {
   return userInfo;
 };
 
+const requireAuthLoader = () => {
+  const accessToken = getAccessToken();
+  if (!accessToken) {
+    return redirect("/auth/login");
+  }
+
+  return null;
+};
+
 const authRoutes = {
   path: "/auth",
   element: <AuthLayout />,
@@ -81,8 +90,9 @@ const mainRoutes = {
   element: <Layout />,
   loader: async () => {
     const accessToken = getAccessToken();
+    // 允許繼續，不重導向
     if (!accessToken) {
-      return redirect("/auth/login");
+      return null;
     }
 
     try {
@@ -90,9 +100,10 @@ const mainRoutes = {
 
       return { userInfo };
     } catch (error) {
+      // 允許繼續，不重導向
       console.error(error);
 
-      return redirect("/auth/login");
+      return null;
     }
   },
   children: [
@@ -105,28 +116,33 @@ const mainRoutes = {
       element: <HomePage />,
     },
     {
-      path: "user-setting",
-      element: <SettingPage />,
-    },
-    {
       path: "network-map",
       element: <MetroMapPage />,
     },
     {
+      path: "user-setting",
+      element: <SettingPage />,
+      loader: requireAuthLoader,
+    },
+    {
       path: "trip-planner",
       element: <TripPlannerPage />,
+      loader: requireAuthLoader,
     },
     {
       path: "station-bookmark",
       element: <StationBookmarkPage />,
+      loader: requireAuthLoader,
     },
     {
       path: "station-chat-room",
       element: <ChatRoomPage />,
+      loader: requireAuthLoader,
     },
     {
       path: "admin",
       element: <AdminGuard />,
+      loader: requireAuthLoader,
       children: [
         {
           path: "user-management",

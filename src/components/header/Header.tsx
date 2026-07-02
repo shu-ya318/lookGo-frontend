@@ -9,6 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import Button from "@mui/material/Button";
 
 import { ImageBox } from "../ImageBox";
@@ -39,34 +40,51 @@ export const Header = ({ onToggle, navItems }: HeaderProps) => {
   const { userInfo } = useUserStore();
 
   const userProfileMenuItem = useMemo(
-    () => [
-      {
-        icon: (
-          <PersonOutlinedIcon fontSize='small' sx={{ color: "primary.dark" }} />
-        ),
-        text: "設定",
-        props: {
-          component: NavLink,
-          to: `/user-setting`, // /${userInfo?.id}
+    () => {
+      if (!userInfo) {
+        return [
+          {
+            icon: (
+              <LoginOutlinedIcon fontSize='small' sx={{ color: "primary.dark" }} />
+            ),
+            text: "登入",
+            props: {
+              component: NavLink,
+              to: "/auth/login",
+            },
+          },
+        ];
+      }
+
+      return [
+        {
+          icon: (
+            <PersonOutlinedIcon fontSize='small' sx={{ color: "primary.dark" }} />
+          ),
+          text: "設定",
+          props: {
+            component: NavLink,
+            to: `/user-setting`, // /${userInfo?.id}
+          },
         },
-      },
-      {
-        icon: (
-          <LogoutOutlinedIcon fontSize='small' sx={{ color: "primary.dark" }} />
-        ),
-        text: "登出",
-        action: async () => {
-          try {
-            await logout();
-            useAuthStore.getState().clearAuth();
-            navigate("/auth/login");
-            enqueueSnackbar("登出成功!", { variant: "success" });
-          } catch (error) {
-            enqueueSnackbar(error as string, { variant: "error" });
-          }
+        {
+          icon: (
+            <LogoutOutlinedIcon fontSize='small' sx={{ color: "primary.dark" }} />
+          ),
+          text: "登出",
+          action: async () => {
+            try {
+              await logout();
+              useAuthStore.getState().clearAuth();
+              navigate("/auth/login");
+              enqueueSnackbar("登出成功!", { variant: "success" });
+            } catch (error) {
+              enqueueSnackbar(error as string, { variant: "error" });
+            }
+          },
         },
-      },
-    ],
+      ];
+    },
     [userInfo, navigate]
   );
 

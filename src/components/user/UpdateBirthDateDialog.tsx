@@ -3,12 +3,15 @@ import { z } from 'zod';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { enqueueSnackbar } from 'notistack';
+import dayjs from 'dayjs';
 
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { Dialog } from '@/components/Dialog';
 import { updateBirthDate } from '@/services/user';
@@ -17,9 +20,9 @@ import { isValidDateFormat, isValidBirthDate } from '@/utils/validation';
 const formSchema = z.object({
     birthDate: z
         .string()
-        .min(1, '請選擇出生日期(西元年份)!')
+        .min(1, '請選擇出生日期!')
         .refine(isValidDateFormat, '出生日期格式必須為 yyyy-MM-dd!')
-        .refine(isValidBirthDate, '出生日期不得大於今日!'),
+        .refine(isValidBirthDate, '出生日期必須有效且不得大於今日!'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -116,14 +119,27 @@ export const UpdateBirthDateDialog = ({
                         name='birthDate'
                         control={control}
                         render={({ field }) => (
-                            <TextField
-                                {...field}
-                                id='BirthDate'
-                                type='date'
-                                error={!!errors.birthDate}
-                                helperText={errors.birthDate?.message}
-                                variant='outlined'
-                            />
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                    value={field.value ? dayjs(field.value) : null}
+                                    onChange={(newValue) =>
+                                        field.onChange(
+                                            newValue?.isValid() ? newValue.format('YYYY-MM-DD') : ''
+                                        )
+                                    }
+                                    format='YYYY-MM-DD'
+                                    disableFuture
+                                    readOnly
+                                    slotProps={{
+                                        textField: {
+                                            id: 'BirthDate',
+                                            variant: 'outlined',
+                                            error: !!errors.birthDate,
+                                            helperText: errors.birthDate?.message,
+                                        },
+                                    }}
+                                />
+                            </LocalizationProvider>
                         )}
                     />
                 </FormControl>

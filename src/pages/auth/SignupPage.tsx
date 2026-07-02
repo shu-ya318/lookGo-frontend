@@ -4,6 +4,7 @@ import { z } from "zod";
 import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { enqueueSnackbar } from "notistack";
+import dayjs from "dayjs";
 
 import FormLabel from "@mui/material/FormLabel";
 import Stack from "@mui/material/Stack";
@@ -16,6 +17,9 @@ import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 import { useAuthStore } from "@/stores/authStore";
 import { useUserStore } from "@/stores/userStore";
@@ -38,15 +42,13 @@ const formSchema = z.object({
     .string()
     .min(1, "請輸入手機號碼!")
     .refine((value) => {
-      if (!value) return true;
-
       return /^0\d{9}$/.test(value);
     }, "請輸入 0 開頭的 10 碼手機號碼!"),
   birthDate: z
     .string()
-    .optional()
     .refine(isValidDateFormat, "出生日期格式必須為 yyyy-MM-dd!")
-    .refine(isValidBirthDate, "出生日期不得大於今日!"),
+    .refine(isValidBirthDate, "出生日期必須有效且不得大於今日!")
+    .optional(),
 });
 
 export type FormSchemaData = z.infer<typeof formSchema>;
@@ -75,15 +77,20 @@ const SignupPage = () => {
   });
 
   const onSubmit: SubmitHandler<FormSchemaData> = async (data) => {
-    const submitData = { ...data };
+    const submitData: SignupRequest = {
+      email: data.email,
+      username: data.username,
+      password: data.password,
+    };
 
-    if (!submitData.cellphone) {
-      delete submitData.cellphone;
+    if (data.cellphone) {
+      submitData.cellphone = data.cellphone;
     }
 
-    if (!submitData.birthDate) {
-      delete submitData.birthDate;
+    if (data.birthDate) {
+      submitData.birthDate = data.birthDate;
     }
+
     await handleSignup(submitData);
   };
 
@@ -225,25 +232,32 @@ const SignupPage = () => {
               color: "neutral.dark",
             }}
           >
-            出生日期(西元年份)
+            出生日期
           </FormLabel>
           <Controller
             name='birthDate'
             control={control}
             render={({ field }) => (
-              <TextField
-                {...field}
-                id='BirthDate'
-                type='date'
-                slotProps={{
-                  inputLabel: {
-                    shrink: true,
-                  },
-                }}
-                error={!!errors.birthDate}
-                helperText={errors.birthDate?.message}
-                variant='outlined'
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  value={field.value ? dayjs(field.value) : null}
+                  onChange={(newValue) =>
+                    field.onChange(
+                      newValue?.isValid() ? newValue.format("YYYY-MM-DD") : ""
+                    )
+                  }
+                  format='YYYY-MM-DD'
+                  disableFuture
+                  slotProps={{
+                    textField: {
+                      id: "BirthDate",
+                      variant: "outlined",
+                      error: !!errors.birthDate,
+                      helperText: errors.birthDate?.message,
+                    },
+                  }}
+                />
+              </LocalizationProvider>
             )}
           />
         </FormControl>

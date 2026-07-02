@@ -1,4 +1,4 @@
-import type { StationFacility } from './constants';
+import type { StationFacility } from './types';
 
 // Metro Map
 export interface MetroMapStation {
