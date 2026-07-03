@@ -9,6 +9,7 @@ import { enqueueSnackbar } from "notistack";
 import { debounce } from "lodash-es";
 
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { DataGrid } from "@mui/x-data-grid";
@@ -16,12 +17,30 @@ import { DataGrid } from "@mui/x-data-grid";
 import { SearchInput } from "@/components/SearchInput";
 import { getAllUser, updateStatus } from "@/services/user";
 
+import type { ChipProps } from "@mui/material/Chip";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import type {
   GetCurrentUserResponse,
+  MembershipTier,
+  UserRole,
   UserStatus,
 } from "@/services/user/interface";
 import { formatDateTime } from "@/utils/date";
+
+const roleColorMap: Record<UserRole, ChipProps["color"]> = {
+  ADMIN: "primary",
+  USER: "default",
+};
+
+const membershipTierColorMap: Record<MembershipTier, ChipProps["color"]> = {
+  PREMIUM: "warning",
+  BASIC: "default",
+};
+
+const statusColorMap: Record<UserStatus, ChipProps["color"]> = {
+  ACTIVE: "success",
+  DISABLED: "default",
+};
 
 const UserPermissionPage = () => {
   const [inputValue, setInputValue] = useState("");
@@ -98,9 +117,32 @@ const UserPermissionPage = () => {
         field: "membershipTier",
         headerName: "會員等級",
         flex: 0.8,
-        minWidth: 100,
+        minWidth: 110,
+        renderCell: (params: GridRenderCellParams<GetCurrentUserResponse>) => (
+          <Chip
+            label={params.row.membershipTier}
+            color={membershipTierColorMap[params.row.membershipTier]}
+            variant='filled'
+            size='small'
+            sx={{ borderRadius: "3px" }}
+          />
+        ),
       },
-      { field: "role", headerName: "角色", flex: 0.6, minWidth: 80 },
+      {
+        field: "role",
+        headerName: "角色",
+        flex: 0.6,
+        minWidth: 100,
+        renderCell: (params: GridRenderCellParams<GetCurrentUserResponse>) => (
+          <Chip
+            label={params.row.role}
+            color={roleColorMap[params.row.role]}
+            variant='filled'
+            size='small'
+            sx={{ borderRadius: "3px" }}
+          />
+        ),
+      },
       {
         field: "birthDate",
         headerName: "生日",
@@ -108,7 +150,6 @@ const UserPermissionPage = () => {
         minWidth: 110,
         valueGetter: (value: string) => value ?? "-",
       },
-      { field: "status", headerName: "狀態", flex: 0.6, minWidth: 80 },
       {
         field: "createdAt",
         headerName: "建立時間",
@@ -129,6 +170,21 @@ const UserPermissionPage = () => {
         flex: 1,
         minWidth: 160,
         valueGetter: (value: string) => formatDateTime(value) ?? "-",
+      },
+      {
+        field: "status",
+        headerName: "狀態",
+        flex: 0.6,
+        minWidth: 100,
+        renderCell: (params: GridRenderCellParams<GetCurrentUserResponse>) => (
+          <Chip
+            label={params.row.status}
+            color={statusColorMap[params.row.status]}
+            variant='filled'
+            size='small'
+            sx={{ borderRadius: "3px" }}
+          />
+        ),
       },
       {
         field: "actions",

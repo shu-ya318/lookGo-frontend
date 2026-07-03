@@ -170,7 +170,7 @@ const MetroMapPage = () => {
   const handleSearch = async (): Promise<void> => {
     if (!startStation) return;
 
-    // 單站查詢模式：呼叫單站詳細資訊 API（與點擊地圖站點行為一致）
+    // 單站查詢模式：呼叫單站詳細資訊 API（與點擊地圖車站行為一致）
     if (!endStation) {
       clearRoute();
       await selectAndFetchStation(startStation.stationCode);
@@ -377,7 +377,7 @@ const MetroMapPage = () => {
             {isRouteLoading || isStationLoading
               ? "查詢中…"
               : isSingleStationMode
-                ? "查看站點"
+                ? "查詢車站"
                 : "開始查詢"}
           </Button>
           {/* advance filter menu */}

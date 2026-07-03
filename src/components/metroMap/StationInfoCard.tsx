@@ -127,7 +127,7 @@ export function StationInfoCard({
         overflowY: "auto",
       }}
     >
-      {/* ── 站點資訊模式 ── */}
+      {/* ── 車站資訊模式 ── */}
       {station && line && (
         <CardContent sx={{ "&:last-child": { pb: 2 } }}>
           <Stack
@@ -316,7 +316,7 @@ export function StationInfoCard({
                       {segment.lineNameZhTw}
                     </Typography>
                     <Typography variant='caption' color='text.secondary'>
-                      {segment.stations.length} 站・
+                      共 {segment.stations.length} 站・
                       {formatTime(segment.segmentTimeSeconds)}
                     </Typography>
                   </Box>
