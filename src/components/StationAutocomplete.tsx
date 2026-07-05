@@ -13,7 +13,6 @@ import type { StationOption } from '@/services/metro/interface';
 const BOOKMARK_GROUP = '車站書籤';
 const ALL_STATION_GROUP = '所有車站';
 
-// 尚無書籤車站時，用不可選取的佔位選項讓「車站書籤」分類仍然顯示
 const EMPTY_BOOKMARK_OPTION: StationOption = {
     stationCode: '__EMPTY_BOOKMARK__',
     nameZhTw: '--',
@@ -25,7 +24,6 @@ interface StationAutocompleteProps {
     placeholder?: string;
     disabled?: boolean;
     size?: 'small' | 'medium';
-    // 書籤資料由呼叫方傳入（書籤 store/API 尚未建立前可省略，預設無分組）
     bookmarkedStationCodes?: string[];
     sx?: SxProps;
 }
@@ -78,7 +76,7 @@ export const StationAutocomplete = ({
             options={options}
             groupBy={option =>
                 option.stationCode === EMPTY_BOOKMARK_OPTION.stationCode ||
-                bookmarkedSet.has(option.stationCode)
+                    bookmarkedSet.has(option.stationCode)
                     ? BOOKMARK_GROUP
                     : ALL_STATION_GROUP
             }

@@ -77,7 +77,7 @@ export function MetroMapImageViewer({ lines }: Props): React.ReactElement {
               const positions = STATION_PERCENT_POSITIONS[station.stationCode];
               if (!positions) return null;
 
-              const buttonSize = 40;
+              const buttonSize = 70;
               const xPosition = positions.x - buttonSize / 2;
               const yPosition = positions.y - buttonSize / 2;
 

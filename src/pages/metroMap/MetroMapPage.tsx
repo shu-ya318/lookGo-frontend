@@ -204,7 +204,6 @@ const MetroMapPage = () => {
       <Stack
         sx={{
           position: "sticky",
-          // top: HEADER_HEIGHT,
           flexShrink: 0,
           backgroundColor: "primary.main",
           px: 3,
