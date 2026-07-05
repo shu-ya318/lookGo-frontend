@@ -101,7 +101,7 @@ export const UpdateAnnouncementDialog = ({
                 </>
             }
         >
-            <Stack sx={{ gap: '1.5rem', pt: 1 }}>
+            <Stack sx={{ pt: 1 }}>
                 <FormControl fullWidth>
                     <FormLabel
                         htmlFor='UpdateAnnouncementContent'
@@ -121,8 +121,6 @@ export const UpdateAnnouncementDialog = ({
                                 {...field}
                                 id='UpdateAnnouncementContent'
                                 placeholder='請輸入公告內容'
-                                multiline
-                                minRows={3}
                                 error={!!errors.content}
                                 helperText={errors.content?.message}
                                 variant='outlined'

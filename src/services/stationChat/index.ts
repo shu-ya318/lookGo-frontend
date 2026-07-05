@@ -5,6 +5,7 @@ import type {
     DeleteAnnouncementRequest,
     GetAnnouncementByStationIdRequest,
     GetAnnouncementByStationIdResponse,
+    GetExcelByStationIdRequest,
     GetMessageByStationIdRequest,
     GetMessageByStationIdResponse,
     MessageResponse,
@@ -55,5 +56,15 @@ export const deleteAnnouncement = async (
     return await postRequest<MessageResponse>(
         '/station-chat/delete-announcement',
         request
+    );
+};
+
+export const getExcelByStationId = async (
+    request: GetExcelByStationIdRequest
+): Promise<Blob> => {
+    return await postRequest<Blob>(
+        '/station-chat/get-excel-by-station-id',
+        request,
+        { responseType: 'blob' }
     );
 };

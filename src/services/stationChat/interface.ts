@@ -32,6 +32,10 @@ export interface GetMessageByStationIdRequest {
 
 export type GetMessageByStationIdResponse = PageResponse<StationChatMessage>;
 
+export interface GetExcelByStationIdRequest {
+    stationId: number;
+}
+
 // Station Chat Announcement
 
 export interface StationChatAnnouncement {

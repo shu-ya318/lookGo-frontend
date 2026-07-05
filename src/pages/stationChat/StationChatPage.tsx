@@ -1,33 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import dayjs from 'dayjs';
 import { enqueueSnackbar } from 'notistack';
 
-import Avatar from '@mui/material/Avatar';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { alpha } from '@mui/material/styles';
-import AddIcon from '@mui/icons-material/Add';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import CampaignOutlinedIcon from '@mui/icons-material/CampaignOutlined';
-import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
-import SendIcon from '@mui/icons-material/Send';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 
 import { DeleteDialog } from '@/components/DeleteDialog';
 import { StationAutocomplete } from '@/components/StationAutocomplete';
+import { AnnouncementSection } from '@/components/stationChat/AnnouncementSection';
 import { CreateAnnouncementDialog } from '@/components/stationChat/CreateAnnouncementDialog';
+import { MessageSection } from '@/components/stationChat/MessageSection';
 import { UpdateAnnouncementDialog } from '@/components/stationChat/UpdateAnnouncementDialog';
 
 import { useUserStore } from '@/stores/userStore';
@@ -36,11 +23,10 @@ import { getStationByCode } from '@/services/metro';
 import {
     deleteAnnouncement,
     getAnnouncementByStationId,
+    getExcelByStationId,
     getMessageByStationId,
 } from '@/services/stationChat';
 import { connectStationChatSocket } from '@/services/stationChat/socket';
-
-import { formatDateTime } from '@/utils/date';
 
 import type { StationDetails, StationOption } from '@/services/metro/interface';
 import type {
@@ -83,102 +69,9 @@ const StationChatPage = () => {
     const [announcementTotalPages, setAnnouncementTotalPages] = useState(0);
     const [isLoadingMoreAnnouncements, setIsLoadingMoreAnnouncements] =
         useState(false);
+    const [isExportingExcel, setIsExportingExcel] = useState(false);
 
     const isAdmin = currentUser?.role === 'ADMIN';
-
-    const sortedAnnouncements = [...announcements].sort(
-        (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    );
-    const [latestAnnouncement, ...restAnnouncements] = sortedAnnouncements;
-
-    const renderAnnouncementItem = (
-        announcement: StationChatAnnouncement,
-        showToggle: boolean
-    ) => (
-        <Stack
-            key={announcement.id}
-            direction='row'
-            sx={{
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                gap: 1,
-                px: 3,
-                py: 1.5,
-                borderTop: isAdmin || !showToggle ? '1px solid' : 'none',
-                borderColor: 'divider',
-            }}
-        >
-            <Stack direction='row' sx={{ gap: 1, flex: 1 }}>
-                <CampaignOutlinedIcon
-                    fontSize='small'
-                    sx={{
-                        color: 'primary.main',
-                        mt: '2px',
-                        flexShrink: 0,
-                    }}
-                />
-                <Box sx={{ flex: 1 }}>
-                    <Typography variant='body2'>
-                        {announcement.content}
-                    </Typography>
-                    <Typography variant='caption' color='text.secondary'>
-                        {formatDateTime(announcement.updatedAt)}
-                    </Typography>
-                </Box>
-            </Stack>
-
-            <Stack direction='row' sx={{ flexShrink: 0, alignItems: 'center' }}>
-                {isAdmin && (
-                    <>
-                        <IconButton
-                            size='small'
-                            onClick={() => setEditingAnnouncement(announcement)}
-                        >
-                            <EditOutlinedIcon fontSize='small' />
-                        </IconButton>
-                        <IconButton
-                            size='small'
-                            onClick={() =>
-                                setDeletingAnnouncement(announcement)
-                            }
-                        >
-                            <DeleteOutlinedIcon fontSize='small' />
-                        </IconButton>
-                    </>
-                )}
-                {showToggle &&
-                    (restAnnouncements.length > 0 ||
-                        announcementTotalPages > 1) && (
-                        <>
-                            {isAnnouncementExpanded && (
-                                <Typography
-                                    variant='caption'
-                                    color='text.secondary'
-                                >
-                                    {announcementPage + 1} /{' '}
-                                    {announcementTotalPages}
-                                </Typography>
-                            )}
-                            <IconButton
-                                size='small'
-                                onClick={() =>
-                                    setIsAnnouncementExpanded(
-                                        expanded => !expanded
-                                    )
-                                }
-                            >
-                                {isAnnouncementExpanded ? (
-                                    <KeyboardArrowUpIcon fontSize='small' />
-                                ) : (
-                                    <KeyboardArrowDownIcon fontSize='small' />
-                                )}
-                            </IconButton>
-                        </>
-                    )}
-            </Stack>
-        </Stack>
-    );
 
     const socketRef = useRef<StationChatSocket | null>(null);
     const messageListRef = useRef<HTMLDivElement>(null);
@@ -448,9 +341,36 @@ const StationChatPage = () => {
         }
     };
 
-    const canDeleteMessage = (message: StationChatMessage): boolean =>
-        message.username === currentUser?.username ||
-        currentUser?.role === 'ADMIN';
+    const handleExportExcel = async (): Promise<void> => {
+        if (!selectedStation) return;
+
+        setIsExportingExcel(true);
+        try {
+            const blob = await getExcelByStationId({
+                stationId: selectedStation.id,
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.setAttribute(
+                'download',
+                `${selectedStation.nameZhTw}聊天紀錄_${dayjs().format('YYYYMMDD')}.xlsx`
+            );
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+            enqueueSnackbar('匯出成功', { variant: 'success' });
+        } catch (error) {
+            enqueueSnackbar((error as string) || '匯出失敗', {
+                variant: 'error',
+            });
+        } finally {
+            setIsExportingExcel(false);
+        }
+    };
 
     return (
         <Stack
@@ -462,27 +382,47 @@ const StationChatPage = () => {
             }}
         >
             <Typography variant='h5'>車站聊天室</Typography>
-
             {/* 篩選列 */}
-            <Stack direction='row' sx={{ alignItems: 'center', gap: 1 }}>
-                <Typography variant='body2' sx={{ flexShrink: 0 }}>
-                    車站
-                </Typography>
-                <StationAutocomplete
-                    value={selectedStationOption}
-                    onChange={setSelectedStationOption}
-                    sx={{ width: 250 }}
-                />
-                {selectedStation && (
-                    <Chip
-                        size='small'
-                        label={isConnected ? '即時連線中' : '連線中…'}
-                        color={isConnected ? 'success' : 'default'}
-                        variant='outlined'
+            <Stack direction='row' sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant='body2' sx={{ flexShrink: 0 }}>
+                        選擇車站
+                    </Typography>
+                    <StationAutocomplete
+                        value={selectedStationOption}
+                        onChange={setSelectedStationOption}
+                        sx={{ width: 250 }}
                     />
+                    {selectedStation && (
+                        <Chip
+                            size='small'
+                            label={isConnected ? '即時連線中' : '連線中…'}
+                            color={isConnected ? 'success' : 'default'}
+                            variant='outlined'
+                        />
+                    )}
+                </Box>
+                {isAdmin && (
+                    <Button
+                        variant='contained'
+                        color='primary'
+                        size='small'
+                        startIcon={
+                            isExportingExcel ? (
+                                <CircularProgress size='0.875rem' color='inherit' />
+                            ) : (
+                                <FileDownloadOutlinedIcon />
+                            )
+                        }
+                        disabled={!selectedStation || isExportingExcel}
+                        onClick={handleExportExcel}
+                        sx={{ flexShrink: 0 }}
+                    >
+                        匯出當日聊天紀錄
+                    </Button>
                 )}
             </Stack>
-
             {/* 聊天區域 */}
             <Stack
                 sx={{
@@ -494,424 +434,40 @@ const StationChatPage = () => {
             >
                 {/* 公告列 */}
                 {selectedStation && (announcements.length > 0 || isAdmin) && (
-                    <Stack sx={{ position: 'relative' }}>
-                        <Stack
-                            sx={{
-                                backgroundColor: theme =>
-                                    alpha(theme.palette.primary.main, 0.12),
-                            }}
-                        >
-                            {isAdmin && (
-                                <Stack
-                                    direction='row'
-                                    sx={{
-                                        justifyContent: 'flex-end',
-                                        px: 3,
-                                        py: 1.5,
-                                    }}
-                                >
-                                    <Button
-                                        size='small'
-                                        variant='contained'
-                                        color='primary'
-                                        startIcon={<AddIcon />}
-                                        onClick={() =>
-                                            setIsCreateAnnouncementOpen(true)
-                                        }
-                                    >
-                                        新增公告
-                                    </Button>
-                                </Stack>
-                            )}
-
-                            {latestAnnouncement &&
-                                renderAnnouncementItem(
-                                    latestAnnouncement,
-                                    true
-                                )}
-                        </Stack>
-
-                        {/* 展開公告：覆蓋於下方訊息區上層，不推擠版面 */}
-                        {isAnnouncementExpanded &&
-                            (restAnnouncements.length > 0 ||
-                                announcementPage + 1 <
-                                    announcementTotalPages) && (
-                                <Stack
-                                    sx={{
-                                        position: 'absolute',
-                                        top: '100%',
-                                        left: 0,
-                                        right: 0,
-                                        zIndex: 2,
-                                        maxHeight: 320,
-                                        overflowY: 'auto',
-                                        boxShadow: 3,
-                                        backgroundColor: theme =>
-                                            alpha(
-                                                theme.palette.primary.main,
-                                                0.12
-                                            ),
-                                    }}
-                                >
-                                    {restAnnouncements.map(announcement =>
-                                        renderAnnouncementItem(
-                                            announcement,
-                                            false
-                                        )
-                                    )}
-
-                                    {announcementPage + 1 <
-                                        announcementTotalPages && (
-                                        <Stack
-                                            sx={{
-                                                alignItems: 'center',
-                                                py: 1,
-                                                borderTop: '1px solid',
-                                                borderColor: 'divider',
-                                            }}
-                                        >
-                                            <Button
-                                                size='small'
-                                                onClick={
-                                                    handleLoadMoreAnnouncements
-                                                }
-                                                disabled={
-                                                    isLoadingMoreAnnouncements
-                                                }
-                                                startIcon={
-                                                    isLoadingMoreAnnouncements ? (
-                                                        <CircularProgress size='0.875rem' />
-                                                    ) : undefined
-                                                }
-                                            >
-                                                載入更多公告
-                                            </Button>
-                                        </Stack>
-                                    )}
-                                </Stack>
-                            )}
-                    </Stack>
+                    <AnnouncementSection
+                        announcements={announcements}
+                        isAdmin={isAdmin}
+                        isAnnouncementExpanded={isAnnouncementExpanded}
+                        announcementPage={announcementPage}
+                        announcementTotalPages={announcementTotalPages}
+                        isLoadingMoreAnnouncements={
+                            isLoadingMoreAnnouncements
+                        }
+                        onToggleExpand={() =>
+                            setIsAnnouncementExpanded(expanded => !expanded)
+                        }
+                        onAdd={() => setIsCreateAnnouncementOpen(true)}
+                        onEdit={setEditingAnnouncement}
+                        onDelete={setDeletingAnnouncement}
+                        onLoadMore={handleLoadMoreAnnouncements}
+                    />
                 )}
 
-                {/* 訊息區 */}
-                <Stack
-                    ref={messageListRef}
-                    sx={{
-                        backgroundColor: theme =>
-                            alpha(theme.palette.primary.main, 0.06),
-                        minHeight: 400,
-                        maxHeight: 500,
-                        overflowY: 'auto',
-                        px: 3,
-                        py: 3,
-                        gap: 3,
-                    }}
-                >
-                    {!selectedStation ? (
-                        <Stack
-                            sx={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Typography variant='body1' color='text.secondary'>
-                                請選擇車站以進入聊天室
-                            </Typography>
-                        </Stack>
-                    ) : isLoadingMessages ? (
-                        <Stack
-                            sx={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <CircularProgress size='2rem' />
-                        </Stack>
-                    ) : messages.length === 0 ? (
-                        <Stack
-                            sx={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Typography variant='body1' color='text.secondary'>
-                                目前還沒有任何訊息
-                            </Typography>
-                        </Stack>
-                    ) : (
-                        <>
-                            {hasMore && (
-                                <Stack
-                                    sx={{
-                                        alignItems: 'center',
-                                        pb: 1,
-                                    }}
-                                >
-                                    <Button
-                                        size='small'
-                                        onClick={handleLoadMoreMessages}
-                                        disabled={isLoadingMore}
-                                        startIcon={
-                                            isLoadingMore ? (
-                                                <CircularProgress size='0.875rem' />
-                                            ) : undefined
-                                        }
-                                    >
-                                        載入更早的訊息
-                                    </Button>
-                                </Stack>
-                            )}
-
-                            {messages.map(message => {
-                                const isSelf =
-                                    message.username === currentUser?.username;
-                                const isTripPlan =
-                                    message.chatType === 'TRIP_PLAN';
-                                const hasTripDetail =
-                                    isTripPlan &&
-                                    !!message.fromStationName &&
-                                    !!message.toStationName;
-
-                                return (
-                                    <Stack
-                                        key={message.id}
-                                        direction='row'
-                                        sx={{
-                                            justifyContent: isSelf
-                                                ? 'flex-end'
-                                                : 'flex-start',
-                                            gap: 1.5,
-                                        }}
-                                    >
-                                        {!isSelf && (
-                                            <Avatar
-                                                sx={{
-                                                    width: 36,
-                                                    height: 36,
-                                                    backgroundColor:
-                                                        'primary.light',
-                                                    flexShrink: 0,
-                                                }}
-                                            >
-                                                <PersonOutlinedIcon fontSize='small' />
-                                            </Avatar>
-                                        )}
-
-                                        <Stack
-                                            sx={{
-                                                maxWidth: '55%',
-                                                gap: 0.5,
-                                                alignItems: isSelf
-                                                    ? 'flex-end'
-                                                    : 'flex-start',
-                                            }}
-                                        >
-                                            <Stack
-                                                direction='row'
-                                                sx={{
-                                                    alignItems: 'center',
-                                                    gap: 0.5,
-                                                }}
-                                            >
-                                                <Typography
-                                                    variant='caption'
-                                                    color='text.secondary'
-                                                >
-                                                    {message.username}
-                                                </Typography>
-                                                {canDeleteMessage(message) && (
-                                                    <IconButton
-                                                        size='small'
-                                                        onClick={() =>
-                                                            handleDeleteMessage(
-                                                                message.id
-                                                            )
-                                                        }
-                                                        sx={{ p: 0.25 }}
-                                                    >
-                                                        <DeleteOutlinedIcon
-                                                            sx={{
-                                                                fontSize:
-                                                                    '0.875rem',
-                                                            }}
-                                                        />
-                                                    </IconButton>
-                                                )}
-                                            </Stack>
-
-                                            {isTripPlan ? (
-                                                hasTripDetail ? (
-                                                    <Card
-                                                        sx={{
-                                                            backgroundColor:
-                                                                'background.paper',
-                                                            boxShadow: 'none',
-                                                            border: '1px solid',
-                                                            borderColor:
-                                                                'divider',
-                                                            width: '100%',
-                                                        }}
-                                                    >
-                                                        <CardContent
-                                                            sx={{
-                                                                '&:last-child':
-                                                                    { pb: 2 },
-                                                            }}
-                                                        >
-                                                            <Typography
-                                                                variant='body2'
-                                                                sx={{
-                                                                    fontWeight: 700,
-                                                                }}
-                                                            >
-                                                                {
-                                                                    message.fromStationName
-                                                                }{' '}
-                                                                →{' '}
-                                                                {
-                                                                    message.toStationName
-                                                                }
-                                                            </Typography>
-                                                            <Typography
-                                                                variant='caption'
-                                                                color='text.secondary'
-                                                            >
-                                                                {message.transferCount !==
-                                                                null
-                                                                    ? `轉乘 ${message.transferCount} 次`
-                                                                    : ''}
-                                                                {message.farePrice !==
-                                                                null
-                                                                    ? ` · 票價 ${message.farePrice} 元`
-                                                                    : ''}
-                                                            </Typography>
-                                                        </CardContent>
-                                                    </Card>
-                                                ) : (
-                                                    <Box
-                                                        sx={{
-                                                            backgroundColor:
-                                                                'background.paper',
-                                                            borderRadius: 2,
-                                                            px: 2,
-                                                            py: 1.5,
-                                                        }}
-                                                    >
-                                                        <Typography
-                                                            variant='body2'
-                                                            color='text.secondary'
-                                                        >
-                                                            {message.content ??
-                                                                '該旅程分享已被移除'}
-                                                        </Typography>
-                                                    </Box>
-                                                )
-                                            ) : (
-                                                <Box
-                                                    sx={{
-                                                        backgroundColor:
-                                                            'background.paper',
-                                                        borderRadius: 2,
-                                                        px: 2,
-                                                        py: 1.5,
-                                                    }}
-                                                >
-                                                    <Typography variant='body2'>
-                                                        {message.content}
-                                                    </Typography>
-                                                </Box>
-                                            )}
-
-                                            <Typography
-                                                variant='caption'
-                                                color='text.secondary'
-                                                sx={{ fontSize: '0.65rem' }}
-                                            >
-                                                {formatDateTime(
-                                                    message.createdAt
-                                                )}
-                                            </Typography>
-                                        </Stack>
-
-                                        {isSelf && (
-                                            <Avatar
-                                                sx={{
-                                                    width: 36,
-                                                    height: 36,
-                                                    backgroundColor:
-                                                        'primary.light',
-                                                    flexShrink: 0,
-                                                }}
-                                            >
-                                                <PersonOutlinedIcon fontSize='small' />
-                                            </Avatar>
-                                        )}
-                                    </Stack>
-                                );
-                            })}
-                        </>
-                    )}
-                </Stack>
-
-                {/* 輸入列 */}
-                <Stack
-                    direction='row'
-                    sx={{
-                        alignItems: 'center',
-                        px: 2,
-                        py: 1.5,
-                        backgroundColor: 'background.paper',
-                        borderTop: '1px solid',
-                        borderColor: 'divider',
-                        gap: 1,
-                    }}
-                >
-                    <Tooltip title='旅程分享功能尚未開放'>
-                        <span>
-                            <Button
-                                startIcon={<AttachFileIcon />}
-                                size='small'
-                                color='inherit'
-                                disabled
-                                sx={{ flexShrink: 0 }}
-                            >
-                                分享旅程
-                            </Button>
-                        </span>
-                    </Tooltip>
-
-                    <Divider orientation='vertical' flexItem sx={{ mx: 0.5 }} />
-
-                    <TextField
-                        value={inputMessage}
-                        onChange={event => setInputMessage(event.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder={
-                            selectedStation ? '請輸入訊息' : '請先選擇車站'
-                        }
-                        size='small'
-                        fullWidth
-                        variant='standard'
-                        disabled={!selectedStation}
-                        slotProps={{
-                            input: { disableUnderline: true },
-                        }}
-                    />
-
-                    <Button
-                        endIcon={<SendIcon />}
-                        size='small'
-                        color='inherit'
-                        onClick={handleSend}
-                        disabled={!selectedStation || !inputMessage.trim()}
-                        sx={{ flexShrink: 0 }}
-                    >
-                        送出訊息
-                    </Button>
-                </Stack>
+                <MessageSection
+                    selectedStation={selectedStation}
+                    messages={messages}
+                    isLoadingMessages={isLoadingMessages}
+                    hasMore={hasMore}
+                    isLoadingMore={isLoadingMore}
+                    onLoadMoreMessages={handleLoadMoreMessages}
+                    currentUser={currentUser}
+                    onDeleteMessage={handleDeleteMessage}
+                    messageListRef={messageListRef}
+                    inputMessage={inputMessage}
+                    onInputMessageChange={setInputMessage}
+                    onKeyDown={handleKeyDown}
+                    onSend={handleSend}
+                />
             </Stack>
 
             {/* 公告管理 Dialog */}

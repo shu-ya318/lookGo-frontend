@@ -104,7 +104,7 @@ export const UpdateBirthDateDialog = ({
         </>
       }
     >
-      <Stack sx={{ gap: "1.5rem", pt: 1 }}>
+      <Stack sx={{ pt: 1 }}>
         <FormControl fullWidth>
           <FormLabel
             htmlFor='BirthDate'
