@@ -82,7 +82,7 @@ export const UpdateBirthDateDialog = ({
   return (
     <Dialog
       isOpen={isOpen}
-      title='修改出生西元年份日期'
+      title='修改出生日期'
       width='28rem'
       action={
         <>
@@ -95,14 +95,9 @@ export const UpdateBirthDateDialog = ({
           </Button>
           <Button
             variant='contained'
+            color='primary'
             disabled={isSubmitting}
             onClick={handleSubmit(onSubmit)}
-            sx={{
-              backgroundColor: "neutral.light",
-              color: "primary.contrastText",
-              boxShadow: "none",
-              "&:hover": { backgroundColor: "neutral.dark" },
-            }}
           >
             確認修改
           </Button>

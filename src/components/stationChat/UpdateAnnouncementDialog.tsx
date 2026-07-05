@@ -11,64 +11,75 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
 import { Dialog } from '@/components/Dialog';
-import { updateUsername } from '@/services/user';
+import { updateAnnouncement } from '@/services/stationChat';
+
+import type { StationChatAnnouncement } from '@/services/stationChat/interface';
 
 const formSchema = z.object({
-    username: z.string().min(1, '請輸入使用者名稱!'),
+    content: z.string().min(1, '請輸入公告內容!'),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-interface UpdateUsernameDialogProps {
+interface UpdateAnnouncementDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    defaultUsername: string;
+    announcement: StationChatAnnouncement | null;
     onSuccess: () => Promise<void>;
 }
 
-export const UpdateUsernameDialog = ({
+export const UpdateAnnouncementDialog = ({
     isOpen,
     onClose,
-    defaultUsername,
+    announcement,
     onSuccess,
-}: UpdateUsernameDialogProps) => {
+}: UpdateAnnouncementDialogProps) => {
     const {
         control,
         handleSubmit,
         reset,
         formState: { errors, isSubmitting },
     } = useForm<FormData>({
-        defaultValues: { username: '' },
+        defaultValues: { content: '' },
         resolver: zodResolver(formSchema),
         mode: 'onChange',
     });
 
     useEffect(() => {
         if (isOpen) {
-            reset({ username: defaultUsername });
+            reset({ content: announcement?.content ?? '' });
         }
     }, [isOpen]);
 
     const handleClose = (): void => {
         onClose();
-        reset({ username: '' });
+        reset({ content: '' });
     };
 
-    const onSubmit: SubmitHandler<FormData> = async (data) => {
+    const onSubmit: SubmitHandler<FormData> = async data => {
+        if (!announcement) return;
+
         try {
-            const { successMessage } = await updateUsername({ username: data.username });
-            enqueueSnackbar(successMessage || '使用者名稱修改成功！', { variant: 'success' });
+            const { message } = await updateAnnouncement({
+                announcementId: announcement.id,
+                content: data.content,
+            });
+            enqueueSnackbar(message || '公告修改成功！', {
+                variant: 'success',
+            });
             onClose();
             await onSuccess();
         } catch (error) {
-            enqueueSnackbar(error as string || '使用者名稱修改失敗！', { variant: 'error' });
+            enqueueSnackbar((error as string) || '公告修改失敗！', {
+                variant: 'error',
+            });
         }
     };
 
     return (
         <Dialog
             isOpen={isOpen}
-            title='修改使用者名稱'
+            title='編輯公告'
             width='28rem'
             action={
                 <>
@@ -93,26 +104,27 @@ export const UpdateUsernameDialog = ({
             <Stack sx={{ gap: '1.5rem', pt: 1 }}>
                 <FormControl fullWidth>
                     <FormLabel
-                        htmlFor='Username'
+                        htmlFor='UpdateAnnouncementContent'
                         required
                         sx={{
                             color: 'neutral.dark',
                             '& .MuiFormLabel-asterisk': { color: 'error.main' },
                         }}
                     >
-                        使用者名稱
+                        公告內容
                     </FormLabel>
                     <Controller
-                        name='username'
+                        name='content'
                         control={control}
                         render={({ field }) => (
                             <TextField
                                 {...field}
-                                id='Username'
-                                type='text'
-                                placeholder='請輸入新的使用者名稱'
-                                error={!!errors.username}
-                                helperText={errors.username?.message}
+                                id='UpdateAnnouncementContent'
+                                placeholder='請輸入公告內容'
+                                multiline
+                                minRows={3}
+                                error={!!errors.content}
+                                helperText={errors.content?.message}
                                 variant='outlined'
                             />
                         )}

@@ -41,16 +41,13 @@ export const DeleteDialog = ({
         <>
           <Button
             type='button'
-            variant='contained'
+            variant='outlined'
             sx={{
               height: '2.6875rem',
               padding: '.625rem .875rem',
               borderRadius: '6px',
-              color: 'primary.light',
-              backgroundColor: 'quaternary.dark',
-              '&:hover': {
-                backgroundColor: 'tertiary.main',
-              },
+              color: 'neutral.dark',
+              borderColor: 'neutral.light',
             }}
             onClick={onClose}
           >

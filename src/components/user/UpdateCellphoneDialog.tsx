@@ -90,14 +90,9 @@ export const UpdateCellphoneDialog = ({
           </Button>
           <Button
             variant='contained'
+            color='primary'
             disabled={isSubmitting}
             onClick={handleSubmit(onSubmit)}
-            sx={{
-              backgroundColor: "neutral.light",
-              color: "primary.contrastText",
-              boxShadow: "none",
-              "&:hover": { backgroundColor: "neutral.dark" },
-            }}
           >
             確認修改
           </Button>

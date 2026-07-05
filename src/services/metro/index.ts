@@ -3,6 +3,7 @@ import postRequest from '../api';
 import type {
     GetMetroMapResponse,
     GetAllStationResponse,
+    GetAllStationOptionResponse,
     GetAllStationFareResponse,
     GetAllLineResponse,
     GetAllLineTransferResponse,
@@ -29,6 +30,13 @@ export const getStationByCode = async (
 export const getAllStation = async (): Promise<GetAllStationResponse> => {
     return await postRequest<GetAllStationResponse>('/metro/get-all-station');
 };
+
+export const getAllStationOption =
+    async (): Promise<GetAllStationOptionResponse> => {
+        return await postRequest<GetAllStationOptionResponse>(
+            '/metro/get-all-station-option'
+        );
+    };
 
 export const getAllStationFare =
     async (): Promise<GetAllStationFareResponse> => {

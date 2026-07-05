@@ -17,6 +17,7 @@
     "@mui/material": "^9.0.1",
     "@mui/x-data-grid": "^9.6.0",
     "@mui/x-date-pickers": "^9.7.0",
+    "@stomp/stompjs": "^7.3.0",
     "axios": "^1.16.1",
     "d3": "^7.9.0",
     "dayjs": "^1.11.21",

@@ -1,11 +1,9 @@
-export const formatDateTime = (isoString: string) => {
-  const match = isoString.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2})/);
+import dayjs from 'dayjs';
 
-  if (!match) {
+export const formatDateTime = (isoString: string): string => {
+  if (!isoString) {
     return "";
   }
 
-  const [, datePart, timePart] = match;
-
-  return `${datePart} ${timePart}`;
+  return dayjs(isoString).format('YYYY-MM-DD HH:mm');
 };

@@ -159,7 +159,7 @@ const SettingPage = () => {
           onClick={() => handleEdit("username")}
           sx={{ px: 3 }}
         >
-          編輯使用者名稱
+          修改使用者名稱
         </Button>
       </Stack>
       {/* Fields Grid */}

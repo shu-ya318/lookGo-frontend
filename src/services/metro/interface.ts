@@ -49,6 +49,15 @@ export interface StationDetails {
 
 export type GetAllStationResponse = StationDetails[];
 
+// All Station Option
+
+export interface StationOption {
+    stationCode: string;
+    nameZhTw: string;
+}
+
+export type GetAllStationOptionResponse = StationOption[];
+
 // All Station Fare 
 
 export interface StationFare {

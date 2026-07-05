@@ -21,7 +21,7 @@ import SettingPage from "@/pages/user/SettingPage";
 import MetroMapPage from "@/pages/metroMap/MetroMapPage";
 import TripPlannerPage from "@/pages/tripPlan/TripPlannerPage";
 import StationBookmarkPage from "@/pages/bookmark/StationBookmarkPage";
-import ChatRoomPage from "@/pages/chat/ChatRoomPage";
+import ChatRoomPage from "@/pages/stationChat/StationChatPage";
 import UserPermissionPage from "@/pages/admin/UserPermissionPage";
 import StationManagementPage from "@/pages/admin/StationManagementPage";
 
