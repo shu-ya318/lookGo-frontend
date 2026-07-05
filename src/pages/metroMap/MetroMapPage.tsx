@@ -10,6 +10,7 @@ import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Radio from "@mui/material/Radio";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
@@ -37,8 +38,8 @@ import type { StationOption } from "@/services/metro/interface";
 
 interface AdvancedFilters {
   equipment: FacilityLabel[];
-  fare: FareLabel[];
-  time: TimeLabel[];
+  fare: FareLabel | null;
+  time: TimeLabel | null;
 }
 
 const fareTypeFilterOptions = ["全票", "學生票", "兒童票", "愛心票"] as const;
@@ -75,23 +76,24 @@ const MetroMapPage = () => {
   const isStationLoading = useStationStore((state) => state.isLoading);
   const clearSelection = useStationStore((state) => state.clearSelection);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const hasAppliedSearchParam = useRef(false);
+
   const [startStation, setStartStation] = useState<StationOption | null>(null);
   const [endStation, setEndStation] = useState<StationOption | null>(null);
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
     equipment: [],
-    fare: [],
-    time: [],
+    fare: null,
+    time: null,
   });
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
-
-  const [searchParams, setSearchParams] = useSearchParams();
-  const hasAppliedSearchParam = useRef(false);
 
   useEffect(() => {
     const keyword = searchParams.get("search")?.trim();
     if (!keyword || hasAppliedSearchParam.current || allStations.length === 0) {
       return;
     }
+
     hasAppliedSearchParam.current = true;
 
     const matchedStation = allStations.find(
@@ -123,8 +125,8 @@ const MetroMapPage = () => {
   const isMenuOpen = Boolean(menuAnchorEl);
   const totalFilterCount =
     advancedFilters.equipment.length +
-    advancedFilters.fare.length +
-    advancedFilters.time.length;
+    (advancedFilters.fare ? 1 : 0) +
+    (advancedFilters.time ? 1 : 0);
 
   const infoText = !hasStartStation
     ? "可點擊地圖路線(文湖、淡水信義、松山新店、中和新蘆、板南)的任意車站代碼，或選擇起始車站進行查詢"
@@ -132,25 +134,33 @@ const MetroMapPage = () => {
       ? `已選起始站「${formatStationLabel(startStation)}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
       : `已選起訖站，可查詢路徑（${formatStationLabel(startStation)} → ${formatStationLabel(endStation!)}）`;
 
-  const toggleFilter = <K extends keyof AdvancedFilters>(
-    category: K,
-    value: AdvancedFilters[K][number]
-  ): void => {
+  const toggleEquipmentFilter = (value: FacilityLabel): void => {
     setAdvancedFilters((prev) => {
-      const current = prev[category] as Array<AdvancedFilters[K][number]>;
-      const updated = current.includes(value)
-        ? current.filter((v) => v !== value)
-        : [...current, value];
+      const updated = prev.equipment.includes(value)
+        ? prev.equipment.filter((v) => v !== value)
+        : [...prev.equipment, value];
 
-      if (category === "equipment") {
-        const facilities = (updated as FacilityLabel[])
-          .map(labelToFacility)
-          .filter((f): f is StationFacility => f !== undefined);
-        setSelectedFacilities(facilities);
-      }
+      const facilities = updated
+        .map(labelToFacility)
+        .filter((f): f is StationFacility => f !== undefined);
+      setSelectedFacilities(facilities);
 
-      return { ...prev, [category]: updated };
+      return { ...prev, equipment: updated };
     });
+  };
+
+  const selectFareFilter = (value: FareLabel): void => {
+    setAdvancedFilters((prev) => ({
+      ...prev,
+      fare: prev.fare === value ? null : value,
+    }));
+  };
+
+  const selectTimeFilter = (value: TimeLabel): void => {
+    setAdvancedFilters((prev) => ({
+      ...prev,
+      time: prev.time === value ? null : value,
+    }));
   };
 
   const handleSearch = async (): Promise<void> => {
@@ -160,25 +170,20 @@ const MetroMapPage = () => {
     if (!endStation) {
       clearRoute();
       await selectAndFetchStation(startStation.stationCode);
+
       return;
     }
 
     clearSelection();
 
-    // 路徑查詢模式：找出使用者選取的票種（預設全票）
-    const selectedFareLabel = fareTypeFilterOptions.find((label) =>
-      advancedFilters.fare.includes(label)
-    );
-    const fareType: FareType = selectedFareLabel
-      ? fareLabelToType[selectedFareLabel]
+    // 使用者選取的票種（預設全票）
+    const fareType: FareType = advancedFilters.fare
+      ? fareLabelToType[advancedFilters.fare]
       : FareType.FULL;
 
-    // 找出使用者選取的路線策略（預設最少轉乘）
-    const selectedTimeLabel = travelTimeFilterOptions.find((label) =>
-      advancedFilters.time.includes(label)
-    );
-    const routingStrategy: RoutingStrategy = selectedTimeLabel
-      ? timeLabelToStrategy[selectedTimeLabel]
+    // 使用者選取的路線策略（預設最少轉乘）
+    const routingStrategy: RoutingStrategy = advancedFilters.time
+      ? timeLabelToStrategy[advancedFilters.time]
       : RoutingStrategy.MIN_TRANSFER;
 
     await fetchRoute({
@@ -273,8 +278,8 @@ const MetroMapPage = () => {
                 } else {
                   setAdvancedFilters((prev) => ({
                     ...prev,
-                    fare: [],
-                    time: [],
+                    fare: null,
+                    time: null,
                   }));
                 }
               }}
@@ -339,7 +344,7 @@ const MetroMapPage = () => {
                 {facilityFilterOptions.map((option) => (
                   <MenuItem
                     key={option}
-                    onClick={() => toggleFilter("equipment", option)}
+                    onClick={() => toggleEquipmentFilter(option)}
                   >
                     <Checkbox
                       checked={advancedFilters.equipment.includes(option)}
@@ -355,12 +360,9 @@ const MetroMapPage = () => {
               <>
                 <ListSubheader sx={{ fontWeight: 700 }}>票價種類</ListSubheader>
                 {fareTypeFilterOptions.map((option) => (
-                  <MenuItem
-                    key={option}
-                    onClick={() => toggleFilter("fare", option)}
-                  >
-                    <Checkbox
-                      checked={advancedFilters.fare.includes(option)}
+                  <MenuItem key={option} onClick={() => selectFareFilter(option)}>
+                    <Radio
+                      checked={advancedFilters.fare === option}
                       size='small'
                     />
                     <ListItemText primary={option} />
@@ -369,12 +371,9 @@ const MetroMapPage = () => {
                 <Divider />
                 <ListSubheader sx={{ fontWeight: 700 }}>乘車時間</ListSubheader>
                 {travelTimeFilterOptions.map((option) => (
-                  <MenuItem
-                    key={option}
-                    onClick={() => toggleFilter("time", option)}
-                  >
-                    <Checkbox
-                      checked={advancedFilters.time.includes(option)}
+                  <MenuItem key={option} onClick={() => selectTimeFilter(option)}>
+                    <Radio
+                      checked={advancedFilters.time === option}
                       size='small'
                     />
                     <ListItemText primary={option} />

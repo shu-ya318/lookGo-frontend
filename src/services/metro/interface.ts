@@ -142,5 +142,6 @@ export interface GetOriginDestinationDetailResponse {
     route: RouteSegment[];
     transferCount: number;
     totalTravelTimeSeconds: number;
+    transferTimeSeconds: number;
     farePrice: number;
 }

@@ -31,9 +31,35 @@ function normalize(raw: string): string {
   return raw.startsWith("#") ? raw : `#${raw}`;
 }
 
+// 無條件進入法，和北捷官方計算方式一致
 function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60);
+  const mins = Math.ceil(seconds / 60);
   return `${mins} 分鐘`;
+}
+
+// 最大餘數法：各區段各自無條件進位會和車程時間 label（總秒數無條件進位）加總不一致，
+// 改用此法依各區段實際秒數比例分配分鐘數，確保加總結果等於車程時間 label 的值
+function allocateMinutes(secondsList: number[], totalSeconds: number): number[] {
+  const targetMinutes = Math.ceil(totalSeconds / 60);
+  const rawMinutes = secondsList.map((seconds) => seconds / 60);
+  const flooredMinutes = rawMinutes.map((minutes) => Math.floor(minutes));
+  let remainder =
+    targetMinutes - flooredMinutes.reduce((sum, minutes) => sum + minutes, 0);
+
+  const indexesByFractionDesc = rawMinutes
+    .map((minutes, index) => ({ index, fraction: minutes - Math.floor(minutes) }))
+    .sort((a, b) => b.fraction - a.fraction);
+
+  const result = [...flooredMinutes];
+  for (
+    let i = 0;
+    i < indexesByFractionDesc.length && remainder > 0;
+    i++, remainder--
+  ) {
+    result[indexesByFractionDesc[i].index] += 1;
+  }
+
+  return result;
 }
 
 type FacilityKey = Extract<
@@ -112,6 +138,24 @@ export function StationInfoCard({
     lastSeg?.stations[lastSeg.stations.length - 1]?.nameZhTw ??
     routeResult?.toStationCode ??
     "";
+
+  // 依序交錯排列「區段秒數、轉乘秒數、區段秒數、…」，轉乘總秒數平均分配到各轉乘點
+  const segmentsSeconds = routeResult?.route.map((s) => s.segmentTimeSeconds) ?? [];
+  const transferGapCount = Math.max(segmentsSeconds.length - 1, 0);
+  const transferSecondsPerGap =
+    transferGapCount > 0 && routeResult
+      ? routeResult.transferTimeSeconds / transferGapCount
+      : 0;
+
+  const chunkSeconds: number[] = [];
+  segmentsSeconds.forEach((seconds, i) => {
+    chunkSeconds.push(seconds);
+    if (i < transferGapCount) chunkSeconds.push(transferSecondsPerGap);
+  });
+
+  const chunkMinutes = routeResult
+    ? allocateMinutes(chunkSeconds, routeResult.totalTravelTimeSeconds)
+    : [];
 
   return (
     <Card
@@ -317,7 +361,7 @@ export function StationInfoCard({
                     </Typography>
                     <Typography variant='caption' color='text.secondary'>
                       共 {segment.stations.length} 站・
-                      {formatTime(segment.segmentTimeSeconds)}
+                      {chunkMinutes[index * 2]} 分鐘
                     </Typography>
                   </Box>
                 </Stack>
@@ -338,7 +382,7 @@ export function StationInfoCard({
                       color='warning.main'
                       sx={{ fontSize: 10, ml: 0.25 }}
                     >
-                      轉乘
+                      轉乘 {chunkMinutes[index * 2 + 1]} 分鐘
                     </Typography>
                   </Stack>
                 )}

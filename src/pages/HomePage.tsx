@@ -68,12 +68,6 @@ const HomePage = () => {
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent): void => {
-    if (event.key === "Enter" && selectedStation) {
-      handleSearch();
-    }
-  };
-
   return (
     <Box>
       {/* Banner Section */}
