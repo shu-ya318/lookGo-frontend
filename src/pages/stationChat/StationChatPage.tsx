@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { enqueueSnackbar } from 'notistack';
 
-import Autocomplete from '@mui/material/Autocomplete';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -27,12 +26,13 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SendIcon from '@mui/icons-material/Send';
 
 import { DeleteDialog } from '@/components/DeleteDialog';
+import { StationAutocomplete } from '@/components/StationAutocomplete';
 import { CreateAnnouncementDialog } from '@/components/stationChat/CreateAnnouncementDialog';
 import { UpdateAnnouncementDialog } from '@/components/stationChat/UpdateAnnouncementDialog';
 
 import { useUserStore } from '@/stores/userStore';
 
-import { getAllStation } from '@/services/metro';
+import { getStationByCode } from '@/services/metro';
 import {
     deleteAnnouncement,
     getAnnouncementByStationId,
@@ -42,7 +42,7 @@ import { connectStationChatSocket } from '@/services/stationChat/socket';
 
 import { formatDateTime } from '@/utils/date';
 
-import type { StationDetails } from '@/services/metro/interface';
+import type { StationDetails, StationOption } from '@/services/metro/interface';
 import type {
     StationChatAnnouncement,
     StationChatMessage,
@@ -55,7 +55,8 @@ const ANNOUNCEMENT_PAGE_SIZE = 5;
 const StationChatPage = () => {
     const currentUser = useUserStore(state => state.userInfo);
 
-    const [stations, setStations] = useState<StationDetails[]>([]);
+    const [selectedStationOption, setSelectedStationOption] =
+        useState<StationOption | null>(null);
     const [selectedStation, setSelectedStation] =
         useState<StationDetails | null>(null);
 
@@ -242,19 +243,41 @@ const StationChatPage = () => {
     };
 
     useEffect(() => {
-        const fetchStations = async () => {
+        if (!selectedStationOption) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            setSelectedStation(null);
+            return;
+        }
+
+        let isCancelled = false;
+
+        setSelectedStation(null);
+
+        // StationAutocomplete 僅提供 stationCode，聊天室 API 需要的 stationId 需另行查詢
+        const resolveStation = async () => {
             try {
-                const allStation = await getAllStation();
-                setStations(allStation);
-            } catch (error) {
-                enqueueSnackbar((error as string) || '取得車站列表失敗', {
-                    variant: 'error',
+                const details = await getStationByCode({
+                    stationCode: selectedStationOption.stationCode,
                 });
+                if (!isCancelled) {
+                    setSelectedStation(details);
+                }
+            } catch (error) {
+                if (!isCancelled) {
+                    enqueueSnackbar((error as string) || '取得車站資訊失敗', {
+                        variant: 'error',
+                    });
+                    setSelectedStationOption(null);
+                }
             }
         };
 
-        fetchStations();
-    }, []);
+        resolveStation();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [selectedStationOption]);
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -445,23 +468,9 @@ const StationChatPage = () => {
                 <Typography variant='body2' sx={{ flexShrink: 0 }}>
                     車站
                 </Typography>
-                <Autocomplete
-                    value={selectedStation}
-                    onChange={(_event, newValue) =>
-                        setSelectedStation(newValue)
-                    }
-                    options={stations}
-                    getOptionLabel={option => option.nameZhTw}
-                    isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                    }
-                    renderInput={params => (
-                        <TextField
-                            {...params}
-                            placeholder='選擇或搜尋車站'
-                            size='small'
-                        />
-                    )}
+                <StationAutocomplete
+                    value={selectedStationOption}
+                    onChange={setSelectedStationOption}
                     sx={{ width: 250 }}
                 />
                 {selectedStation && (

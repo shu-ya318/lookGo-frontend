@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { enqueueSnackbar } from "notistack";
 
-import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
@@ -12,16 +11,18 @@ import ListSubheader from "@mui/material/ListSubheader";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneIcon from "@mui/icons-material/Tune";
 
 import { MetroMapContainer } from "@/components/metroMap/MetroMapContainer";
+import { StationAutocomplete } from "@/components/StationAutocomplete";
 
 import { useMetroMapStore } from "@/stores/metroMapStore";
 import { useStationStore } from "@/stores/stationStore";
+
+import { formatStationLabel } from "@/utils/station";
 
 import {
   FareType,
@@ -32,11 +33,7 @@ import {
   type FacilityLabel,
 } from "@/services/metro/types";
 
-interface StationOption {
-  label: string;
-  stationCode: string;
-  group: string;
-}
+import type { StationOption } from "@/services/metro/interface";
 
 interface AdvancedFilters {
   equipment: FacilityLabel[];
@@ -78,16 +75,6 @@ const MetroMapPage = () => {
   const isStationLoading = useStationStore((state) => state.isLoading);
   const clearSelection = useStationStore((state) => state.clearSelection);
 
-  const stationOptions = useMemo(
-    () =>
-      allStations.map((station) => ({
-        label: `${station.nameZhTw}（${station.stationCode}）`,
-        stationCode: station.stationCode,
-        group: "所有車站",
-      })),
-    [allStations]
-  );
-
   const [startStation, setStartStation] = useState<StationOption | null>(null);
   const [endStation, setEndStation] = useState<StationOption | null>(null);
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
@@ -115,9 +102,8 @@ const MetroMapPage = () => {
     if (matchedStation) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setStartStation({
-        label: `${matchedStation.nameZhTw}（${matchedStation.stationCode}）`,
         stationCode: matchedStation.stationCode,
-        group: "所有車站",
+        nameZhTw: matchedStation.nameZhTw,
       });
       selectAndFetchStation(matchedStation.stationCode);
     } else {
@@ -143,8 +129,8 @@ const MetroMapPage = () => {
   const infoText = !hasStartStation
     ? "可點擊地圖路線(文湖、淡水信義、松山新店、中和新蘆、板南)的任意車站代碼，或選擇起始車站進行查詢"
     : isSingleStationMode
-      ? `已選起始站「${startStation.label}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
-      : `已選起訖站，可查詢路徑（${startStation.label} → ${endStation!.label}）`;
+      ? `已選起始站「${formatStationLabel(startStation)}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
+      : `已選起訖站，可查詢路徑（${formatStationLabel(startStation)} → ${formatStationLabel(endStation!)}）`;
 
   const toggleFilter = <K extends keyof AdvancedFilters>(
     category: K,
@@ -258,29 +244,9 @@ const MetroMapPage = () => {
             >
               起始車站
             </Typography>
-            <Autocomplete
+            <StationAutocomplete
               value={startStation}
-              onChange={(_event, selectedOption) =>
-                setStartStation(selectedOption)
-              }
-              options={stationOptions}
-              groupBy={(option) => option.group}
-              getOptionLabel={(option) => option.label}
-              isOptionEqualToValue={(option, value) =>
-                option.stationCode === value.stationCode
-              }
-              renderOption={(props, option) => (
-                <li {...props} key={`${option.group}-${option.label}`}>
-                  {option.label}
-                </li>
-              )}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder='選擇或搜尋車站'
-                  size='small'
-                />
-              )}
+              onChange={setStartStation}
               sx={{
                 width: 180,
                 "& .MuiOutlinedInput-root": {
@@ -298,9 +264,9 @@ const MetroMapPage = () => {
             >
               終點車站
             </Typography>
-            <Autocomplete
+            <StationAutocomplete
               value={endStation}
-              onChange={(_event, selectedOption) => {
+              onChange={(selectedOption) => {
                 setEndStation(selectedOption);
                 if (selectedOption) {
                   setAdvancedFilters((prev) => ({ ...prev, equipment: [] }));
@@ -313,24 +279,6 @@ const MetroMapPage = () => {
                   }));
                 }
               }}
-              options={stationOptions}
-              groupBy={(option) => option.group}
-              getOptionLabel={(option) => option.label}
-              isOptionEqualToValue={(option, value) =>
-                option.stationCode === value.stationCode
-              }
-              renderOption={(props, option) => (
-                <li {...props} key={`${option.group}-${option.label}`}>
-                  {option.label}
-                </li>
-              )}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  placeholder='選擇或搜尋車站'
-                  size='small'
-                />
-              )}
               sx={{
                 width: 180,
                 "& .MuiOutlinedInput-root": {

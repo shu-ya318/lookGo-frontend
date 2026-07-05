@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -21,31 +20,11 @@ import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import EditIcon from '@mui/icons-material/Edit';
 
-interface StationOption {
-    label: string;
-    group: string;
-}
+import { StationAutocomplete } from '@/components/StationAutocomplete';
 
-const bookmarkedStations: StationOption[] = [
-    { label: '淡水站', group: '車站書籤' },
-    { label: '民權西路站', group: '車站書籤' },
-];
+import { useMetroMapStore } from '@/stores/metroMapStore';
 
-const allStationList: StationOption[] = [
-    { label: '台北車站', group: '所有車站' },
-    { label: '板橋站', group: '所有車站' },
-    { label: '中山站', group: '所有車站' },
-    { label: '西門站', group: '所有車站' },
-    { label: '忠孝復興站', group: '所有車站' },
-    { label: '大安站', group: '所有車站' },
-    { label: '松山站', group: '所有車站' },
-    { label: '南京復興站', group: '所有車站' },
-];
-
-const stationOptions: StationOption[] = [
-    ...bookmarkedStations,
-    ...allStationList,
-];
+import type { StationOption } from '@/services/metro/interface';
 
 const equipmentFilterOptions = [
     '廁所',
@@ -85,23 +64,23 @@ const mockTripHistory: TripHistory[] = [
     {
         id: 1,
         title: '台北通勤',
-        startStation: '淡水站',
-        endStation: '民權西路站',
+        startStation: '淡水',
+        endStation: '民權西路',
         filters: ['廁所'],
         note: '記得帶員工識別證',
     },
     {
         id: 2,
         title: '松山一日遊',
-        startStation: '淡水站',
-        endStation: '松山站',
+        startStation: '淡水',
+        endStation: '松山',
         filters: ['廁所', 'ATM'],
         note: '記得帶水壺',
     },
 ];
 
 const getMockTripResult = (start: string, end: string): { fare: string; travelTime: string; facilities: string[] } => {
-    if (start === '淡水站' && end === '民權西路站') {
+    if (start === '淡水' && end === '民權西路') {
         return {
             fare: '全票: 50 元',
             travelTime: '最短車程時間: 35 分鐘',
@@ -109,7 +88,7 @@ const getMockTripResult = (start: string, end: string): { fare: string; travelTi
         };
     }
 
-    if (start === '淡水站' && end === '松山站') {
+    if (start === '淡水' && end === '松山') {
         return {
             fare: '全票: 65 元',
             travelTime: '最少轉乘次數: 48 分鐘',
@@ -131,6 +110,8 @@ interface AdvancedFilters {
 }
 
 const TripPlannerPage = () => {
+    const stationOptions = useMetroMapStore(state => state.stationOptions);
+
     const [startStation, setStartStation] = useState<StationOption | null>(
         null
     );
@@ -173,10 +154,13 @@ const TripPlannerPage = () => {
 
     const handleSearch = (): void => {
         if (!startStation || !endStation) return;
-        const mockData = getMockTripResult(startStation.label, endStation.label);
+        const mockData = getMockTripResult(
+            startStation.nameZhTw,
+            endStation.nameZhTw
+        );
         setTripResult({
-            startStation: startStation.label,
-            endStation: endStation.label,
+            startStation: startStation.nameZhTw,
+            endStation: endStation.nameZhTw,
             fare: mockData.fare,
             travelTime: mockData.travelTime,
             facilities: mockData.facilities,
@@ -190,9 +174,13 @@ const TripPlannerPage = () => {
         }
         setSelectedHistoryId(trip.id);
         const start =
-            stationOptions.find(station => station.label === trip.startStation) ?? null;
+            stationOptions.find(
+                station => station.nameZhTw === trip.startStation
+            ) ?? null;
         const end =
-            stationOptions.find(station => station.label === trip.endStation) ?? null;
+            stationOptions.find(
+                station => station.nameZhTw === trip.endStation
+            ) ?? null;
         setStartStation(start);
         setEndStation(end);
         setAdvancedFilters({
@@ -360,33 +348,10 @@ const TripPlannerPage = () => {
                             >
                                 起始車站
                             </Typography>
-                            <Autocomplete
+                            <StationAutocomplete
                                 value={startStation}
-                                onChange={(_event, newValue) =>
-                                    setStartStation(newValue)
-                                }
-                                options={stationOptions}
-                                groupBy={option => option.group}
-                                getOptionLabel={option => option.label}
-                                isOptionEqualToValue={(option, value) =>
-                                    option.label === value.label
-                                }
-                                renderOption={(props, option) => (
-                                    <li
-                                        {...props}
-                                        key={`${option.group}-${option.label}`}
-                                    >
-                                        {option.label}
-                                    </li>
-                                )}
+                                onChange={setStartStation}
                                 disabled={isHistoryMode}
-                                renderInput={params => (
-                                    <TextField
-                                        {...params}
-                                        placeholder='選擇或搜尋車站'
-                                        size='small'
-                                    />
-                                )}
                                 sx={{
                                     width: 200,
                                     '& .MuiOutlinedInput-root': {
@@ -409,33 +374,10 @@ const TripPlannerPage = () => {
                             >
                                 終點車站
                             </Typography>
-                            <Autocomplete
+                            <StationAutocomplete
                                 value={endStation}
-                                onChange={(_event, newValue) =>
-                                    setEndStation(newValue)
-                                }
-                                options={stationOptions}
-                                groupBy={option => option.group}
-                                getOptionLabel={option => option.label}
-                                isOptionEqualToValue={(option, value) =>
-                                    option.label === value.label
-                                }
-                                renderOption={(props, option) => (
-                                    <li
-                                        {...props}
-                                        key={`${option.group}-${option.label}`}
-                                    >
-                                        {option.label}
-                                    </li>
-                                )}
+                                onChange={setEndStation}
                                 disabled={isHistoryMode}
-                                renderInput={params => (
-                                    <TextField
-                                        {...params}
-                                        placeholder='選擇或搜尋車站'
-                                        size='small'
-                                    />
-                                )}
                                 sx={{
                                     width: 200,
                                     '& .MuiOutlinedInput-root': {
