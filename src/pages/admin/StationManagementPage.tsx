@@ -1,86 +1,70 @@
-import { /* useCallback, useEffect, */ useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 
-import Autocomplete from "@mui/material/Autocomplete";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import { DataGrid } from "@mui/x-data-grid";
-// import { enqueueSnackbar } from 'notistack';
+import { enqueueSnackbar } from "notistack";
 
-// import { getStations } from '@/services/station';
+import { Dialog } from "@/components/Dialog";
+import { StationAutocomplete } from "@/components/StationAutocomplete";
+import { UpdateStationDialog } from "@/components/admin/UpdateStationDialog";
+import { getAllStationPaginated, getStationById } from "@/services/metro";
+import { formatDateTime } from "@/utils/date";
 
 import type {
   GridColDef,
   GridRenderCellParams,
   GridRowSelectionModel,
 } from "@mui/x-data-grid";
-import type { StationDetails } from "@/services/metro/interface";
-
-const mockStations: StationDetails[] = [
-  {
-    id: 1,
-    nameZhTw: "淡水",
-    nameEn: "Tamsui",
-    atm: "站內大廳",
-    nursingRoom: "付費區內",
-    diaperTable: "付費區內",
-    chargingStation: "大廳",
-    ticketMachine: "大廳",
-    locker: "大廳",
-    drinkingWater: "付費區內",
-    restroom: "付費區內",
-    elevator: "大廳",
-    escalator: "大廳",
-    updatedAt: "",
-  },
-  {
-    id: 2,
-    nameZhTw: "民權西路",
-    nameEn: "Minquan W. Rd.",
-    atm: "站內大廳",
-    nursingRoom: "付費區內",
-    diaperTable: "付費區內",
-    chargingStation: "大廳",
-    ticketMachine: "大廳",
-    locker: "大廳",
-    drinkingWater: "付費區內",
-    restroom: "付費區內",
-    elevator: "大廳",
-    escalator: "大廳",
-    updatedAt: "",
-  },
-];
+import type {
+  Station,
+  StationOption,
+  StationSummary,
+} from "@/services/metro/interface";
 
 const exportColumnMap: Record<string, string> = {
   id: "ID",
   nameZhTw: "中文站名",
   nameEn: "英文站名",
-  atm: "ATM",
-  nursingRoom: "哺乳室",
-  diaperTable: "尿布台",
-  chargingStation: "充電站",
-  ticketMachine: "售票機",
-  locker: "置物櫃",
-  drinkingWater: "飲水機",
-  restroom: "廁所",
+  updatedAt: "更新時間",
 };
 
+const facilityFieldMap: { key: keyof Station; label: string }[] = [
+  { key: "atm", label: "ATM" },
+  { key: "nursingRoom", label: "哺乳室" },
+  { key: "diaperTable", label: "尿布台" },
+  { key: "chargingStation", label: "充電站" },
+  { key: "ticketMachine", label: "售票機" },
+  { key: "drinkingWater", label: "飲水機" },
+  { key: "restroom", label: "廁所" },
+  { key: "elevator", label: "電梯" },
+  { key: "escalator", label: "手扶梯" },
+];
+
 const StationManagementPage = () => {
-  const [rows /* setRows */] = useState<StationDetails[]>(mockStations);
-  const [rowCount /* setRowCount */] = useState(mockStations.length);
-  const [isLoading /* setIsLoading */] = useState(false);
+  const [rows, setRows] = useState<StationSummary[]>([]);
+  const [rowCount, setRowCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
   });
-  const [searchValue, setSearchValue] = useState<string | null>(null);
+  const [searchValue, setSearchValue] = useState<StationOption | null>(null);
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>({ type: "include", ids: new Set() });
+  const [facilityDialogOpen, setFacilityDialogOpen] = useState(false);
+  const [facilityStation, setFacilityStation] = useState<Station | null>(
+    null
+  );
+  const [isFacilityLoading, setIsFacilityLoading] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editStationId, setEditStationId] = useState<string | null>(null);
 
   const selectedRows =
     rowSelectionModel.type === "include"
@@ -88,13 +72,35 @@ const StationManagementPage = () => {
       : rows.filter((row) => !rowSelectionModel.ids.has(row.id));
   const selectedCount = selectedRows.length;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleEdit = (_id: number) => {
-    // TODO
+  const handleEdit = (id: string) => {
+    setEditStationId(id);
+    setEditDialogOpen(true);
   };
 
-  const handleUploadCsv = () => {
-    // TODO
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setEditStationId(null);
+  };
+
+  const handleOpenFacilityDialog = useCallback(async (id: string) => {
+    setFacilityDialogOpen(true);
+    setIsFacilityLoading(true);
+    try {
+      const station = await getStationById({ id });
+      setFacilityStation(station);
+    } catch (error) {
+      enqueueSnackbar((error as string) || "取得設備資訊失敗", {
+        variant: "error",
+      });
+      setFacilityDialogOpen(false);
+    } finally {
+      setIsFacilityLoading(false);
+    }
+  }, []);
+
+  const handleCloseFacilityDialog = () => {
+    setFacilityDialogOpen(false);
+    setFacilityStation(null);
   };
 
   const handleExportExcel = () => {
@@ -103,7 +109,7 @@ const StationManagementPage = () => {
     const exportData = selectedRows.map((row) => {
       const mapped: Record<string, unknown> = {};
       for (const [key, header] of Object.entries(exportColumnMap)) {
-        mapped[header] = row[key as keyof StationDetails] ?? "-";
+        mapped[header] = row[key as keyof StationSummary] ?? "-";
       }
       return mapped;
     });
@@ -133,99 +139,73 @@ const StationManagementPage = () => {
         minWidth: 150,
       },
       {
-        field: "atm",
-        headerName: "ATM",
-        flex: 0.8,
-        minWidth: 100,
-        valueGetter: (value: string | null) => value ?? "-",
+        field: "updatedAt",
+        headerName: "更新時間",
+        flex: 1,
+        minWidth: 160,
+        valueGetter: (value: string) => formatDateTime(value) || "-",
       },
       {
-        field: "nursingRoom",
-        headerName: "哺乳室",
-        flex: 0.8,
-        minWidth: 100,
-        valueGetter: (value: string | null) => value ?? "-",
-      },
-      {
-        field: "diaperTable",
-        headerName: "尿布台",
-        flex: 0.8,
-        minWidth: 100,
-        valueGetter: (value: string | null) => value ?? "-",
-      },
-      {
-        field: "chargingStation",
-        headerName: "充電站",
-        flex: 0.8,
-        minWidth: 100,
-        valueGetter: (value: string | null) => value ?? "-",
-      },
-      {
-        field: "ticketMachine",
-        headerName: "售票機",
-        flex: 0.8,
-        minWidth: 100,
-        valueGetter: (value: string | null) => value ?? "-",
-      },
-      {
-        field: "locker",
-        headerName: "置物櫃",
-        flex: 0.8,
-        minWidth: 100,
-        valueGetter: (value: string | null) => value ?? "-",
-      },
-      {
-        field: "drinkingWater",
-        headerName: "飲水機",
-        flex: 0.8,
-        minWidth: 100,
-        valueGetter: (value: string | null) => value ?? "-",
-      },
-      {
-        field: "restroom",
-        headerName: "廁所",
-        flex: 0.8,
-        minWidth: 100,
-        valueGetter: (value: string | null) => value ?? "-",
+        field: "facilities",
+        headerName: "設備資訊",
+        flex: 0.6,
+        minWidth: 90,
+        sortable: false,
+        filterable: false,
+        renderCell: (params: GridRenderCellParams<StationSummary>) => (
+          <IconButton
+            size='small'
+            onClick={() => handleOpenFacilityDialog(params.row.id)}
+          >
+            <InfoOutlinedIcon fontSize='small' />
+          </IconButton>
+        ),
       },
       {
         field: "actions",
-        headerName: "操作",
+        headerName: "編輯資訊",
         flex: 0.6,
         minWidth: 80,
         sortable: false,
         filterable: false,
-        renderCell: (params: GridRenderCellParams<StationDetails>) => (
+        renderCell: (params: GridRenderCellParams<StationSummary>) => (
           <IconButton size='small' onClick={() => handleEdit(params.row.id)}>
             <EditOutlinedIcon fontSize='small' />
           </IconButton>
         ),
       },
     ],
-    []
+    [handleOpenFacilityDialog]
   );
 
-  // const fetchStations = useCallback(async () => {
-  //     setIsLoading(true);
-  //     try {
-  //         const { content, totalElements } = await getStations({
-  //             page: paginationModel.page,
-  //             pageSize: paginationModel.pageSize,
-  //         });
-  //         setRows(content);
-  //         setRowCount(totalElements);
-  //     } catch (error) {
-  //         enqueueSnackbar((error as string) || '取得車站列表失敗', {
-  //             variant: 'error',
-  //         });
-  //     } finally {
-  //         setIsLoading(false);
-  //     }
-  // }, [paginationModel.page, paginationModel.pageSize]);
+  const fetchStations = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { content, totalElements } = await getAllStationPaginated({
+        keyword: searchValue?.nameZhTw,
+        page: paginationModel.page,
+        size: paginationModel.pageSize,
+      });
+      setRows(content);
+      setRowCount(totalElements);
+    } catch (error) {
+      enqueueSnackbar((error as string) || "取得車站列表失敗", {
+        variant: "error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [paginationModel.page, paginationModel.pageSize, searchValue]);
 
-  // useEffect(() => {
-  //     fetchStations();
-  // }, [fetchStations]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchStations();
+  }, [fetchStations]);
+
+  const handleSearchChange = (newValue: StationOption | null) => {
+    setSearchValue(newValue);
+    setPaginationModel((prev) => ({ ...prev, page: 0 }));
+  };
 
   return (
     <Stack
@@ -246,13 +226,10 @@ const StationManagementPage = () => {
           justifyContent: "space-between",
         }}
       >
-        <Autocomplete
+        <StationAutocomplete
           value={searchValue}
-          onChange={(_event, newValue) => setSearchValue(newValue)}
-          options={rows.map((row) => row.nameZhTw)}
-          renderInput={(params) => (
-            <TextField {...params} placeholder='搜尋車站' size='small' />
-          )}
+          onChange={handleSearchChange}
+          //placeholder='請輸入或選擇車站'
           sx={{ width: 300 }}
         />
         <Stack direction='row' sx={{ gap: "1rem" }}>
@@ -266,9 +243,6 @@ const StationManagementPage = () => {
               匯出 Excel（{selectedCount}）
             </Button>
           )}
-          <Button variant='outlined' color='neutral' onClick={handleUploadCsv}>
-            批次上傳 CSV
-          </Button>
         </Stack>
       </Stack>
 
@@ -307,6 +281,41 @@ const StationManagementPage = () => {
             padding: "8px 16px",
           },
         }}
+      />
+
+      <Dialog
+        isOpen={facilityDialogOpen}
+        onClose={handleCloseFacilityDialog}
+        title={
+          facilityStation ? `${facilityStation.nameZhTw} 設備資訊` : "設備資訊"
+        }
+        width='24rem'
+      >
+        {isFacilityLoading || !facilityStation ? (
+          <Typography>載入中...</Typography>
+        ) : (
+          <Stack sx={{ gap: "0.75rem" }}>
+            {facilityFieldMap.map(({ key, label }) => (
+              <Stack
+                key={key}
+                direction='row'
+                sx={{ justifyContent: "space-between" }}
+              >
+                <Typography sx={{ color: "text.secondary" }}>
+                  {label}
+                </Typography>
+                <Typography>{facilityStation[key] || "-"}</Typography>
+              </Stack>
+            ))}
+          </Stack>
+        )}
+      </Dialog>
+
+      <UpdateStationDialog
+        isOpen={editDialogOpen}
+        onClose={handleCloseEditDialog}
+        stationId={editStationId}
+        onSuccess={fetchStations}
       />
     </Stack>
   );

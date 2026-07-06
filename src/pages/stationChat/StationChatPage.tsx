@@ -387,7 +387,7 @@ const StationChatPage = () => {
 
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography variant='body2' sx={{ flexShrink: 0 }}>
-                        選擇車站
+                        選擇進入的車站
                     </Typography>
                     <StationAutocomplete
                         value={selectedStationOption}

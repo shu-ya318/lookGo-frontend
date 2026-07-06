@@ -1,3 +1,5 @@
+import type { PageResponse } from '../common/interface';
+
 import type { StationFacility } from './types';
 
 // Metro Map
@@ -39,7 +41,6 @@ export interface StationDetails {
     diaperTable: string | null;
     chargingStation: string | null;
     ticketMachine: string | null;
-    locker: string | null;
     drinkingWater: string | null;
     restroom: string | null;
     elevator: string | null;
@@ -111,6 +112,54 @@ export interface LineStation {
 
 export type GetAllLineStationResponse = LineStation[];
 
+// Station By Id
+
+export interface GetStationByIdRequest {
+    id: string;
+}
+
+export interface Station {
+    id: string;
+    nameZhTw: string;
+    nameEn: string;
+    atm: string;
+    nursingRoom: string;
+    diaperTable: string;
+    chargingStation: string;
+    ticketMachine: string;
+    drinkingWater: string;
+    restroom: string;
+    elevator: string;
+    escalator: string;
+    updatedAt: string;
+}
+
+// All Station Paginated
+
+export interface GetAllStationPaginatedRequest {
+    keyword?: string;
+    page: number;
+    size: number;
+}
+
+export interface StationSummary {
+    id: string;
+    nameZhTw: string;
+    nameEn: string;
+    updatedAt: string;
+}
+
+export type GetAllStationPaginatedResponse = PageResponse<StationSummary>;
+
+// All Station Id Option
+
+export interface StationIdOption {
+    id: string;
+    nameZhTw: string;
+}
+
+export type GetAllStationIdOptionResponse = StationIdOption[];
+
 // Origin Destination Detail
 
 export interface GetOriginDestinationDetailRequest {
@@ -144,4 +193,26 @@ export interface GetOriginDestinationDetailResponse {
     totalTravelTimeSeconds: number;
     transferTimeSeconds: number;
     farePrice: number;
+}
+
+// Update Station
+
+export interface UpdateStationRequest {
+    id: number;
+    nameZhTw?: string;
+    nameEn?: string;
+    atm?: string;
+    nursingRoom?: string;
+    diaperTable?: string;
+    chargingStation?: string;
+    ticketMachine?: string;
+    locker?: string;
+    drinkingWater?: string;
+    restroom?: string;
+    elevator?: string;
+    escalator?: string;
+}
+
+export interface UpdateStationResponse {
+    message: string;
 }

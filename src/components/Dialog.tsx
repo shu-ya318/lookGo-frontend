@@ -3,6 +3,9 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
+import CloseIcon from '@mui/icons-material/Close';
 
 import type { ReactNode } from 'react';
 import type { SxProps } from '@mui/material/styles';
@@ -15,6 +18,7 @@ interface ExtendedDialogProps {
   extraStyles?: SxProps;
   action?: ReactNode;
   width?: string;
+  onClose?: () => void;
 };
 
 export const Dialog = ({
@@ -25,10 +29,12 @@ export const Dialog = ({
   extraStyles = {},
   action,
   width = '40.5rem',
+  onClose,
 }: ExtendedDialogProps) => {
   return (
     <MuiDialog
       open={isOpen}
+      onClose={onClose}
       closeAfterTransition={false}
       sx={{
         border: 1,
@@ -39,13 +45,22 @@ export const Dialog = ({
         },
       }}
     >
-      <DialogTitle variant='h5' sx={{ padding: '1.5rem', color: 'text.primary' }}>
-        {title}
-      </DialogTitle>
+      <Stack direction='row' sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <DialogTitle variant='h5' sx={{ padding: '1.5rem', color: 'text.primary' }}>
+          {title}
+        </DialogTitle>
+        {onClose && (
+          <IconButton onClick={onClose} sx={{ marginRight: '1rem' }}>
+            <CloseIcon />
+          </IconButton>
+        )}
+      </Stack>
       <DialogContent sx={{ ...extraStyles }}>
         {children ?? (content && <DialogContentText>{content}</DialogContentText>)}
       </DialogContent>
-      <DialogActions sx={{ padding: '1.5rem', gap: '1rem' }}>{action}</DialogActions>
+      {action && (
+        <DialogActions sx={{ padding: '1.5rem', gap: '1rem' }}>{action}</DialogActions>
+      )}
     </MuiDialog>
   );
 };
