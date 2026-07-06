@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { enqueueSnackbar } from 'notistack';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -16,6 +17,8 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import EditIcon from '@mui/icons-material/Edit';
@@ -23,6 +26,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import { StationAutocomplete } from '@/components/StationAutocomplete';
 
 import { useMetroMapStore } from '@/stores/metroMapStore';
+import { useStationBookmarkStore } from '@/stores/stationBookmarkStore';
+
+import { getStationByCode } from '@/services/metro';
 
 import type { StationOption } from '@/services/metro/interface';
 
@@ -54,11 +60,30 @@ interface TripHistory {
 
 interface TripResult {
     startStation: string;
+    startStationId: number | null;
     endStation: string;
+    endStationId: number | null;
     fare: string;
     travelTime: string;
     facilities: string[];
 }
+
+// StationOption 僅提供 stationCode，書籤功能需要的 stationId 需另行查詢
+const resolveStationId = async (
+    station: StationOption
+): Promise<number | null> => {
+    try {
+        const details = await getStationByCode({
+            stationCode: station.stationCode,
+        });
+        return details.id;
+    } catch (error) {
+        enqueueSnackbar((error as string) || '取得車站資訊失敗', {
+            variant: 'error',
+        });
+        return null;
+    }
+};
 
 const mockTripHistory: TripHistory[] = [
     {
@@ -111,6 +136,21 @@ interface AdvancedFilters {
 
 const TripPlannerPage = () => {
     const stationOptions = useMetroMapStore(state => state.stationOptions);
+    const bookmarks = useStationBookmarkStore(state => state.bookmarks);
+    const fetchBookmarks = useStationBookmarkStore(
+        state => state.fetchBookmarks
+    );
+    const toggleBookmark = useStationBookmarkStore(
+        state => state.toggleBookmark
+    );
+
+    useEffect(() => {
+        fetchBookmarks();
+    }, [fetchBookmarks]);
+
+    const isStationBookmarked = (stationId: number | null): boolean =>
+        stationId !== null &&
+        bookmarks.some(bookmark => bookmark.stationId === stationId);
 
     const [startStation, setStartStation] = useState<StationOption | null>(
         null
@@ -152,22 +192,28 @@ const TripPlannerPage = () => {
         advancedFilters.fare.length +
         advancedFilters.time.length;
 
-    const handleSearch = (): void => {
+    const handleSearch = async (): Promise<void> => {
         if (!startStation || !endStation) return;
         const mockData = getMockTripResult(
             startStation.nameZhTw,
             endStation.nameZhTw
         );
+        const [startStationId, endStationId] = await Promise.all([
+            resolveStationId(startStation),
+            resolveStationId(endStation),
+        ]);
         setTripResult({
             startStation: startStation.nameZhTw,
+            startStationId,
             endStation: endStation.nameZhTw,
+            endStationId,
             fare: mockData.fare,
             travelTime: mockData.travelTime,
             facilities: mockData.facilities,
         });
     };
 
-    const handleSelectHistory = (trip: TripHistory): void => {
+    const handleSelectHistory = async (trip: TripHistory): Promise<void> => {
         if (selectedHistoryId === trip.id) {
             handleNewTrip();
             return;
@@ -191,9 +237,15 @@ const TripPlannerPage = () => {
         setNote(trip.note);
         setTripTitle(trip.title);
         const mockData = getMockTripResult(trip.startStation, trip.endStation);
+        const [startStationId, endStationId] = await Promise.all([
+            start ? resolveStationId(start) : Promise.resolve(null),
+            end ? resolveStationId(end) : Promise.resolve(null),
+        ]);
         setTripResult({
             startStation: trip.startStation,
+            startStationId,
             endStation: trip.endStation,
+            endStationId,
             fare: mockData.fare,
             travelTime: mockData.travelTime,
             facilities: mockData.facilities,
@@ -584,13 +636,67 @@ const TripPlannerPage = () => {
                                         py: 2,
                                     }}
                                 >
-                                    <Typography variant='body1'>
-                                        {tripResult.startStation}
-                                    </Typography>
+                                    <Stack
+                                        direction='row'
+                                        sx={{ alignItems: 'center', gap: 0.5 }}
+                                    >
+                                        <Typography variant='body1'>
+                                            {tripResult.startStation}
+                                        </Typography>
+                                        <IconButton
+                                            size='small'
+                                            disabled={
+                                                tripResult.startStationId === null
+                                            }
+                                            onClick={() =>
+                                                toggleBookmark(
+                                                    tripResult.startStationId!
+                                                )
+                                            }
+                                        >
+                                            {isStationBookmarked(
+                                                tripResult.startStationId
+                                            ) ? (
+                                                <BookmarkIcon
+                                                    fontSize='small'
+                                                    color='primary'
+                                                />
+                                            ) : (
+                                                <BookmarkBorderIcon fontSize='small' />
+                                            )}
+                                        </IconButton>
+                                    </Stack>
                                     <ArrowForwardIcon />
-                                    <Typography variant='body1'>
-                                        {tripResult.endStation}
-                                    </Typography>
+                                    <Stack
+                                        direction='row'
+                                        sx={{ alignItems: 'center', gap: 0.5 }}
+                                    >
+                                        <Typography variant='body1'>
+                                            {tripResult.endStation}
+                                        </Typography>
+                                        <IconButton
+                                            size='small'
+                                            disabled={
+                                                tripResult.endStationId === null
+                                            }
+                                            onClick={() =>
+                                                toggleBookmark(
+                                                    tripResult.endStationId!
+                                                )
+                                            }
+                                        >
+                                            {isStationBookmarked(
+                                                tripResult.endStationId
+                                            ) ? (
+                                                <BookmarkIcon
+                                                    fontSize='small'
+                                                    color='primary'
+                                                />
+                                            ) : (
+                                                <BookmarkBorderIcon fontSize='small' />
+                                            )}
+                                        </IconButton>
+                                    </Stack>
                                 </Stack>
                             </CardContent>
                         </Card>

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -7,10 +9,13 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import CloseIcon from "@mui/icons-material/Close";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 import { useStationStore } from "@/stores/stationStore";
+import { useStationBookmarkStore } from "@/stores/stationBookmarkStore";
 import { FareType, RoutingStrategy } from "@/services/metro/types";
 import type {
   MetroMapLine,
@@ -94,7 +99,6 @@ const FACILITY_LABELS: { key: FacilityKey; label: string }[] = [
   { key: "atm", label: "ATM" },
   { key: "restroom", label: "廁所" },
   { key: "drinkingWater", label: "飲水機" },
-  { key: "locker", label: "置物櫃" },
   { key: "chargingStation", label: "充電站" },
   { key: "ticketMachine", label: "售票機" },
   { key: "nursingRoom", label: "哺乳室" },
@@ -110,6 +114,21 @@ export function StationInfoCard({
 }: Props): React.ReactElement {
   const stationDetails = useStationStore((state) => state.stationDetails);
   const isLoading = useStationStore((state) => state.isLoading);
+  const bookmarks = useStationBookmarkStore((state) => state.bookmarks);
+  const fetchBookmarks = useStationBookmarkStore(
+    (state) => state.fetchBookmarks
+  );
+  const toggleBookmark = useStationBookmarkStore(
+    (state) => state.toggleBookmark
+  );
+
+  useEffect(() => {
+    fetchBookmarks();
+  }, [fetchBookmarks]);
+
+  const isBookmarked = station
+    ? bookmarks.some((bookmark) => bookmark.stationId === station.stationId)
+    : false;
 
   const transferLines =
     station && line
@@ -179,12 +198,25 @@ export function StationInfoCard({
             sx={{ justifyContent: "space-between", alignItems: "flex-start" }}
           >
             <Box>
-              <Typography
-                variant='body1'
-                sx={{ fontWeight: 700, lineHeight: 1.3 }}
-              >
-                {station.nameZhTw}
-              </Typography>
+              <Stack direction='row' sx={{ alignItems: "center", gap: 0.25 }}>
+                <Typography
+                  variant='body1'
+                  sx={{ fontWeight: 700, lineHeight: 1.3 }}
+                >
+                  {station.nameZhTw}
+                </Typography>
+                <IconButton
+                  size='small'
+                  onClick={() => toggleBookmark(station.stationId)}
+                  sx={{ p: 0.25 }}
+                >
+                  {isBookmarked ? (
+                    <BookmarkIcon fontSize='small' color='primary' />
+                  ) : (
+                    <BookmarkBorderIcon fontSize='small' />
+                  )}
+                </IconButton>
+              </Stack>
               <Typography variant='caption' color='text.secondary'>
                 {station.nameEn}
               </Typography>

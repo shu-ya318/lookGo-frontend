@@ -1,10 +1,12 @@
 import postRequest from '../api';
 
 import type {
+    CreateBookmarkRequest,
     DeleteBookmarkRequest,
     DeleteBookmarkResponse,
     GetAllBookmarkPaginatedRequest,
     GetAllBookmarkPaginatedResponse,
+    StationBookmark,
 } from './interface';
 
 export const getAllBookmarkPaginated = async (
@@ -14,6 +16,15 @@ export const getAllBookmarkPaginated = async (
         '/station-bookmark/get-all-bookmark-paginated',
         undefined,
         { params: request }
+    );
+};
+
+export const createBookmark = async (
+    request: CreateBookmarkRequest
+): Promise<StationBookmark> => {
+    return await postRequest<StationBookmark>(
+        '/station-bookmark/create-bookmark',
+        request
     );
 };
 

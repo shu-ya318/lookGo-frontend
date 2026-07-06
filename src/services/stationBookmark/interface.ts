@@ -20,6 +20,12 @@ export interface StationBookmark {
 
 export type GetAllBookmarkPaginatedResponse = PageResponse<StationBookmark>;
 
+// Create Bookmark
+
+export interface CreateBookmarkRequest {
+    stationId: number;
+}
+
 // Delete Bookmark
 
 export interface DeleteBookmarkRequest {
