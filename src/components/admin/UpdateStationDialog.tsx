@@ -15,8 +15,8 @@ import { Dialog } from "@/components/Dialog";
 import { getStationById, updateStation } from "@/services/metro";
 
 const formSchema = z.object({
-  nameZhTw: z.string().min(1, "請輸入中文站名!"),
-  nameEn: z.string().min(1, "請輸入英文站名!"),
+  nameZhTw: z.string(),
+  nameEn: z.string(),
   atm: z.string(),
   nursingRoom: z.string(),
   diaperTable: z.string(),
@@ -44,18 +44,18 @@ const defaultFormValues: FormData = {
   escalator: "",
 };
 
-const fieldLabelMap: { name: keyof FormData; label: string; required: boolean; disabled?: boolean }[] = [
-  { name: "nameZhTw", label: "中文站名", required: true, disabled: true },
-  { name: "nameEn", label: "英文站名", required: true, disabled: true },
-  { name: "atm", label: "ATM", required: false },
-  { name: "nursingRoom", label: "哺乳室", required: false },
-  { name: "diaperTable", label: "尿布台", required: false },
-  { name: "chargingStation", label: "充電站", required: false },
-  { name: "ticketMachine", label: "售票機", required: false },
-  { name: "drinkingWater", label: "飲水機", required: false },
-  { name: "restroom", label: "廁所", required: false },
-  { name: "elevator", label: "電梯", required: false },
-  { name: "escalator", label: "手扶梯", required: false },
+const fieldLabelMap: { name: keyof FormData; label: string }[] = [
+  { name: "nameZhTw", label: "中文站名" },
+  { name: "nameEn", label: "英文站名" },
+  { name: "atm", label: "ATM" },
+  { name: "nursingRoom", label: "哺乳室" },
+  { name: "diaperTable", label: "尿布台" },
+  { name: "chargingStation", label: "充電站" },
+  { name: "ticketMachine", label: "售票機" },
+  { name: "drinkingWater", label: "飲水機" },
+  { name: "restroom", label: "廁所" },
+  { name: "elevator", label: "電梯" },
+  { name: "escalator", label: "手扶梯" },
 ];
 
 interface UpdateStationDialogProps {
@@ -172,11 +172,10 @@ export const UpdateStationDialog = ({
         <Typography>載入中...</Typography>
       ) : (
         <Stack sx={{ pt: 1, gap: "1rem" }}>
-          {fieldLabelMap.map(({ name, label, required, disabled }) => (
+          {fieldLabelMap.map(({ name, label }) => (
             <FormControl key={name} fullWidth>
               <FormLabel
                 htmlFor={name}
-                required={required}
                 sx={{
                   color: "neutral.dark",
                   "& .MuiFormLabel-asterisk": { color: "error.main" },
@@ -196,7 +195,6 @@ export const UpdateStationDialog = ({
                     helperText={errors[name]?.message}
                     variant='outlined'
                     size='small'
-                    disabled={disabled}
                   />
                 )}
               />

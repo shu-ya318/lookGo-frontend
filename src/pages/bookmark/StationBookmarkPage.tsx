@@ -91,7 +91,9 @@ const StationBookmarkPage = () => {
 
     setIsDeleting(true);
     try {
-      const { message } = await deleteBookmark({ id: deletingBookmark.id });
+      const { message } = await deleteBookmark({
+        bookmarkId: deletingBookmark.id.toString(),
+      });
       enqueueSnackbar(message || "書籤刪除成功", { variant: "success" });
       setDeletingBookmark(null);
       await fetchBookmarks();

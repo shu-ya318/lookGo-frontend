@@ -29,7 +29,7 @@ export interface CreateBookmarkRequest {
 // Delete Bookmark
 
 export interface DeleteBookmarkRequest {
-    id: number;
+    bookmarkId: string;
 }
 
 export interface DeleteBookmarkResponse {

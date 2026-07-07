@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import dayjs from 'dayjs';
 import { enqueueSnackbar } from 'notistack';
 
 import Box from '@mui/material/Box';
@@ -6,6 +7,7 @@ import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Checkbox from '@mui/material/Checkbox';
+import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import ListItemText from '@mui/material/ListItemText';
 import ListSubheader from '@mui/material/ListSubheader';
@@ -19,18 +21,31 @@ import AddIcon from '@mui/icons-material/Add';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import EditIcon from '@mui/icons-material/Edit';
 
+import { DeleteDialog } from '@/components/DeleteDialog';
 import { StationAutocomplete } from '@/components/StationAutocomplete';
 
 import { useMetroMapStore } from '@/stores/metroMapStore';
 import { useStationBookmarkStore } from '@/stores/stationBookmarkStore';
 
-import { getStationByCode } from '@/services/metro';
+import { getOriginDestinationDetail, getStationByCode } from '@/services/metro';
+import { FareType, RoutingStrategy } from '@/services/metro/types';
+import {
+    createTripPlan,
+    deleteTripPlan,
+    getAllTripPlanPaginated,
+    getTripPlanExcel,
+    updateTripPlan,
+    updateTripPlanName,
+} from '@/services/tripPlan';
 
 import type { StationOption } from '@/services/metro/interface';
+import type { TripPlan } from '@/services/tripPlan/interface';
 
 const equipmentFilterOptions = [
     '廁所',
@@ -42,33 +57,58 @@ const equipmentFilterOptions = [
     '充電站',
 ];
 
-const fareTypeFilterOptions = ['全票', '優惠票'];
+const fareTypeFilterOptions = ['全票', '學生票', '兒童票', '愛心票'] as const;
+type FareLabel = (typeof fareTypeFilterOptions)[number];
+const fareLabelToType: Record<FareLabel, number> = {
+    全票: FareType.FULL,
+    學生票: FareType.STUDENT,
+    兒童票: FareType.CHILD,
+    愛心票: FareType.LOVE,
+};
+const fareTypeToLabel: Record<number, FareLabel> = {
+    [FareType.FULL]: '全票',
+    [FareType.STUDENT]: '學生票',
+    [FareType.CHILD]: '兒童票',
+    [FareType.LOVE]: '愛心票',
+};
 
-const travelTimeFilterOptions = [
-    '最少轉乘次數',
-    '最短車程時間'
-];
+const travelTimeFilterOptions = ['最少轉乘次數', '最短車程時間'] as const;
+type TimeLabel = (typeof travelTimeFilterOptions)[number];
+const timeLabelToStrategy: Record<TimeLabel, number> = {
+    最少轉乘次數: RoutingStrategy.MIN_TRANSFER,
+    最短車程時間: RoutingStrategy.MIN_TIME,
+};
+const routingStrategyToLabel: Record<number, TimeLabel> = {
+    [RoutingStrategy.MIN_TRANSFER]: '最少轉乘次數',
+    [RoutingStrategy.MIN_TIME]: '最短車程時間',
+};
 
-interface TripHistory {
-    id: number;
-    title: string;
-    startStation: string;
-    endStation: string;
-    filters: string[];
-    note: string;
-}
+const TRIP_PLAN_PAGE_SIZE = 50;
 
 interface TripResult {
     startStation: string;
     startStationId: number | null;
     endStation: string;
     endStationId: number | null;
-    fare: string;
-    travelTime: string;
-    facilities: string[];
+    fareLabel: string;
+    travelTimeLabel: string;
+    farePrice: number;
+    transferCount: number;
 }
 
-// StationOption 僅提供 stationCode，書籤功能需要的 stationId 需另行查詢
+interface AdvancedFilters {
+    equipment: string[];
+    fare: FareLabel | null;
+    time: TimeLabel | null;
+}
+
+const defaultAdvancedFilters: AdvancedFilters = {
+    equipment: [],
+    fare: null,
+    time: null,
+};
+
+// StationOption 僅提供 stationCode，新增旅程與書籤功能需要的 stationId 需另行查詢
 const resolveStationId = async (
     station: StationOption
 ): Promise<number | null> => {
@@ -84,55 +124,6 @@ const resolveStationId = async (
         return null;
     }
 };
-
-const mockTripHistory: TripHistory[] = [
-    {
-        id: 1,
-        title: '台北通勤',
-        startStation: '淡水',
-        endStation: '民權西路',
-        filters: ['廁所'],
-        note: '記得帶員工識別證',
-    },
-    {
-        id: 2,
-        title: '松山一日遊',
-        startStation: '淡水',
-        endStation: '松山',
-        filters: ['廁所', 'ATM'],
-        note: '記得帶水壺',
-    },
-];
-
-const getMockTripResult = (start: string, end: string): { fare: string; travelTime: string; facilities: string[] } => {
-    if (start === '淡水' && end === '民權西路') {
-        return {
-            fare: '全票: 50 元',
-            travelTime: '最短車程時間: 35 分鐘',
-            facilities: ['無障礙設施', '廁所', 'ATM', '充電站'],
-        };
-    }
-
-    if (start === '淡水' && end === '松山') {
-        return {
-            fare: '全票: 65 元',
-            travelTime: '最少轉乘次數: 48 分鐘',
-            facilities: ['無障礙設施', '廁所', 'ATM', '置物櫃'],
-        };
-    }
-
-    return {
-        fare: '全票: 55 元',
-        travelTime: '最短車程時間: 45 分鐘',
-        facilities: ['無障礙設施', '廁所', '充電站'],
-    };
-};
-
-interface AdvancedFilters {
-    equipment: string[];
-    fare: string[];
-    time: string[];
-}
 
 const TripPlannerPage = () => {
     const stationOptions = useMetroMapStore(state => state.stationOptions);
@@ -152,118 +143,356 @@ const TripPlannerPage = () => {
         stationId !== null &&
         bookmarks.some(bookmark => bookmark.stationId === stationId);
 
+    const [tripPlans, setTripPlans] = useState<TripPlan[]>([]);
+    const [isLoadingTripPlans, setIsLoadingTripPlans] = useState(false);
+    const [deletingTripPlan, setDeletingTripPlan] = useState<TripPlan | null>(
+        null
+    );
+    const [isDeleting, setIsDeleting] = useState(false);
+
     const [startStation, setStartStation] = useState<StationOption | null>(
         null
     );
     const [endStation, setEndStation] = useState<StationOption | null>(null);
-    const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
-        equipment: [],
-        fare: [],
-        time: [],
-    });
+    const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>(
+        defaultAdvancedFilters
+    );
     const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
     const [tripResult, setTripResult] = useState<TripResult | null>(null);
+    const [isSearching, setIsSearching] = useState(false);
     const [note, setNote] = useState('');
-    const [selectedHistoryId, setSelectedHistoryId] = useState<number | null>(
-        null
-    );
+    const [selectedTripPlanId, setSelectedTripPlanId] = useState<
+        number | null
+    >(null);
     const [tripTitle, setTripTitle] = useState('新旅程');
     const [isEditingTitle, setIsEditingTitle] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isExportingExcel, setIsExportingExcel] = useState(false);
 
-    const isHistoryMode = selectedHistoryId !== null;
+    const isHistoryMode = selectedTripPlanId !== null;
     const hasEndStation = endStation !== null;
     const isMenuOpen = Boolean(menuAnchorEl);
 
-    const toggleFilter = (
-        category: keyof AdvancedFilters,
-        value: string
-    ): void => {
+    const fetchTripPlans = useCallback(async (): Promise<void> => {
+        setIsLoadingTripPlans(true);
+        try {
+            const { content } = await getAllTripPlanPaginated({
+                page: 0,
+                size: TRIP_PLAN_PAGE_SIZE,
+            });
+            setTripPlans(content);
+        } catch (error) {
+            enqueueSnackbar((error as string) || '取得歷史旅程失敗', {
+                variant: 'error',
+            });
+        } finally {
+            setIsLoadingTripPlans(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchTripPlans();
+    }, [fetchTripPlans]);
+
+    const toggleEquipmentFilter = (value: string): void => {
         setAdvancedFilters(prev => {
-            const current = prev[category];
+            const current = prev.equipment;
             const updated = current.includes(value)
                 ? current.filter(v => v !== value)
                 : [...current, value];
-            return { ...prev, [category]: updated };
+            return { ...prev, equipment: updated };
         });
+    };
+
+    const selectFareFilter = (value: FareLabel): void => {
+        setAdvancedFilters(prev => ({
+            ...prev,
+            fare: prev.fare === value ? null : value,
+        }));
+    };
+
+    const selectTimeFilter = (value: TimeLabel): void => {
+        setAdvancedFilters(prev => ({
+            ...prev,
+            time: prev.time === value ? null : value,
+        }));
     };
 
     const totalFilterCount =
         advancedFilters.equipment.length +
-        advancedFilters.fare.length +
-        advancedFilters.time.length;
+        (advancedFilters.fare ? 1 : 0) +
+        (advancedFilters.time ? 1 : 0);
+
+    const buildTripResult = (
+        start: StationOption,
+        end: StationOption,
+        startStationId: number | null,
+        endStationId: number | null,
+        fareType: number,
+        routingStrategy: number,
+        farePrice: number,
+        totalTravelTimeSeconds: number,
+        transferCount: number
+    ): TripResult => ({
+        startStation: start.nameZhTw,
+        startStationId,
+        endStation: end.nameZhTw,
+        endStationId,
+        fareLabel: `${fareTypeToLabel[fareType] ?? '全票'}：${farePrice} 元`,
+        travelTimeLabel: `${
+            routingStrategyToLabel[routingStrategy] ?? '最少轉乘次數'
+        }：${Math.ceil(totalTravelTimeSeconds / 60)} 分鐘`,
+        farePrice,
+        transferCount,
+    });
 
     const handleSearch = async (): Promise<void> => {
         if (!startStation || !endStation) return;
-        const mockData = getMockTripResult(
-            startStation.nameZhTw,
-            endStation.nameZhTw
-        );
-        const [startStationId, endStationId] = await Promise.all([
-            resolveStationId(startStation),
-            resolveStationId(endStation),
-        ]);
-        setTripResult({
-            startStation: startStation.nameZhTw,
-            startStationId,
-            endStation: endStation.nameZhTw,
-            endStationId,
-            fare: mockData.fare,
-            travelTime: mockData.travelTime,
-            facilities: mockData.facilities,
-        });
+
+        const fareType = advancedFilters.fare
+            ? fareLabelToType[advancedFilters.fare]
+            : FareType.FULL;
+        const routingStrategy = advancedFilters.time
+            ? timeLabelToStrategy[advancedFilters.time]
+            : RoutingStrategy.MIN_TRANSFER;
+
+        setIsSearching(true);
+        try {
+            const [detail, startStationId, endStationId] = await Promise.all([
+                getOriginDestinationDetail({
+                    fromStationCode: startStation.stationCode,
+                    toStationCode: endStation.stationCode,
+                    fareType,
+                    routingStrategy,
+                }),
+                resolveStationId(startStation),
+                resolveStationId(endStation),
+            ]);
+            setTripResult(
+                buildTripResult(
+                    startStation,
+                    endStation,
+                    startStationId,
+                    endStationId,
+                    detail.fareType,
+                    detail.routingStrategy,
+                    detail.farePrice,
+                    detail.totalTravelTimeSeconds,
+                    detail.transferCount
+                )
+            );
+        } catch (error) {
+            enqueueSnackbar((error as string) || '路線查詢失敗', {
+                variant: 'error',
+            });
+        } finally {
+            setIsSearching(false);
+        }
     };
 
-    const handleSelectHistory = async (trip: TripHistory): Promise<void> => {
-        if (selectedHistoryId === trip.id) {
+    const handleSelectHistory = async (trip: TripPlan): Promise<void> => {
+        if (selectedTripPlanId === trip.id) {
             handleNewTrip();
             return;
         }
-        setSelectedHistoryId(trip.id);
+
         const start =
             stationOptions.find(
-                station => station.nameZhTw === trip.startStation
+                station => station.nameZhTw === trip.fromStationNameZhTw
             ) ?? null;
         const end =
             stationOptions.find(
-                station => station.nameZhTw === trip.endStation
+                station => station.nameZhTw === trip.toStationNameZhTw
             ) ?? null;
+
+        setSelectedTripPlanId(trip.id);
         setStartStation(start);
         setEndStation(end);
         setAdvancedFilters({
-            equipment: trip.filters,
-            fare: [],
-            time: [],
+            equipment: [],
+            fare: fareTypeToLabel[trip.fareType] ?? null,
+            time: routingStrategyToLabel[trip.routingStrategy] ?? null,
         });
-        setNote(trip.note);
-        setTripTitle(trip.title);
-        const mockData = getMockTripResult(trip.startStation, trip.endStation);
-        const [startStationId, endStationId] = await Promise.all([
-            start ? resolveStationId(start) : Promise.resolve(null),
-            end ? resolveStationId(end) : Promise.resolve(null),
-        ]);
-        setTripResult({
-            startStation: trip.startStation,
-            startStationId,
-            endStation: trip.endStation,
-            endStationId,
-            fare: mockData.fare,
-            travelTime: mockData.travelTime,
-            facilities: mockData.facilities,
-        });
+        setNote(trip.notes || '');
+        setTripTitle(trip.name);
+        setTripResult(null);
+
+        if (!start || !end) return;
+
+        setIsSearching(true);
+        try {
+            const detail = await getOriginDestinationDetail({
+                fromStationCode: start.stationCode,
+                toStationCode: end.stationCode,
+                fareType: trip.fareType,
+                routingStrategy: trip.routingStrategy,
+            });
+            setTripResult(
+                buildTripResult(
+                    start,
+                    end,
+                    trip.fromStationId,
+                    trip.toStationId,
+                    detail.fareType,
+                    detail.routingStrategy,
+                    detail.farePrice,
+                    detail.totalTravelTimeSeconds,
+                    detail.transferCount
+                )
+            );
+        } catch (error) {
+            enqueueSnackbar((error as string) || '路線查詢失敗', {
+                variant: 'error',
+            });
+        } finally {
+            setIsSearching(false);
+        }
     };
 
     const handleNewTrip = (): void => {
-        setSelectedHistoryId(null);
+        setSelectedTripPlanId(null);
         setStartStation(null);
         setEndStation(null);
-        setAdvancedFilters({
-            equipment: [],
-            fare: [],
-            time: [],
-        });
+        setAdvancedFilters(defaultAdvancedFilters);
         setNote('');
         setTripTitle('新旅程');
         setTripResult(null);
+    };
+
+    const handleTitleBlur = async (): Promise<void> => {
+        setIsEditingTitle(false);
+
+        if (!selectedTripPlanId || !tripTitle.trim()) return;
+
+        try {
+            const updated = await updateTripPlanName({
+                tripPlanId: selectedTripPlanId,
+                name: tripTitle,
+            });
+            setTripPlans(prev =>
+                prev.map(plan => (plan.id === updated.id ? updated : plan))
+            );
+        } catch (error) {
+            enqueueSnackbar((error as string) || '旅程名稱更新失敗', {
+                variant: 'error',
+            });
+        }
+    };
+
+    const handleSaveTrip = async (): Promise<void> => {
+        if (!tripResult) return;
+
+        if (
+            tripResult.startStationId === null ||
+            tripResult.endStationId === null
+        ) {
+            enqueueSnackbar('車站資訊取得失敗，請重新查詢', {
+                variant: 'error',
+            });
+            return;
+        }
+
+        const fareType = advancedFilters.fare
+            ? fareLabelToType[advancedFilters.fare]
+            : FareType.FULL;
+        const routingStrategy = advancedFilters.time
+            ? timeLabelToStrategy[advancedFilters.time]
+            : RoutingStrategy.MIN_TRANSFER;
+
+        setIsSaving(true);
+        try {
+            if (selectedTripPlanId) {
+                const updated = await updateTripPlan({
+                    tripPlanId: selectedTripPlanId,
+                    fareType,
+                    farePrice: tripResult.farePrice,
+                    transferCount: tripResult.transferCount,
+                    routingStrategy,
+                    notes: note || undefined,
+                });
+                setTripPlans(prev =>
+                    prev.map(plan => (plan.id === updated.id ? updated : plan))
+                );
+                enqueueSnackbar('旅程更新成功！', { variant: 'success' });
+            } else {
+                const created = await createTripPlan({
+                    name: tripTitle,
+                    fromStationId: tripResult.startStationId,
+                    toStationId: tripResult.endStationId,
+                    fareType,
+                    farePrice: tripResult.farePrice,
+                    transferCount: tripResult.transferCount,
+                    routingStrategy,
+                    notes: note || undefined,
+                });
+                setSelectedTripPlanId(created.id);
+                setTripPlans(prev => [created, ...prev]);
+                enqueueSnackbar('旅程新增成功！', { variant: 'success' });
+            }
+        } catch (error) {
+            enqueueSnackbar((error as string) || '旅程儲存失敗', {
+                variant: 'error',
+            });
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleConfirmDelete = async (): Promise<void> => {
+        if (!deletingTripPlan) return;
+
+        setIsDeleting(true);
+        try {
+            const { message } = await deleteTripPlan({
+                tripPlanId: deletingTripPlan.id,
+            });
+            enqueueSnackbar(message || '旅程刪除成功！', {
+                variant: 'success',
+            });
+            setTripPlans(prev =>
+                prev.filter(plan => plan.id !== deletingTripPlan.id)
+            );
+            if (selectedTripPlanId === deletingTripPlan.id) handleNewTrip();
+            setDeletingTripPlan(null);
+        } catch (error) {
+            enqueueSnackbar((error as string) || '旅程刪除失敗', {
+                variant: 'error',
+            });
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const handleExportExcel = async (): Promise<void> => {
+        if (!selectedTripPlanId) return;
+
+        setIsExportingExcel(true);
+        try {
+            const blob = await getTripPlanExcel({
+                tripPlanId: selectedTripPlanId,
+            });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.setAttribute(
+                'download',
+                `${tripTitle}_${dayjs().format('YYYYMMDD')}.xlsx`
+            );
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
+            enqueueSnackbar('匯出成功', { variant: 'success' });
+        } catch (error) {
+            enqueueSnackbar((error as string) || '匯出失敗', {
+                variant: 'error',
+            });
+        } finally {
+            setIsExportingExcel(false);
+        }
     };
 
     return (
@@ -290,82 +519,137 @@ const TripPlannerPage = () => {
                     新增旅程
                 </Button>
 
-                <Stack sx={{ gap: 1.5 }}>
-                    {mockTripHistory.map(trip => (
-                        <Card
-                            key={trip.id}
-                            onClick={() => handleSelectHistory(trip)}
-                            sx={{
-                                backgroundColor:
-                                    selectedHistoryId === trip.id
-                                        ? 'primary.light'
-                                        : 'tertiary.dark',
-                                boxShadow: 'none',
-                                cursor: 'pointer',
-                                border: '2px solid',
-                                borderColor:
-                                    selectedHistoryId === trip.id
-                                        ? 'primary.main'
-                                        : 'transparent',
-                                '&:hover': {
+                {isLoadingTripPlans ? (
+                    <Stack sx={{ alignItems: 'center', py: 4 }}>
+                        <CircularProgress size='1.5rem' />
+                    </Stack>
+                ) : (
+                    <Stack sx={{ gap: 1.5 }}>
+                        {tripPlans.map(trip => (
+                            <Card
+                                key={trip.id}
+                                onClick={() => handleSelectHistory(trip)}
+                                sx={{
                                     backgroundColor:
-                                        selectedHistoryId === trip.id
+                                        selectedTripPlanId === trip.id
+                                            ? 'primary.light'
+                                            : 'tertiary.dark',
+                                    boxShadow: 'none',
+                                    cursor: 'pointer',
+                                    border: '2px solid',
+                                    borderColor:
+                                        selectedTripPlanId === trip.id
                                             ? 'primary.main'
-                                            : 'action.hover',
-                                },
-                                transition: 'all 0.2s',
-                            }}
-                        >
-                            <CardContent sx={{ '&:last-child': { pb: 2 } }}>
-                                <Typography
-                                    variant='body2'
-                                    sx={{ fontWeight: 700 }}
-                                >
-                                    {trip.title}
-                                </Typography>
-                                <Typography
-                                    variant='caption'
-                                    color='text.secondary'
-                                >
-                                    {trip.startStation} → {trip.endStation}
-                                </Typography>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </Stack>
+                                            : 'transparent',
+                                    '&:hover': {
+                                        backgroundColor:
+                                            selectedTripPlanId === trip.id
+                                                ? 'primary.main'
+                                                : 'action.hover',
+                                    },
+                                    transition: 'all 0.2s',
+                                }}
+                            >
+                                <CardContent sx={{ '&:last-child': { pb: 2 } }}>
+                                    <Stack
+                                        direction='row'
+                                        sx={{
+                                            alignItems: 'flex-start',
+                                            justifyContent: 'space-between',
+                                        }}
+                                    >
+                                        <Stack sx={{ gap: 0.25 }}>
+                                            <Typography
+                                                variant='body2'
+                                                sx={{ fontWeight: 700 }}
+                                            >
+                                                {trip.name}
+                                            </Typography>
+                                            <Typography
+                                                variant='caption'
+                                                color='text.secondary'
+                                            >
+                                                {trip.fromStationNameZhTw} →{' '}
+                                                {trip.toStationNameZhTw}
+                                            </Typography>
+                                        </Stack>
+                                        <IconButton
+                                            size='small'
+                                            onClick={event => {
+                                                event.stopPropagation();
+                                                setDeletingTripPlan(trip);
+                                            }}
+                                        >
+                                            <DeleteOutlinedIcon fontSize='small' />
+                                        </IconButton>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </Stack>
+                )}
             </Stack>
             <Divider orientation='vertical' flexItem sx={{ backgroundColor: 'tertiary.main' }} />
             {/* 右側面板 - 客製化旅程規劃 (75%) */}
             <Stack sx={{ flex: 1, gap: 2 }}>
-                <Stack direction='row' spacing={1.5} sx={{ alignItems: 'center' }}>
-                    {isEditingTitle ? (
-                        <TextField
-                            value={tripTitle}
-                            onChange={event => setTripTitle(event.target.value)}
-                            onBlur={() => setIsEditingTitle(false)}
-                            onKeyDown={event => {
-                                if (event.key === 'Enter') setIsEditingTitle(false);
-                            }}
+                <Stack
+                    direction='row'
+                    sx={{ alignItems: 'center', justifyContent: 'space-between' }}
+                >
+                    <Stack direction='row' spacing={1.5} sx={{ alignItems: 'center' }}>
+                        {isEditingTitle ? (
+                            <TextField
+                                value={tripTitle}
+                                onChange={event => setTripTitle(event.target.value)}
+                                onBlur={handleTitleBlur}
+                                onKeyDown={event => {
+                                    if (event.key === 'Enter') event.currentTarget.blur();
+                                }}
+                                size='small'
+                                autoFocus
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        backgroundColor: 'background.paper',
+                                    },
+                                }}
+                            />
+                        ) : (
+                            <Typography variant='h5' sx={{ fontWeight: 700 }}>
+                                {tripTitle}
+                            </Typography>
+                        )}
+                        <IconButton
                             size='small'
-                            autoFocus
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    backgroundColor: 'background.paper',
-                                },
-                            }}
-                        />
-                    ) : (
-                        <Typography variant='h5' sx={{ fontWeight: 700 }}>
-                            {tripTitle}
-                        </Typography>
+                            onClick={() => setIsEditingTitle(!isEditingTitle)}
+                            color='primary'
+                        >
+                            <EditIcon fontSize='small' />
+                        </IconButton>
+                    </Stack>
+
+                    {tripResult && (
+                        <Stack direction='row' sx={{ gap: 1 }}>
+                            {selectedTripPlanId && (
+                                <Button
+                                    variant='outlined'
+                                    size='small'
+                                    startIcon={<FileDownloadOutlinedIcon />}
+                                    loading={isExportingExcel}
+                                    onClick={handleExportExcel}
+                                >
+                                    匯出 Excel
+                                </Button>
+                            )}
+                            <Button
+                                variant='contained'
+                                size='small'
+                                loading={isSaving}
+                                onClick={handleSaveTrip}
+                            >
+                                {selectedTripPlanId ? '更新旅程' : '儲存旅程'}
+                            </Button>
+                        </Stack>
                     )}
-                    <IconButton
-                        size='small'
-                        onClick={() => setIsEditingTitle(!isEditingTitle)}
-                        color='primary'
-                    >
-                        <EditIcon fontSize='small' />
-                    </IconButton>
                 </Stack>
 
                 {/* 搜尋欄 - 藍色背景 */}
@@ -464,6 +748,7 @@ const TripPlannerPage = () => {
                             onClick={handleSearch}
                             variant='contained'
                             size='small'
+                            loading={isSearching}
                             sx={{
                                 backgroundColor: 'primary.contrastText',
                                 color: 'primary.main',
@@ -488,9 +773,7 @@ const TripPlannerPage = () => {
                             {equipmentFilterOptions.map(option => (
                                 <MenuItem
                                     key={option}
-                                    onClick={() =>
-                                        toggleFilter('equipment', option)
-                                    }
+                                    onClick={() => toggleEquipmentFilter(option)}
                                 >
                                     <Checkbox
                                         checked={advancedFilters.equipment.includes(
@@ -522,7 +805,7 @@ const TripPlannerPage = () => {
                                 <MenuItem
                                     key={option}
                                     disabled={!hasEndStation}
-                                    onClick={() => toggleFilter('fare', option)}
+                                    onClick={() => selectFareFilter(option)}
                                     sx={{
                                         ...(!hasEndStation && {
                                             backgroundColor: 'tertiary.dark',
@@ -534,9 +817,7 @@ const TripPlannerPage = () => {
                                     }}
                                 >
                                     <Checkbox
-                                        checked={advancedFilters.fare.includes(
-                                            option
-                                        )}
+                                        checked={advancedFilters.fare === option}
                                         size='small'
                                         disabled={!hasEndStation}
                                     />
@@ -571,7 +852,7 @@ const TripPlannerPage = () => {
                                 <MenuItem
                                     key={option}
                                     disabled={!hasEndStation}
-                                    onClick={() => toggleFilter('time', option)}
+                                    onClick={() => selectTimeFilter(option)}
                                     sx={{
                                         ...(!hasEndStation && {
                                             backgroundColor: 'tertiary.dark',
@@ -583,9 +864,7 @@ const TripPlannerPage = () => {
                                     }}
                                 >
                                     <Checkbox
-                                        checked={advancedFilters.time.includes(
-                                            option
-                                        )}
+                                        checked={advancedFilters.time === option}
                                         size='small'
                                         disabled={!hasEndStation}
                                     />
@@ -717,7 +996,7 @@ const TripPlannerPage = () => {
                                         票價
                                     </Typography>
                                     <Typography variant='body2' sx={{ mt: 1 }}>
-                                        {tripResult.fare || '-'}
+                                        {tripResult.fareLabel || '-'}
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -736,7 +1015,7 @@ const TripPlannerPage = () => {
                                         搭乘時間
                                     </Typography>
                                     <Typography variant='body2' sx={{ mt: 1 }}>
-                                        {tripResult.travelTime || '-'}
+                                        {tripResult.travelTimeLabel || '-'}
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -756,8 +1035,8 @@ const TripPlannerPage = () => {
                                     設備
                                 </Typography>
                                 <Typography variant='body2' sx={{ mt: 1 }}>
-                                    {tripResult.facilities.length > 0
-                                        ? tripResult.facilities.join('、')
+                                    {advancedFilters.equipment.length > 0
+                                        ? advancedFilters.equipment.join('、')
                                         : '-'}
                                 </Typography>
                             </CardContent>
@@ -797,6 +1076,18 @@ const TripPlannerPage = () => {
                     </Stack>
                 )}
             </Stack>
+
+            <DeleteDialog
+                title={deletingTripPlan?.name ?? ''}
+                isOpen={!!deletingTripPlan}
+                isSubmitting={isDeleting}
+                onClose={() => setDeletingTripPlan(null)}
+                onDeleteItem={handleConfirmDelete}
+            >
+                <Typography variant='body2'>
+                    確定要刪除這筆旅程規劃嗎？此操作無法復原。
+                </Typography>
+            </DeleteDialog>
         </Stack>
     );
 };
