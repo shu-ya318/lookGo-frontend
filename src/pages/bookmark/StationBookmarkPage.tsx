@@ -1,32 +1,38 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ChangeEvent,
+} from "react";
 import dayjs from "dayjs";
 import { enqueueSnackbar } from "notistack";
+import { debounce } from "lodash-es";
 
-import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
-import placeholderImg from "@/assets/placeholder.png";
-
+import { BookmarkStationCard } from "@/components/bookmark/BookmarkStationCard";
 import { DeleteDialog } from "@/components/DeleteDialog";
+import { SearchInput } from "@/components/SearchInput";
 
 import {
   deleteBookmark,
   getAllBookmarkPaginated,
+  getBookmarkByStationName,
   getBookmarkExcel,
 } from "@/services/stationBookmark";
-import { formatDateTime } from "@/utils/date";
 
 import type { StationBookmark } from "@/services/stationBookmark/interface";
 
-const BOOKMARK_PAGE_SIZE = 16;
+const BOOKMARK_PAGE_SIZE = 8;
 
 const StationBookmarkPage = () => {
+  const [inputValue, setInputValue] = useState("");
+  const [keyword, setKeyword] = useState("");
   const [bookmarks, setBookmarks] = useState<StationBookmark[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -42,26 +48,54 @@ const StationBookmarkPage = () => {
   const fetchBookmarks = useCallback(async (): Promise<void> => {
     setIsLoading(true);
     try {
-      const response = await getAllBookmarkPaginated({
-        page: 0,
-        size: BOOKMARK_PAGE_SIZE,
-      });
-      setBookmarks(response.content);
-      setPage(0);
-      setTotalPages(response.totalPages);
+      if (keyword) {
+        const response = await getBookmarkByStationName({ stationName: keyword });
+        setBookmarks(response ? [response] : []);
+        setPage(0);
+        setTotalPages(1);
+      } else {
+        const response = await getAllBookmarkPaginated({
+          page: 0,
+          size: BOOKMARK_PAGE_SIZE,
+        });
+        setBookmarks(response.content);
+        setPage(0);
+        setTotalPages(response.totalPages);
+      }
     } catch (error) {
-      enqueueSnackbar((error as string) || "取得車站書籤失敗", {
-        variant: "error",
-      });
+      if (keyword) {
+        setBookmarks([]);
+        setPage(0);
+        setTotalPages(0);
+      } else {
+        enqueueSnackbar((error as string) || "取得車站書籤失敗", {
+          variant: "error",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [keyword]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchBookmarks();
   }, [fetchBookmarks]);
+
+  const debouncedSetKeyword = useMemo(
+    () =>
+      debounce((value: string) => {
+        setPage(0);
+        setKeyword(value);
+      }, 500),
+    []
+  );
+
+  const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setInputValue(value);
+    debouncedSetKeyword(value);
+  };
 
   const handleLoadMore = async (): Promise<void> => {
     if (isLoadingMore) return;
@@ -142,19 +176,26 @@ const StationBookmarkPage = () => {
         maxWidth: "1280px",
         margin: "3.75rem auto",
         gap: "2rem",
+        justifyContent: "center",
       }}
     >
+      <Typography variant='h5'>車站書籤</Typography>
       <Stack
+        direction='row'
         sx={{
           alignItems: "center",
-          gap: "1rem",
-          py: 3,
-          backgroundColor: "quaternary.dark",
-          borderRadius: 2,
+          justifyContent: "space-between",
         }}
       >
-        <Typography variant='h5'>車站書籤</Typography>
-        <Stack direction='row' sx={{ gap: 2 }}>
+        {/* Search */}
+        <SearchInput
+          searchTerm={inputValue}
+          onChange={handleSearch}
+          placeholder='請輸入車站中文名稱搜尋'
+        />
+
+        {/* Button: Print & Download all */}
+        <Stack direction='row' sx={{ gap: "1rem", alignItems: "center" }}>
           <Button variant='outlined' color='neutral' onClick={handlePrint}>
             列印
           </Button>
@@ -169,7 +210,7 @@ const StationBookmarkPage = () => {
             }
             onClick={handleDownload}
           >
-            下載
+            下載全部
           </Button>
         </Stack>
       </Stack>
@@ -187,59 +228,28 @@ const StationBookmarkPage = () => {
           尚無車站書籤
         </Typography>
       ) : (
-        <Stack
-          sx={{
-            borderRadius: 2,
-            overflow: "hidden",
-          }}
-        >
-          {bookmarks.map((bookmark, index) => (
-            <Stack key={bookmark.id}>
-              {index > 0 && (
-                <Divider sx={{ borderColor: "tertiary.dark" }} />
-              )}
-              <Stack
-                direction='row'
-                sx={{
-                  alignItems: "center",
-                  px: 4,
-                  py: 3,
-                  backgroundColor: "tertiary.dark",
-                }}
-              >
-                <Avatar
-                  src={placeholderImg}
-                  variant='circular'
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    mr: 3,
-                    flexShrink: 0,
-                  }}
-                />
-                <Stack sx={{ flex: 1, gap: 0.5 }}>
-                  <Typography variant='body2' sx={{ fontWeight: 700 }}>
-                    {bookmark.stationNameZhTw}
-                  </Typography>
-                  <Typography variant='body2' color='text.secondary'>
-                    收藏時間：{formatDateTime(bookmark.createdAt)}
-                  </Typography>
-                </Stack>
-                <IconButton
-                  size='small'
-                  onClick={() => setDeletingBookmark(bookmark)}
-                >
-                  <DeleteOutlinedIcon fontSize='small' />
-                </IconButton>
-              </Stack>
-            </Stack>
-          ))}
+        <Stack sx={{ gap: 2 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: 2,
+            }}
+          >
+            {bookmarks.map((bookmark) => (
+              <BookmarkStationCard
+                key={bookmark.id}
+                bookmark={bookmark}
+                onDelete={setDeletingBookmark}
+              />
+            ))}
+          </Box>
 
           {hasMore && (
             <Stack
               sx={{
                 alignItems: "center",
-                py: 2,
+                py: 1,
                 borderTop: "1px solid",
                 borderColor: "divider",
               }}
@@ -253,6 +263,15 @@ const StationBookmarkPage = () => {
                     <CircularProgress size='0.875rem' />
                   ) : undefined
                 }
+                sx={{
+                  fontSize: "1rem",
+                  backgroundColor: "transparent",
+                  color: "primary.main",
+                  "&:hover": {
+                    backgroundColor: "transparent",
+                    color: "primary.light",
+                  },
+                }}
               >
                 載入更多車站書籤...
               </Button>

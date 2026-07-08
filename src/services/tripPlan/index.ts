@@ -4,9 +4,11 @@ import type {
     CreateTripPlanRequest,
     DeleteTripPlanRequest,
     DeleteTripPlanResponse,
+    GetAllTripPlanNameResponse,
     GetAllTripPlanPaginatedRequest,
     GetAllTripPlanPaginatedResponse,
     GetTripPlanExcelRequest,
+    GetTripPlanParams,
     TripPlan,
     UpdateTripPlanNameRequest,
     UpdateTripPlanRequest,
@@ -16,6 +18,23 @@ export const createTripPlan = async (
     request: CreateTripPlanRequest
 ): Promise<TripPlan> => {
     return await postRequest<TripPlan>('/trip-plan/create-plan', request);
+};
+
+// 取得當前使用者建立的所有旅程規劃名稱，依建立時間新到舊排序
+export const getAllTripPlanName =
+    async (): Promise<GetAllTripPlanNameResponse> => {
+        return await postRequest<GetAllTripPlanNameResponse>(
+            '/trip-plan/get-all-plan-name'
+        );
+    };
+
+// 以旅程名稱模糊搜尋當前使用者的旅程規劃，回傳符合條件中最新建立的一筆
+export const getTripPlan = async (
+    params: GetTripPlanParams
+): Promise<TripPlan> => {
+    return await postRequest<TripPlan>('/trip-plan/get-plan', undefined, {
+        params,
+    });
 };
 
 export const getAllTripPlanPaginated = async (

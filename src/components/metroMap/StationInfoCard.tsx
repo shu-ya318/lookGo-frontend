@@ -14,13 +14,14 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import CloseIcon from "@mui/icons-material/Close";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
+import { StationFacilityList } from "@/components/StationFacilityList";
+
 import { useStationStore } from "@/stores/stationStore";
 import { useStationBookmarkStore } from "@/stores/stationBookmarkStore";
-import { FareType, RoutingStrategy } from "@/services/metro/types";
+import { FARE_TYPE_LABELS, ROUTING_STRATEGY_LABELS } from "@/services/metro/types";
 import type {
   MetroMapLine,
   MetroMapStation,
-  StationDetails,
   GetOriginDestinationDetailResponse,
 } from "@/services/metro/interface";
 
@@ -67,44 +68,6 @@ function allocateMinutes(secondsList: number[], totalSeconds: number): number[] 
   return result;
 }
 
-type FacilityKey = Extract<
-  keyof StationDetails,
-  | "atm"
-  | "nursingRoom"
-  | "diaperTable"
-  | "chargingStation"
-  | "ticketMachine"
-  | "locker"
-  | "drinkingWater"
-  | "restroom"
-  | "elevator"
-  | "escalator"
->;
-
-const FARE_TYPE_LABELS: Record<number, string> = {
-  [FareType.FULL]: "全票",
-  [FareType.STUDENT]: "學生票",
-  [FareType.CHILD]: "兒童票",
-  [FareType.LOVE]: "愛心票",
-};
-
-const ROUTING_STRATEGY_LABELS: Record<number, string> = {
-  [RoutingStrategy.MIN_TRANSFER]: "最少轉乘次數",
-  [RoutingStrategy.MIN_TIME]: "最短車程時間",
-};
-
-const FACILITY_LABELS: { key: FacilityKey; label: string }[] = [
-  { key: "elevator", label: "電梯" },
-  { key: "escalator", label: "電扶梯" },
-  { key: "atm", label: "ATM" },
-  { key: "restroom", label: "廁所" },
-  { key: "drinkingWater", label: "飲水機" },
-  { key: "chargingStation", label: "充電站" },
-  { key: "ticketMachine", label: "售票機" },
-  { key: "nursingRoom", label: "哺乳室" },
-  { key: "diaperTable", label: "尿布台" },
-];
-
 export function StationInfoCard({
   station,
   line,
@@ -139,14 +102,6 @@ export function StationInfoCard({
       )
       : [];
   const isTransfer = transferLines.length > 0;
-
-  // 只保留有值（非 null、非 undefined、非空字串）的設備
-  const availableFacilities = stationDetails
-    ? FACILITY_LABELS.filter(({ key }) => {
-      const value = stationDetails[key];
-      return value != null && value !== ""; // != null 同時排除 null 與 undefined
-    })
-    : [];
 
   const fromName =
     routeResult?.route[0]?.stations[0]?.nameZhTw ??
@@ -285,53 +240,9 @@ export function StationInfoCard({
             <Box sx={{ display: "flex", justifyContent: "center", py: 1 }}>
               <CircularProgress size={20} />
             </Box>
-          ) : availableFacilities.length > 0 ? (
-            <>
-              <Typography
-                variant='caption'
-                color='text.secondary'
-                sx={{ display: "block", mb: 0.75 }}
-              >
-                站內設施
-              </Typography>
-              <Stack spacing={0.5}>
-                {availableFacilities.map(({ key, label }) => {
-                  const note = stationDetails![key] as string;
-                  return (
-                    <Stack
-                      key={key}
-                      direction='row'
-                      sx={{
-                        justifyContent: "space-between",
-                        alignItems: "baseline",
-                      }}
-                    >
-                      <Typography
-                        variant='caption'
-                        color='text.secondary'
-                        sx={{ fontSize: 11, flexShrink: 0 }}
-                      >
-                        {label}
-                      </Typography>
-                      {note && note.trim() !== "" && (
-                        <Typography
-                          variant='caption'
-                          sx={{
-                            fontSize: 11,
-                            fontWeight: 500,
-                            textAlign: "right",
-                            ml: 1,
-                          }}
-                        >
-                          {note}
-                        </Typography>
-                      )}
-                    </Stack>
-                  );
-                })}
-              </Stack>
-            </>
-          ) : null}
+          ) : (
+            stationDetails && <StationFacilityList facilities={stationDetails} />
+          )}
         </CardContent>
       )}
 

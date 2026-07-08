@@ -41,6 +41,9 @@ export const useMetroMapStore = create<MetroMapState>((set, get) => ({
   selectedFacilities: [],
 
   fetchMetroMap: async () => {
+    // 各頁面共用同一份路網資料快取，已載入過就不重複 fetch
+    if (get().lines.length > 0) return;
+
     set({ isLoading: true, error: null });
 
     try {

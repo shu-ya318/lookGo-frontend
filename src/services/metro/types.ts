@@ -1,3 +1,5 @@
+import type { StationDetails } from './interface';
+
 export const FareType = {
     FULL: 1,
     STUDENT: 4,
@@ -11,6 +13,18 @@ export const RoutingStrategy = {
     MIN_TIME: 2,
 } as const;
 export type RoutingStrategy = typeof RoutingStrategy[keyof typeof RoutingStrategy];
+
+export const FARE_TYPE_LABELS: Record<number, string> = {
+    [FareType.FULL]: '全票',
+    [FareType.STUDENT]: '學生票',
+    [FareType.CHILD]: '兒童票',
+    [FareType.LOVE]: '愛心票',
+};
+
+export const ROUTING_STRATEGY_LABELS: Record<number, string> = {
+    [RoutingStrategy.MIN_TRANSFER]: '最少轉乘次數',
+    [RoutingStrategy.MIN_TIME]: '最短車程時間',
+};
 
 export const StationFacility = {
     TOILET: 'TOILET',
@@ -39,4 +53,29 @@ export const facilityFilterOptions = Object.keys(facilityLabelMap) as FacilityLa
 
 export const labelToFacility = (label: string): StationFacility | undefined =>
     facilityLabelMap[label as FacilityLabel];
+
+export type FacilityDetailKey = Extract<
+    keyof StationDetails,
+    | 'atm'
+    | 'nursingRoom'
+    | 'diaperTable'
+    | 'chargingStation'
+    | 'ticketMachine'
+    | 'drinkingWater'
+    | 'restroom'
+    | 'elevator'
+    | 'escalator'
+>;
+
+export const FACILITY_DETAIL_LABELS: { key: FacilityDetailKey; label: string }[] = [
+    { key: 'elevator', label: '電梯' },
+    { key: 'escalator', label: '電扶梯' },
+    { key: 'atm', label: 'ATM' },
+    { key: 'restroom', label: '廁所' },
+    { key: 'drinkingWater', label: '飲水機' },
+    { key: 'chargingStation', label: '充電站' },
+    { key: 'ticketMachine', label: '售票機' },
+    { key: 'nursingRoom', label: '哺乳室' },
+    { key: 'diaperTable', label: '尿布台' },
+];
 

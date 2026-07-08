@@ -15,6 +15,7 @@ import { StationAutocomplete } from '@/components/StationAutocomplete';
 import { AnnouncementSection } from '@/components/stationChat/AnnouncementSection';
 import { CreateAnnouncementDialog } from '@/components/stationChat/CreateAnnouncementDialog';
 import { MessageSection } from '@/components/stationChat/MessageSection';
+import { ShareTripPlanDialog } from '@/components/stationChat/ShareTripPlanDialog';
 import { UpdateAnnouncementDialog } from '@/components/stationChat/UpdateAnnouncementDialog';
 
 import { useUserStore } from '@/stores/userStore';
@@ -34,6 +35,7 @@ import type {
     StationChatMessage,
 } from '@/services/stationChat/interface';
 import type { StationChatSocket } from '@/services/stationChat/socket';
+import type { TripPlan } from '@/services/tripPlan/interface';
 
 const MESSAGE_PAGE_SIZE = 16;
 const ANNOUNCEMENT_PAGE_SIZE = 5;
@@ -70,6 +72,9 @@ const StationChatPage = () => {
     const [isLoadingMoreAnnouncements, setIsLoadingMoreAnnouncements] =
         useState(false);
     const [isExportingExcel, setIsExportingExcel] = useState(false);
+
+    const [shareTripPlanSessionId, setShareTripPlanSessionId] = useState(0);
+    const [isShareTripPlanOpen, setIsShareTripPlanOpen] = useState(false);
 
     const isAdmin = currentUser?.role === 'ADMIN';
 
@@ -321,6 +326,22 @@ const StationChatPage = () => {
         socketRef.current?.deleteMessage(messageId);
     };
 
+    const handleOpenShareTripPlan = (): void => {
+        setShareTripPlanSessionId(prev => prev + 1);
+        setIsShareTripPlanOpen(true);
+    };
+
+    const handleShareTripPlan = (tripPlan: TripPlan): void => {
+        if (!socketRef.current) return;
+
+        socketRef.current.sendMessage({
+            chatType: 'TRIP_PLAN',
+            content: null,
+            tripPlanId: tripPlan.id,
+        });
+        setIsShareTripPlanOpen(false);
+    };
+
     const handleDeleteAnnouncement = async (): Promise<void> => {
         if (!deletingAnnouncement || !selectedStation) return;
 
@@ -377,11 +398,14 @@ const StationChatPage = () => {
             sx={{
                 width: '100%',
                 maxWidth: '1280px',
-                margin: '3.75rem auto',
+                margin: { xs: '2rem auto', md: '3.75rem auto' },
+                px: { xs: 2, md: 0 },
                 gap: 2,
             }}
         >
-            <Typography variant='h5'>車站聊天室</Typography>
+            <Typography variant='h5' sx={{ fontWeight: 700 }}>
+                車站聊天室
+            </Typography>
             {/* 篩選列 */}
             <Stack direction='row' sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
 
@@ -426,10 +450,15 @@ const StationChatPage = () => {
             {/* 聊天區域 */}
             <Stack
                 sx={{
-                    borderRadius: 2,
+                    borderRadius: 3,
                     overflow: 'hidden',
                     border: '1px solid',
                     borderColor: 'divider',
+                    boxShadow: '0 4px 24px rgba(95, 166, 240, 0.10)',
+                    height: { xs: 'calc(100dvh - 200px)', md: 'calc(100dvh - 220px)' },
+                    minHeight: 400,
+                    display: 'flex',
+                    flexDirection: 'column',
                 }}
             >
                 {/* 公告列 */}
@@ -467,8 +496,17 @@ const StationChatPage = () => {
                     onInputMessageChange={setInputMessage}
                     onKeyDown={handleKeyDown}
                     onSend={handleSend}
+                    onOpenShareTripPlan={handleOpenShareTripPlan}
                 />
             </Stack>
+
+            {/* 分享旅程規劃 Dialog */}
+            <ShareTripPlanDialog
+                key={shareTripPlanSessionId}
+                isOpen={isShareTripPlanOpen}
+                onClose={() => setIsShareTripPlanOpen(false)}
+                onShare={handleShareTripPlan}
+            />
 
             {/* 公告管理 Dialog */}
             {selectedStation && (

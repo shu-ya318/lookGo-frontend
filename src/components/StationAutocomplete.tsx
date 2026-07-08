@@ -4,6 +4,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 
 import { useMetroMapStore } from '@/stores/metroMapStore';
+import { useStationBookmarkStore } from '@/stores/stationBookmarkStore';
 
 import { formatStationLabel } from '@/utils/station';
 
@@ -24,7 +25,6 @@ interface StationAutocompleteProps {
     placeholder?: string;
     disabled?: boolean;
     size?: 'small' | 'medium';
-    bookmarkedStationCodes?: string[];
     sx?: SxProps;
 }
 
@@ -34,30 +34,38 @@ export const StationAutocomplete = ({
     placeholder = '請輸入或選擇車站',
     disabled = false,
     size = 'small',
-    bookmarkedStationCodes = [],
     sx,
 }: StationAutocompleteProps) => {
     const stationOptions = useMetroMapStore(state => state.stationOptions);
     const fetchStationOptions = useMetroMapStore(
         state => state.fetchStationOptions
     );
+    const bookmarks = useStationBookmarkStore(state => state.bookmarks);
+    const fetchBookmarks = useStationBookmarkStore(
+        state => state.fetchBookmarks
+    );
 
     useEffect(() => {
         fetchStationOptions();
-    }, [fetchStationOptions]);
+        fetchBookmarks();
+    }, [fetchStationOptions, fetchBookmarks]);
 
+    // StationBookmark 沒有 stationCode，需以車站中文名稱比對車站選項
     const bookmarkedSet = useMemo(
-        () => new Set(bookmarkedStationCodes),
-        [bookmarkedStationCodes]
+        () =>
+            new Set(
+                bookmarks.map(bookmark => bookmark.stationNameZhTw)
+            ),
+        [bookmarks]
     );
 
     // MUI 的 groupBy 要求陣列已依分組排序，故書籤車站需排在最前面
     const options = useMemo(() => {
         const bookmarked = stationOptions.filter(option =>
-            bookmarkedSet.has(option.stationCode)
+            bookmarkedSet.has(option.nameZhTw)
         );
         const rest = stationOptions.filter(
-            option => !bookmarkedSet.has(option.stationCode)
+            option => !bookmarkedSet.has(option.nameZhTw)
         );
         const bookmarkedSection =
             bookmarked.length > 0 ? bookmarked : [EMPTY_BOOKMARK_OPTION];
@@ -76,7 +84,7 @@ export const StationAutocomplete = ({
             options={options}
             groupBy={option =>
                 option.stationCode === EMPTY_BOOKMARK_OPTION.stationCode ||
-                    bookmarkedSet.has(option.stationCode)
+                    bookmarkedSet.has(option.nameZhTw)
                     ? BOOKMARK_GROUP
                     : ALL_STATION_GROUP
             }

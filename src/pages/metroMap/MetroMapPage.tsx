@@ -17,8 +17,8 @@ import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneIcon from "@mui/icons-material/Tune";
 
+import { LabeledStationField } from "@/components/LabeledStationField";
 import { MetroMapContainer } from "@/components/metroMap/MetroMapContainer";
-import { StationAutocomplete } from "@/components/StationAutocomplete";
 
 import { useMetroMapStore } from "@/stores/metroMapStore";
 import { useStationStore } from "@/stores/stationStore";
@@ -241,57 +241,33 @@ const MetroMapPage = () => {
           sx={{ alignItems: "center", gap: 2, flexWrap: "wrap" }}
         >
           {/* start station */}
-          <Stack direction='row' sx={{ alignItems: "center", gap: 1 }}>
-            <Typography
-              variant='body2'
-              sx={{ color: "primary.contrastText", flexShrink: 0 }}
-            >
-              起始車站
-            </Typography>
-            <StationAutocomplete
-              value={startStation}
-              onChange={setStartStation}
-              sx={{
-                width: 180,
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "white",
-                  height: SEARCH_CONTROL_HEIGHT,
-                },
-              }}
-            />
-          </Stack>
+          <LabeledStationField
+            label='起始車站'
+            value={startStation}
+            onChange={setStartStation}
+            width={180}
+            controlHeight={SEARCH_CONTROL_HEIGHT}
+          />
           {/* destination station */}
-          <Stack direction='row' sx={{ alignItems: "center", gap: 1 }}>
-            <Typography
-              variant='body2'
-              sx={{ color: "primary.contrastText", flexShrink: 0 }}
-            >
-              終點車站
-            </Typography>
-            <StationAutocomplete
-              value={endStation}
-              onChange={(selectedOption) => {
-                setEndStation(selectedOption);
-                if (selectedOption) {
-                  setAdvancedFilters((prev) => ({ ...prev, equipment: [] }));
-                  setSelectedFacilities([]);
-                } else {
-                  setAdvancedFilters((prev) => ({
-                    ...prev,
-                    fare: null,
-                    time: null,
-                  }));
-                }
-              }}
-              sx={{
-                width: 180,
-                "& .MuiOutlinedInput-root": {
-                  backgroundColor: "white",
-                  height: SEARCH_CONTROL_HEIGHT,
-                },
-              }}
-            />
-          </Stack>
+          <LabeledStationField
+            label='終點車站'
+            value={endStation}
+            onChange={(selectedOption) => {
+              setEndStation(selectedOption);
+              if (selectedOption) {
+                setAdvancedFilters((prev) => ({ ...prev, equipment: [] }));
+                setSelectedFacilities([]);
+              } else {
+                setAdvancedFilters((prev) => ({
+                  ...prev,
+                  fare: null,
+                  time: null,
+                }));
+              }
+            }}
+            width={180}
+            controlHeight={SEARCH_CONTROL_HEIGHT}
+          />
           {/* advanced filter */}
           <Button
             startIcon={<TuneIcon />}

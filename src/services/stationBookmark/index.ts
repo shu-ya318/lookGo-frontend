@@ -6,7 +6,9 @@ import type {
     DeleteBookmarkResponse,
     GetAllBookmarkPaginatedRequest,
     GetAllBookmarkPaginatedResponse,
+    GetBookmarkByStationNameRequest,
     StationBookmark,
+    StationBookmarkResponse,
 } from './interface';
 
 export const getAllBookmarkPaginated = async (
@@ -42,5 +44,15 @@ export const getBookmarkExcel = async (): Promise<Blob> => {
         '/station-bookmark/get-excel',
         undefined,
         { responseType: 'blob' }
+    );
+};
+
+export const getBookmarkByStationName = async (
+    request: GetBookmarkByStationNameRequest
+): Promise<StationBookmarkResponse> => {
+    return await postRequest<StationBookmarkResponse>(
+        '/station-bookmark/get-bookmark-by-station-name',
+        undefined,
+        { params: request }
     );
 };

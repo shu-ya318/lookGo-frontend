@@ -226,7 +226,7 @@ const UserPermissionPage = () => {
       }}
     >
       <Typography variant='h5'>使用者權限管理</Typography>
-      <SearchInput searchTerm={inputValue} onChange={handleUserListSearch} />
+      <SearchInput searchTerm={inputValue} onChange={handleUserListSearch} placeholder="請輸入使用者名稱搜尋" />
       <DataGrid
         rows={rows}
         columns={columns}

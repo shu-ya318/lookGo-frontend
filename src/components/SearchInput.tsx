@@ -10,9 +10,10 @@ interface SearchInputProps {
   width?: string;
   searchTerm: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
 };
 
-export const SearchInput = ({ width = '12.5rem', searchTerm, onChange }: SearchInputProps) => {
+export const SearchInput = ({ width = '12.5rem', searchTerm, onChange, placeholder = '請輸入搜尋' }: SearchInputProps) => {
 
   return (
     <FormControl sx={{ width }} variant='filled'>
@@ -20,7 +21,6 @@ export const SearchInput = ({ width = '12.5rem', searchTerm, onChange }: SearchI
         id='searchInput'
         type='text'
         disableUnderline={true}
-        placeholder={'搜尋'}
         fullWidth
         startAdornment={
           <InputAdornment position='end'>
@@ -30,6 +30,7 @@ export const SearchInput = ({ width = '12.5rem', searchTerm, onChange }: SearchI
         sx={{ height: '1.75rem', paddingLeft: 0, fontSize: '.875rem' }}
         value={searchTerm}
         onChange={onChange}
+        placeholder={placeholder}
       />
     </FormControl>
   );
