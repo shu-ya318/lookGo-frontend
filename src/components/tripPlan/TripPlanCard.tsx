@@ -52,7 +52,6 @@ export function TripPlanCard({
     (state) => state.toggleBookmark
   );
 
-  // 後端已隨旅程回傳即時計算的總車程時間，無需再逐筆查詢路線
   const travelMinutes = Math.ceil(tripPlan.travelTimeSeconds / 60);
 
   const isFromBookmarked = bookmarks.some(

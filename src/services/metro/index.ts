@@ -15,8 +15,8 @@ import type {
     GetAllStationPaginatedRequest,
     GetAllStationPaginatedResponse,
     GetAllStationIdOptionResponse,
-    GetOriginDestinationDetailRequest,
-    GetOriginDestinationDetailResponse,
+    GetOriginDestinationDetailsRequest,
+    GetOriginDestinationDetailsResponse,
     UpdateStationRequest,
     UpdateStationResponse,
 } from './interface';
@@ -81,7 +81,7 @@ export const getAllStationPaginated = async (
 ): Promise<GetAllStationPaginatedResponse> => {
     return await postRequest<GetAllStationPaginatedResponse>(
         '/metro/get-all-station-paginated',
-        undefined,
+        {},
         { params: request }
     );
 };
@@ -93,10 +93,10 @@ export const getAllStationIdOption =
         );
     };
 
-export const getOriginDestinationDetail = async (
-    request: GetOriginDestinationDetailRequest
-): Promise<GetOriginDestinationDetailResponse> => {
-    return await postRequest<GetOriginDestinationDetailResponse>(
+export const getOriginDestinationDetails = async (
+    request: GetOriginDestinationDetailsRequest
+): Promise<GetOriginDestinationDetailsResponse> => {
+    return await postRequest<GetOriginDestinationDetailsResponse>(
         '/metro/get-origin-destination-detail',
         request
     );

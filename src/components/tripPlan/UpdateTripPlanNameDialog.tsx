@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { enqueueSnackbar } from "notistack";
 
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 
 import { Dialog } from "@/components/Dialog";
 
@@ -63,15 +66,21 @@ export function UpdateTripPlanNameDialog({
         </Button>
       }
     >
-      <TextField
-        label='旅程名稱'
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        size='small'
-        fullWidth
-        required
-        placeholder='請輸入旅程名稱'
-      />
+      <Stack sx={{ gap: 0.5 }}>
+        <Typography variant='body2' color='text.secondary'>
+          旅程名稱
+          <Box component='span' sx={{ color: "error.main", ml: 0.25 }}>
+            *
+          </Box>
+        </Typography>
+        <TextField
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          size='small'
+          fullWidth
+          placeholder='請輸入旅程名稱'
+        />
+      </Stack>
     </Dialog>
   );
 }

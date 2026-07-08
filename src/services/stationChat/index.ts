@@ -17,7 +17,7 @@ export const getMessageByStationId = async (
 ): Promise<GetMessageByStationIdResponse> => {
     return await postRequest<GetMessageByStationIdResponse>(
         '/station-chat/get-message-by-station-id',
-        undefined,
+        {},
         { params: request }
     );
 };
@@ -27,7 +27,7 @@ export const getAnnouncementByStationId = async (
 ): Promise<GetAnnouncementByStationIdResponse> => {
     return await postRequest<GetAnnouncementByStationIdResponse>(
         '/station-chat/get-announcement-by-station-id',
-        undefined,
+        {},
         { params: request }
     );
 };

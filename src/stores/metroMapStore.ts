@@ -1,15 +1,15 @@
 import { create } from 'zustand';
 import { enqueueSnackbar } from 'notistack';
 
-import { getAllStationOption, getMetroMap, getOriginDestinationDetail } from '@/services/metro';
+import { getAllStationOption, getMetroMap, getOriginDestinationDetails } from '@/services/metro';
 
 import type { StationFacility } from '@/services/metro/types';
 import type {
   MetroMapLine,
   MetroMapStation,
   StationOption,
-  GetOriginDestinationDetailRequest,
-  GetOriginDestinationDetailResponse,
+  GetOriginDestinationDetailsRequest,
+  GetOriginDestinationDetailsResponse,
 } from '@/services/metro/interface';
 
 interface MetroMapState {
@@ -19,12 +19,12 @@ interface MetroMapState {
   isStationOptionsLoading: boolean;
   isLoading: boolean;
   error: string | null;
-  routeResult: GetOriginDestinationDetailResponse | null;
+  routeResult: GetOriginDestinationDetailsResponse | null;
   isRouteLoading: boolean;
   selectedFacilities: StationFacility[];
   fetchMetroMap: () => Promise<void>;
   fetchStationOptions: () => Promise<void>;
-  fetchRoute: (request: GetOriginDestinationDetailRequest) => Promise<void>;
+  fetchRoute: (request: GetOriginDestinationDetailsRequest) => Promise<void>;
   clearRoute: () => void;
   setSelectedFacilities: (facilities: StationFacility[]) => void;
 }
@@ -85,7 +85,7 @@ export const useMetroMapStore = create<MetroMapState>((set, get) => ({
   fetchRoute: async (request) => {
     set({ isRouteLoading: true });
     try {
-      const result = await getOriginDestinationDetail(request);
+      const result = await getOriginDestinationDetails(request);
       set({ routeResult: result });
     } catch (err) {
       enqueueSnackbar((err as string) || '路徑查詢失敗', { variant: 'error' });

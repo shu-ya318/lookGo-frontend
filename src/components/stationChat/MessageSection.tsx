@@ -15,6 +15,7 @@ import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SendIcon from '@mui/icons-material/Send';
 
+import { FARE_TYPE_LABELS } from '@/services/metro/types';
 import { formatDateTime } from '@/utils/date';
 
 import type { StationDetails } from '@/services/metro/interface';
@@ -272,27 +273,54 @@ export const MessageSection = ({
                                                             mb: 0.5,
                                                         }}
                                                     >
-                                                        {
-                                                            message.fromStationName
-                                                        }{' '}
-                                                        →{' '}
-                                                        {
-                                                            message.toStationName
-                                                        }
+                                                        旅程分享
                                                     </Typography>
-                                                    <Typography
-                                                        variant='caption'
-                                                        sx={{ opacity: 0.8 }}
-                                                    >
-                                                        {message.transferCount !==
-                                                            null
-                                                            ? `轉乘 ${message.transferCount} 次`
-                                                            : ''}
-                                                        {message.farePrice !==
-                                                            null
-                                                            ? ` · 票價 ${message.farePrice} 元`
-                                                            : ''}
-                                                    </Typography>
+                                                    <Stack sx={{ gap: 0.25 }}>
+                                                        <Typography
+                                                            variant='caption'
+                                                            sx={{ opacity: 0.8 }}
+                                                        >
+                                                            {message.fromStationName}{' '}
+                                                            →{' '}
+                                                            {message.toStationName}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant='caption'
+                                                            sx={{ opacity: 0.8 }}
+                                                        >
+                                                            {(message.fareType !== null &&
+                                                                FARE_TYPE_LABELS[message.fareType]) ||
+                                                                '全票'}{' '}
+                                                            ${message.farePrice ?? '--'}元
+                                                        </Typography>
+                                                        <Typography
+                                                            variant='caption'
+                                                            sx={{ opacity: 0.8 }}
+                                                        >
+                                                            轉乘次數 {message.transferCount ?? '--'}次
+                                                        </Typography>
+                                                        <Typography
+                                                            variant='caption'
+                                                            sx={{ opacity: 0.8 }}
+                                                        >
+                                                            車程時間{' '}
+                                                            {typeof message.travelTimeSeconds === 'number'
+                                                                ? Math.ceil(message.travelTimeSeconds / 60)
+                                                                : '--'}
+                                                            分鐘
+                                                        </Typography>
+                                                        <Typography
+                                                            variant='caption'
+                                                            sx={{
+                                                                opacity: 0.8,
+                                                                whiteSpace: 'pre-wrap',
+                                                                wordBreak: 'break-word',
+                                                            }}
+                                                        >
+                                                            筆記{' '}
+                                                            {message.notes || '--'}
+                                                        </Typography>
+                                                    </Stack>
                                                 </Box>
                                             ) : (
                                                 <Box sx={bubbleSx}>

@@ -1,5 +1,18 @@
 import type { StationDetails } from './interface';
 
+/*
+處理有固定值的屬性資料時，使用 const 搭配 type 來取代傳統 enum 寫法:
+1. 宣告一個加上 as const 的常數物件，唯讀性質
+2. 用 typeof 與 keyof ，從常數物件取得所有值，宣告成聯合型別
+*/
+
+/* 
+OPTIONS: 定義一個陣列，集中定義對照表
+value：對應後端 API 的參數值 (ENUM)
+key: 對應後端 API 的欄位名稱 (為了用 data[key] 動態讀取物件屬性寫法，省去 if-else 判斷)
+label：對應前端畫面的顯示文字
+*/
+
 export const FareType = {
     FULL: 1,
     STUDENT: 4,
@@ -14,45 +27,38 @@ export const RoutingStrategy = {
 } as const;
 export type RoutingStrategy = typeof RoutingStrategy[keyof typeof RoutingStrategy];
 
-export const FARE_TYPE_LABELS: Record<number, string> = {
-    [FareType.FULL]: '全票',
-    [FareType.STUDENT]: '學生票',
-    [FareType.CHILD]: '兒童票',
-    [FareType.LOVE]: '愛心票',
-};
+export const FARE_TYPE_OPTIONS = [
+    { value: FareType.FULL, label: '全票' },
+    { value: FareType.STUDENT, label: '學生票' },
+    { value: FareType.CHILD, label: '兒童票' },
+    { value: FareType.LOVE, label: '愛心票' },
+] as const;
 
-export const ROUTING_STRATEGY_LABELS: Record<number, string> = {
-    [RoutingStrategy.MIN_TRANSFER]: '最少轉乘次數',
-    [RoutingStrategy.MIN_TIME]: '最短車程時間',
-};
+export const FARE_TYPE_LABELS: Record<number, string> = Object.fromEntries(
+    FARE_TYPE_OPTIONS.map(({ value, label }) => [value, label])
+);
+
+export const ROUTING_STRATEGY_OPTIONS = [
+    { value: RoutingStrategy.MIN_TRANSFER, label: '最少轉乘次數' },
+    { value: RoutingStrategy.MIN_TIME, label: '最短車程時間' },
+] as const;
+
+export const ROUTING_STRATEGY_LABELS: Record<number, string> = Object.fromEntries(
+    ROUTING_STRATEGY_OPTIONS.map(({ value, label }) => [value, label])
+);
 
 export const StationFacility = {
-    TOILET: 'TOILET',
     ELEVATOR: 'ELEVATOR',
-    ACCESSIBLE_FACILITIES: 'ACCESSIBLE_FACILITIES',
-    NURSING_ROOM: 'NURSING_ROOM',
+    ESCALATOR: 'ESCALATOR',
     ATM: 'ATM',
-    LOCKER: 'LOCKER',
+    RESTROOM: 'RESTROOM',
+    DRINKING_WATER: 'DRINKING_WATER',
     CHARGING_STATION: 'CHARGING_STATION',
+    TICKET_MACHINE: 'TICKET_MACHINE',
+    NURSING_ROOM: 'NURSING_ROOM',
+    DIAPER_TABLE: 'DIAPER_TABLE',
 } as const;
 export type StationFacility = typeof StationFacility[keyof typeof StationFacility];
-
-export const facilityLabelMap = {
-    '廁所': StationFacility.TOILET,
-    '電梯': StationFacility.ELEVATOR,
-    '無障礙設施': StationFacility.ACCESSIBLE_FACILITIES,
-    '哺乳室': StationFacility.NURSING_ROOM,
-    'ATM': StationFacility.ATM,
-    '置物櫃': StationFacility.LOCKER,
-    '充電站': StationFacility.CHARGING_STATION,
-} as const;
-
-export type FacilityLabel = keyof typeof facilityLabelMap;
-
-export const facilityFilterOptions = Object.keys(facilityLabelMap) as FacilityLabel[];
-
-export const labelToFacility = (label: string): StationFacility | undefined =>
-    facilityLabelMap[label as FacilityLabel];
 
 export type FacilityDetailKey = Extract<
     keyof StationDetails,
@@ -67,15 +73,23 @@ export type FacilityDetailKey = Extract<
     | 'escalator'
 >;
 
-export const FACILITY_DETAIL_LABELS: { key: FacilityDetailKey; label: string }[] = [
-    { key: 'elevator', label: '電梯' },
-    { key: 'escalator', label: '電扶梯' },
-    { key: 'atm', label: 'ATM' },
-    { key: 'restroom', label: '廁所' },
-    { key: 'drinkingWater', label: '飲水機' },
-    { key: 'chargingStation', label: '充電站' },
-    { key: 'ticketMachine', label: '售票機' },
-    { key: 'nursingRoom', label: '哺乳室' },
-    { key: 'diaperTable', label: '尿布台' },
-];
+// value 為後端篩選用代碼，key 為 Station/StationDetails 的欄位名稱
+export const STATION_FACILITY_OPTIONS: {
+    value: StationFacility;
+    key: FacilityDetailKey;
+    label: string;
+}[] = [
+        { value: StationFacility.ELEVATOR, key: 'elevator', label: '電梯' },
+        { value: StationFacility.ESCALATOR, key: 'escalator', label: '電扶梯' },
+        { value: StationFacility.ATM, key: 'atm', label: 'ATM' },
+        { value: StationFacility.RESTROOM, key: 'restroom', label: '廁所' },
+        { value: StationFacility.DRINKING_WATER, key: 'drinkingWater', label: '飲水機' },
+        { value: StationFacility.CHARGING_STATION, key: 'chargingStation', label: '充電站' },
+        { value: StationFacility.TICKET_MACHINE, key: 'ticketMachine', label: '售票機' },
+        { value: StationFacility.NURSING_ROOM, key: 'nursingRoom', label: '哺乳室' },
+        { value: StationFacility.DIAPER_TABLE, key: 'diaperTable', label: '尿布台' },
+    ];
+
+export const FACILITY_DETAIL_LABELS: { key: FacilityDetailKey; label: string }[] =
+    STATION_FACILITY_OPTIONS.map(({ key, label }) => ({ key, label }));
 

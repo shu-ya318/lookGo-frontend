@@ -15,12 +15,14 @@ import { StationAutocomplete } from "@/components/StationAutocomplete";
 
 import { useMetroMapStore } from "@/stores/metroMapStore";
 
-import { getOriginDestinationDetail, getStationByCode } from "@/services/metro";
+import { getOriginDestinationDetails, getStationByCode } from "@/services/metro";
 import {
   FARE_TYPE_LABELS,
-  FareType,
+  FARE_TYPE_OPTIONS,
   ROUTING_STRATEGY_LABELS,
-  RoutingStrategy,
+  ROUTING_STRATEGY_OPTIONS,
+  type FareType,
+  type RoutingStrategy,
 } from "@/services/metro/types";
 import {
   createTripPlan,
@@ -31,25 +33,9 @@ import {
 import type { StationOption } from "@/services/metro/interface";
 import type { TripPlan } from "@/services/tripPlan/interface";
 
-const fareTypeFilterOptions = ["全票", "學生票", "兒童票", "愛心票"] as const;
-type FareLabel = (typeof fareTypeFilterOptions)[number];
-const fareLabelToType: Record<FareLabel, number> = {
-  全票: FareType.FULL,
-  學生票: FareType.STUDENT,
-  兒童票: FareType.CHILD,
-  愛心票: FareType.LOVE,
-};
-
-const travelTimeFilterOptions = ["最少轉乘次數", "最短車程時間"] as const;
-type TimeLabel = (typeof travelTimeFilterOptions)[number];
-const timeLabelToStrategy: Record<TimeLabel, number> = {
-  最少轉乘次數: RoutingStrategy.MIN_TRANSFER,
-  最短車程時間: RoutingStrategy.MIN_TIME,
-};
-
 interface AdvancedFilters {
-  fare: FareLabel | null;
-  time: TimeLabel | null;
+  fare: FareType | null;
+  time: RoutingStrategy | null;
 }
 
 const defaultAdvancedFilters: AdvancedFilters = {
@@ -140,11 +126,8 @@ export function TripPlanFormDialog({
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>(
     tripPlan
       ? {
-        fare: (FARE_TYPE_LABELS[tripPlan.fareType] as FareLabel) ?? null,
-        time:
-          (ROUTING_STRATEGY_LABELS[
-            tripPlan.routingStrategy
-          ] as TimeLabel) ?? null,
+        fare: tripPlan.fareType as FareType,
+        time: tripPlan.routingStrategy as RoutingStrategy,
       }
       : defaultAdvancedFilters
   );
@@ -178,20 +161,20 @@ export function TripPlanFormDialog({
     if (
       !startStation ||
       !endStation ||
-      !advancedFilters.fare ||
-      !advancedFilters.time
+      advancedFilters.fare === null ||
+      advancedFilters.time === null
     ) {
       return;
     }
 
-    const fareType = fareLabelToType[advancedFilters.fare];
-    const routingStrategy = timeLabelToStrategy[advancedFilters.time];
+    const fareType = advancedFilters.fare;
+    const routingStrategy = advancedFilters.time;
 
     let isMounted = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsSearching(true);
     Promise.all([
-      getOriginDestinationDetail({
+      getOriginDestinationDetails({
         fromStationCode: startStation.stationCode,
         toStationCode: endStation.stationCode,
         fareType,
@@ -234,14 +217,14 @@ export function TripPlanFormDialog({
 
   const handleFareChange = (
     _event: React.MouseEvent<HTMLElement>,
-    value: FareLabel | null
+    value: FareType | null
   ): void => {
     setAdvancedFilters((prev) => ({ ...prev, fare: value }));
   };
 
   const handleTimeChange = (
     _event: React.MouseEvent<HTMLElement>,
-    value: TimeLabel | null
+    value: RoutingStrategy | null
   ): void => {
     setAdvancedFilters((prev) => ({ ...prev, time: value }));
   };
@@ -302,7 +285,7 @@ export function TripPlanFormDialog({
         <Button
           variant='contained'
           loading={isSaving}
-          disabled={!tripResult || !tripTitle.trim() || !note.trim()}
+          disabled={!tripResult || !tripTitle.trim()}
           onClick={handleSave}
         >
           {isEditMode ? "更新旅程" : "儲存旅程"}
@@ -310,15 +293,16 @@ export function TripPlanFormDialog({
       }
     >
       <Stack sx={{ gap: 2 }}>
-        <TextField
-          label='旅程名稱'
-          value={tripTitle}
-          onChange={(event) => setTripTitle(event.target.value)}
-          size='small'
-          fullWidth
-          required
-          placeholder='請輸入旅程名稱'
-        />
+        <Stack sx={{ gap: 0.5 }}>
+          <RequiredFieldLabel label='旅程名稱' />
+          <TextField
+            value={tripTitle}
+            onChange={(event) => setTripTitle(event.target.value)}
+            size='small'
+            fullWidth
+            placeholder='請輸入旅程名稱'
+          />
+        </Stack>
 
         {/* 1. 起始車站 / 2. 終點車站 */}
         <Stack direction='row' sx={{ gap: 2, flexWrap: "wrap" }}>
@@ -353,9 +337,9 @@ export function TripPlanFormDialog({
             disabled={!hasEndStation}
             sx={{ flexWrap: "wrap" }}
           >
-            {fareTypeFilterOptions.map((option) => (
-              <ToggleButton key={option} value={option}>
-                {option}
+            {FARE_TYPE_OPTIONS.map(({ value, label }) => (
+              <ToggleButton key={value} value={value}>
+                {label}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
@@ -372,9 +356,9 @@ export function TripPlanFormDialog({
             disabled={!hasEndStation}
             sx={{ flexWrap: "wrap" }}
           >
-            {travelTimeFilterOptions.map((option) => (
-              <ToggleButton key={option} value={option}>
-                {option}
+            {ROUTING_STRATEGY_OPTIONS.map(({ value, label }) => (
+              <ToggleButton key={value} value={value}>
+                {label}
               </ToggleButton>
             ))}
           </ToggleButtonGroup>
@@ -412,17 +396,25 @@ export function TripPlanFormDialog({
           </Stack>
         )}
 
-        {/* 5. 筆記：開啟表單即顯示，允許多行 */}
-        <TextField
-          label='筆記'
-          value={note}
-          onChange={(event) => setNote(event.target.value)}
-          multiline
-          rows={3}
-          fullWidth
-          required
-          placeholder='輸入您的旅程筆記...'
-        />
+        {/* 5. 筆記（選填）：開啟表單即顯示，允許多行 */}
+        <Stack sx={{ gap: 0.5 }}>
+          <Typography variant='body2' color='text.secondary'>
+            筆記
+          </Typography>
+          <TextField
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            rows={3}
+            fullWidth
+            placeholder='輸入您的旅程筆記...'
+            multiline
+            sx={{
+              '& .MuiInputBase-root': {
+                height: '100px',
+              },
+            }}
+          />
+        </Stack>
       </Stack>
     </Dialog>
   );

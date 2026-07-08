@@ -142,7 +142,7 @@ export interface GetAllStationPaginatedRequest {
     size: number;
 }
 
-export interface StationSummary {
+export interface StationSummary {  // 僅摘要資訊
     id: string;
     nameZhTw: string;
     nameEn: string;
@@ -160,22 +160,23 @@ export interface StationIdOption {
 
 export type GetAllStationIdOptionResponse = StationIdOption[];
 
-// Origin Destination Detail
+// Origin Destination Details
 
-export interface GetOriginDestinationDetailRequest {
+export interface GetOriginDestinationDetailsRequest {
     fromStationCode: string;
     toStationCode: string;
     fareType: number;
     routingStrategy: number;
 }
 
+// Route
 export interface RouteStation {
     stationCode: string;
     nameZhTw: string;
     nameEn: string;
 }
 
-export interface RouteSegment {
+export interface RouteSegment { // 因應轉乘時，路線被拆成多個路段
     lineCode: string;
     lineNameZhTw: string;
     lineColor: string;
@@ -183,7 +184,7 @@ export interface RouteSegment {
     segmentTimeSeconds: number;
 }
 
-export interface GetOriginDestinationDetailResponse {
+export interface GetOriginDestinationDetailsResponse {
     fromStationCode: string;
     toStationCode: string;
     fareType: number;

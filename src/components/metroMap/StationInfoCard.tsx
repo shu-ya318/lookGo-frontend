@@ -22,14 +22,14 @@ import { FARE_TYPE_LABELS, ROUTING_STRATEGY_LABELS } from "@/services/metro/type
 import type {
   MetroMapLine,
   MetroMapStation,
-  GetOriginDestinationDetailResponse,
+  GetOriginDestinationDetailsResponse,
 } from "@/services/metro/interface";
 
 interface Props {
   station?: MetroMapStation;
   line?: MetroMapLine;
   allLines?: MetroMapLine[];
-  routeResult?: GetOriginDestinationDetailResponse;
+  routeResult?: GetOriginDestinationDetailsResponse;
   onClose: () => void;
 }
 

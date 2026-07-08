@@ -28,35 +28,19 @@ import { formatStationLabel } from "@/utils/station";
 import {
   FareType,
   RoutingStrategy,
-  StationFacility,
-  labelToFacility,
-  facilityFilterOptions,
-  type FacilityLabel,
+  FARE_TYPE_OPTIONS,
+  ROUTING_STRATEGY_OPTIONS,
+  STATION_FACILITY_OPTIONS,
+  type StationFacility,
 } from "@/services/metro/types";
 
 import type { StationOption } from "@/services/metro/interface";
 
 interface AdvancedFilters {
-  equipment: FacilityLabel[];
-  fare: FareLabel | null;
-  time: TimeLabel | null;
+  equipment: StationFacility[];
+  fare: FareType | null;
+  time: RoutingStrategy | null;
 }
-
-const fareTypeFilterOptions = ["全票", "學生票", "兒童票", "愛心票"] as const;
-type FareLabel = (typeof fareTypeFilterOptions)[number];
-const fareLabelToType = {
-  全票: FareType.FULL,
-  學生票: FareType.STUDENT,
-  兒童票: FareType.CHILD,
-  愛心票: FareType.LOVE,
-};
-
-const travelTimeFilterOptions = ["最少轉乘次數", "最短車程時間"] as const;
-type TimeLabel = (typeof travelTimeFilterOptions)[number];
-const timeLabelToStrategy = {
-  最少轉乘次數: RoutingStrategy.MIN_TRANSFER,
-  最短車程時間: RoutingStrategy.MIN_TIME,
-};
 
 const HEADER_HEIGHT = "4.375rem";
 const SEARCH_BAR_HEIGHT = "5.5rem";
@@ -134,29 +118,26 @@ const MetroMapPage = () => {
       ? `已選起始站「${formatStationLabel(startStation)}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
       : `已選起訖站，可查詢路徑（${formatStationLabel(startStation)} → ${formatStationLabel(endStation!)}）`;
 
-  const toggleEquipmentFilter = (value: FacilityLabel): void => {
+  const toggleEquipmentFilter = (value: StationFacility): void => {
     setAdvancedFilters((prev) => {
       const updated = prev.equipment.includes(value)
         ? prev.equipment.filter((v) => v !== value)
         : [...prev.equipment, value];
 
-      const facilities = updated
-        .map(labelToFacility)
-        .filter((f): f is StationFacility => f !== undefined);
-      setSelectedFacilities(facilities);
+      setSelectedFacilities(updated);
 
       return { ...prev, equipment: updated };
     });
   };
 
-  const selectFareFilter = (value: FareLabel): void => {
+  const selectFareFilter = (value: FareType): void => {
     setAdvancedFilters((prev) => ({
       ...prev,
       fare: prev.fare === value ? null : value,
     }));
   };
 
-  const selectTimeFilter = (value: TimeLabel): void => {
+  const selectTimeFilter = (value: RoutingStrategy): void => {
     setAdvancedFilters((prev) => ({
       ...prev,
       time: prev.time === value ? null : value,
@@ -177,14 +158,11 @@ const MetroMapPage = () => {
     clearSelection();
 
     // 使用者選取的票種（預設全票）
-    const fareType: FareType = advancedFilters.fare
-      ? fareLabelToType[advancedFilters.fare]
-      : FareType.FULL;
+    const fareType: FareType = advancedFilters.fare ?? FareType.FULL;
 
     // 使用者選取的路線策略（預設最少轉乘）
-    const routingStrategy: RoutingStrategy = advancedFilters.time
-      ? timeLabelToStrategy[advancedFilters.time]
-      : RoutingStrategy.MIN_TRANSFER;
+    const routingStrategy: RoutingStrategy =
+      advancedFilters.time ?? RoutingStrategy.MIN_TRANSFER;
 
     await fetchRoute({
       fromStationCode: startStation.stationCode,
@@ -317,16 +295,16 @@ const MetroMapPage = () => {
             {isSingleStationMode && (
               <>
                 <ListSubheader sx={{ fontWeight: 700 }}>設備</ListSubheader>
-                {facilityFilterOptions.map((option) => (
+                {STATION_FACILITY_OPTIONS.map(({ value, label }) => (
                   <MenuItem
-                    key={option}
-                    onClick={() => toggleEquipmentFilter(option)}
+                    key={value}
+                    onClick={() => toggleEquipmentFilter(value)}
                   >
                     <Checkbox
-                      checked={advancedFilters.equipment.includes(option)}
+                      checked={advancedFilters.equipment.includes(value)}
                       size='small'
                     />
-                    <ListItemText primary={option} />
+                    <ListItemText primary={label} />
                   </MenuItem>
                 ))}
               </>
@@ -335,24 +313,24 @@ const MetroMapPage = () => {
             {isRouteMode && (
               <>
                 <ListSubheader sx={{ fontWeight: 700 }}>票價種類</ListSubheader>
-                {fareTypeFilterOptions.map((option) => (
-                  <MenuItem key={option} onClick={() => selectFareFilter(option)}>
+                {FARE_TYPE_OPTIONS.map(({ value, label }) => (
+                  <MenuItem key={value} onClick={() => selectFareFilter(value)}>
                     <Radio
-                      checked={advancedFilters.fare === option}
+                      checked={advancedFilters.fare === value}
                       size='small'
                     />
-                    <ListItemText primary={option} />
+                    <ListItemText primary={label} />
                   </MenuItem>
                 ))}
                 <Divider />
                 <ListSubheader sx={{ fontWeight: 700 }}>乘車時間</ListSubheader>
-                {travelTimeFilterOptions.map((option) => (
-                  <MenuItem key={option} onClick={() => selectTimeFilter(option)}>
+                {ROUTING_STRATEGY_OPTIONS.map(({ value, label }) => (
+                  <MenuItem key={value} onClick={() => selectTimeFilter(value)}>
                     <Radio
-                      checked={advancedFilters.time === option}
+                      checked={advancedFilters.time === value}
                       size='small'
                     />
-                    <ListItemText primary={option} />
+                    <ListItemText primary={label} />
                   </MenuItem>
                 ))}
               </>

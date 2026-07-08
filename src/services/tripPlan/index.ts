@@ -32,7 +32,7 @@ export const getAllTripPlanName =
 export const getTripPlan = async (
     params: GetTripPlanParams
 ): Promise<TripPlan> => {
-    return await postRequest<TripPlan>('/trip-plan/get-plan', undefined, {
+    return await postRequest<TripPlan>('/trip-plan/get-plan', {}, {
         params,
     });
 };
@@ -42,7 +42,7 @@ export const getAllTripPlanPaginated = async (
 ): Promise<GetAllTripPlanPaginatedResponse> => {
     return await postRequest<GetAllTripPlanPaginatedResponse>(
         '/trip-plan/get-all-plan-paginated',
-        undefined,
+        {},
         { params: request }
     );
 };

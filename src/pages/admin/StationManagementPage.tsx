@@ -16,6 +16,7 @@ import { Dialog } from "@/components/Dialog";
 import { StationAutocomplete } from "@/components/StationAutocomplete";
 import { UpdateStationDialog } from "@/components/admin/UpdateStationDialog";
 import { getAllStationPaginated, getStationById } from "@/services/metro";
+import { FACILITY_DETAIL_LABELS } from "@/services/metro/types";
 import {
   syncAllLine,
   syncAllLineStation,
@@ -44,18 +45,6 @@ const exportColumnMap: Record<string, string> = {
   nameEn: "英文站名",
   updatedAt: "更新時間",
 };
-
-const facilityFieldMap: { key: keyof Station; label: string }[] = [
-  { key: "atm", label: "ATM" },
-  { key: "nursingRoom", label: "哺乳室" },
-  { key: "diaperTable", label: "尿布台" },
-  { key: "chargingStation", label: "充電站" },
-  { key: "ticketMachine", label: "售票機" },
-  { key: "drinkingWater", label: "飲水機" },
-  { key: "restroom", label: "廁所" },
-  { key: "elevator", label: "電梯" },
-  { key: "escalator", label: "手扶梯" },
-];
 
 type MetroSyncKey =
   | "line"
@@ -418,7 +407,7 @@ const StationManagementPage = () => {
           <Typography>載入中...</Typography>
         ) : (
           <Stack sx={{ gap: "0.75rem" }}>
-            {facilityFieldMap.map(({ key, label }) => (
+            {FACILITY_DETAIL_LABELS.map(({ key, label }) => (
               <Stack
                 key={key}
                 direction='row'

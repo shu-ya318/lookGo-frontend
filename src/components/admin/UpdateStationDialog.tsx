@@ -13,6 +13,7 @@ import Typography from "@mui/material/Typography";
 
 import { Dialog } from "@/components/Dialog";
 import { getStationById, updateStation } from "@/services/metro";
+import { FACILITY_DETAIL_LABELS } from "@/services/metro/types";
 
 const formSchema = z.object({
   nameZhTw: z.string(),
@@ -47,15 +48,7 @@ const defaultFormValues: FormData = {
 const fieldLabelMap: { name: keyof FormData; label: string }[] = [
   { name: "nameZhTw", label: "中文站名" },
   { name: "nameEn", label: "英文站名" },
-  { name: "atm", label: "ATM" },
-  { name: "nursingRoom", label: "哺乳室" },
-  { name: "diaperTable", label: "尿布台" },
-  { name: "chargingStation", label: "充電站" },
-  { name: "ticketMachine", label: "售票機" },
-  { name: "drinkingWater", label: "飲水機" },
-  { name: "restroom", label: "廁所" },
-  { name: "elevator", label: "電梯" },
-  { name: "escalator", label: "手扶梯" },
+  ...FACILITY_DETAIL_LABELS.map(({ key, label }) => ({ name: key, label })),
 ];
 
 interface UpdateStationDialogProps {

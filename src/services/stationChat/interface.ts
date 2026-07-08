@@ -21,6 +21,8 @@ export interface StationChatMessage {
     fareType: number | null;
     farePrice: number | null;
     transferCount: number | null;
+    travelTimeSeconds: number | null;
+    notes: string | null;
     createdAt: string;
 }
 

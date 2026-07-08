@@ -70,7 +70,7 @@ export const UpdateBirthDateDialog = ({
       enqueueSnackbar(successMessage || "出生日期修改成功！", {
         variant: "success",
       });
-      onClose();
+      handleClose();
       await onSuccess();
     } catch (error) {
       enqueueSnackbar((error as string) || "出生日期修改失敗！", {

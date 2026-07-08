@@ -16,7 +16,7 @@ export const getAllBookmarkPaginated = async (
 ): Promise<GetAllBookmarkPaginatedResponse> => {
     return await postRequest<GetAllBookmarkPaginatedResponse>(
         '/station-bookmark/get-all-bookmark-paginated',
-        undefined,
+        {},
         { params: request }
     );
 };
@@ -42,7 +42,7 @@ export const deleteBookmark = async (
 export const getBookmarkExcel = async (): Promise<Blob> => {
     return await postRequest<Blob>(
         '/station-bookmark/get-excel',
-        undefined,
+        {},
         { responseType: 'blob' }
     );
 };
@@ -52,7 +52,7 @@ export const getBookmarkByStationName = async (
 ): Promise<StationBookmarkResponse> => {
     return await postRequest<StationBookmarkResponse>(
         '/station-bookmark/get-bookmark-by-station-name',
-        undefined,
+        {},
         { params: request }
     );
 };

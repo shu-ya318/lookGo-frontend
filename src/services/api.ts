@@ -101,10 +101,11 @@ service.interceptors.response.use(
   }
 );
 
+// 一律用 POST 請求
 const postRequest = <T>(
   url: string,
-  data?: object,
-  config?: AxiosRequestConfig
+  data?: object, // request body 參數，若無需傳入則使用空物件
+  config?: AxiosRequestConfig // axios 設定，如 query parameter
 ): Promise<T> => {
   return service.post(url, data, config) as unknown as Promise<T>;
 };
