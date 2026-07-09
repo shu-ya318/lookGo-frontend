@@ -14,7 +14,6 @@ import type { TripPlan } from '@/services/tripPlan/interface';
 interface ShareTripPlanDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    // 按下確定分享並成功取得旅程資料後觸發，由呼叫端發送聊天訊息
     onShare: (tripPlan: TripPlan) => void;
 }
 
@@ -58,9 +57,10 @@ export const ShareTripPlanDialog = ({
         if (!selectedName) return;
 
         setIsSharing(true);
+
         try {
-            const tripPlan = await getTripPlan({ keyword: selectedName });
-            onShare(tripPlan);
+            const response = await getTripPlan({ keyword: selectedName });
+            onShare(response);
         } catch (error) {
             enqueueSnackbar((error as string) || '取得旅程資料失敗', {
                 variant: 'error',

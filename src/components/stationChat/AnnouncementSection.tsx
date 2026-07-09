@@ -43,8 +43,8 @@ export const AnnouncementSection = ({
     onLoadMore,
 }: AnnouncementSectionProps) => {
     const sortedAnnouncements = [...announcements].sort(
-        (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        (announcementA, announcementB) =>
+            new Date(announcementB.updatedAt).getTime() - new Date(announcementA.updatedAt).getTime()
     );
     const [latestAnnouncement, ...restAnnouncements] = sortedAnnouncements;
 
@@ -65,6 +65,7 @@ export const AnnouncementSection = ({
                 borderColor: 'divider',
             }}
         >
+            {/* 公告內容 */}
             <Stack direction='row' sx={{ gap: 1, flex: 1 }}>
                 <CampaignOutlinedIcon
                     fontSize='small'
@@ -83,7 +84,7 @@ export const AnnouncementSection = ({
                     </Typography>
                 </Box>
             </Stack>
-
+            {/* 管理員功能：編輯、刪除按鈕；一般使用者：展開收合按鈕 */}
             <Stack direction='row' sx={{ flexShrink: 0, alignItems: 'center' }}>
                 {isAdmin && (
                     <>
@@ -101,6 +102,7 @@ export const AnnouncementSection = ({
                         </IconButton>
                     </>
                 )}
+                {/* 展開收合按鈕 */}
                 {showToggle &&
                     (restAnnouncements.length > 0 ||
                         announcementTotalPages > 1) && (
@@ -129,11 +131,13 @@ export const AnnouncementSection = ({
 
     return (
         <Stack sx={{ position: 'relative' }}>
+            {/* 最新公告與管理員功能 */}
             <Stack
                 sx={{
                     backgroundColor: 'info.light',
                 }}
             >
+                {/* 管理員新增公告按鈕 */}
                 {isAdmin && (
                     <Stack
                         direction='row'
@@ -154,6 +158,7 @@ export const AnnouncementSection = ({
                         </Button>
                     </Stack>
                 )}
+                {/* 最新公告 */}
                 {latestAnnouncement &&
                     renderAnnouncementItem(latestAnnouncement, true)}
             </Stack>

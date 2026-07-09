@@ -19,7 +19,9 @@ interface UseAnnouncementsResult {
     handleLoadMoreAnnouncements: () => Promise<void>;
 }
 
-// 管理車站公告：載入／分頁／展開狀態，並提供公告異動後的 refetch
+/* 管理車站公告。
+* 處理載入／分頁／展開狀態，並提供公告異動後的自動重新載入。
+*/
 export const useAnnouncements = (
     selectedStation: StationDetails | null
 ): UseAnnouncementsResult => {
@@ -33,7 +35,7 @@ export const useAnnouncements = (
         useState(false);
 
     useEffect(() => {
-        // 切換車站時一律收合公告列
+        // 切換車站時，收合公告列
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsAnnouncementExpanded(false);
 
@@ -77,7 +79,7 @@ export const useAnnouncements = (
         };
     }, [selectedStation]);
 
-    // 供新增／編輯／刪除公告成功後重新載入第一頁
+    // 當新增／編輯／刪除公告成功後，重新載入第一頁
     const refetchAnnouncements = useCallback(async () => {
         if (!selectedStation) return;
 
@@ -105,6 +107,7 @@ export const useAnnouncements = (
         const nextPage = announcementPage + 1;
 
         setIsLoadingMoreAnnouncements(true);
+
         try {
             const response = await getAnnouncementByStationId({
                 stationId: selectedStation.id,

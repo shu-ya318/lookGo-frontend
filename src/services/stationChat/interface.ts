@@ -3,13 +3,11 @@ import type { PageResponse } from '../common/interface';
 export type ChatType = 'TEXT' | 'TRIP_PLAN';
 export type ChatEventType = 'NEW' | 'DELETE';
 
-// 公告新增／編輯／刪除 API 共用的回應格式
 export interface MessageResponse {
     message: string;
 }
 
 // Station Chat Message
-
 export interface StationChatMessage {
     id: number;
     username: string;
@@ -39,7 +37,6 @@ export interface GetExcelByStationIdRequest {
 }
 
 // Station Chat Announcement
-
 export interface StationChatAnnouncement {
     id: number;
     stationId: number;
@@ -72,8 +69,7 @@ export interface DeleteAnnouncementRequest {
     announcementId: number;
 }
 
-// STOMP 即時訊息
-
+// STOMP  message
 export interface SendMessagePayload {
     chatType: ChatType;
     content?: string | null;

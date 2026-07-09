@@ -11,7 +11,9 @@ interface UseStationSelectionResult {
     selectedStation: StationDetails | null;
 }
 
-// 管理聊天室的車站選取：將 StationAutocomplete 的選項解析為含 stationId 的車站詳細資訊
+/* 負責處理車站選取邏輯。
+ * 把 StationAutocomplete 給的 stationCode 解析成車站聊天室請求 API 需要的 stationId 等詳細資訊。
+*/
 export const useStationSelection = (): UseStationSelectionResult => {
     const [selectedStationOption, setSelectedStationOption] =
         useState<StationOption | null>(null);
@@ -29,14 +31,14 @@ export const useStationSelection = (): UseStationSelectionResult => {
 
         setSelectedStation(null);
 
-        // StationAutocomplete 僅提供 stationCode，聊天室 API 需要的 stationId 需另行查詢
         const resolveStation = async () => {
             try {
-                const details = await getStationByCode({
+                const response = await getStationByCode({
                     stationCode: selectedStationOption.stationCode,
                 });
+
                 if (!isCancelled) {
-                    setSelectedStation(details);
+                    setSelectedStation(response);
                 }
             } catch (error) {
                 if (!isCancelled) {

@@ -33,8 +33,12 @@ const StationChatPage = () => {
     const currentUser = useUserStore(state => state.userInfo);
     const isAdmin = currentUser?.role === 'ADMIN';
 
+    /*
+     * 因各功能邏輯較複雜且有獨立狀態，拆出 custom hook 來個別管理
+    */
     const { selectedStationOption, setSelectedStationOption, selectedStation } =
         useStationSelection();
+
     const {
         messages,
         isLoadingMessages,
@@ -50,6 +54,7 @@ const StationChatPage = () => {
         handleDeleteMessage,
         sendTripPlanMessage,
     } = useChatMessages(selectedStation);
+
     const {
         announcements,
         isAnnouncementExpanded,
@@ -60,6 +65,7 @@ const StationChatPage = () => {
         refetchAnnouncements,
         handleLoadMoreAnnouncements,
     } = useAnnouncements(selectedStation);
+
     const { isExportingExcel, handleExportExcel } =
         useExportChatExcel(selectedStation);
 
@@ -88,11 +94,12 @@ const StationChatPage = () => {
         if (!deletingAnnouncement) return;
 
         setIsDeletingAnnouncement(true);
+
         try {
-            const { message } = await deleteAnnouncement({
+            const response = await deleteAnnouncement({
                 announcementId: deletingAnnouncement.id,
             });
-            enqueueSnackbar(message || '公告刪除成功', { variant: 'success' });
+            enqueueSnackbar(response.message || '公告刪除成功', { variant: 'success' });
             setDeletingAnnouncement(null);
             await refetchAnnouncements();
         } catch (error) {
@@ -117,7 +124,7 @@ const StationChatPage = () => {
             <Typography variant='h5' sx={{ fontWeight: 700 }}>
                 車站聊天室
             </Typography>
-            {/* 篩選列 */}
+            {/* 選擇車站聊天室 */}
             <Stack
                 direction='row'
                 sx={{ alignItems: 'center', justifyContent: 'space-between' }}
@@ -140,6 +147,7 @@ const StationChatPage = () => {
                         />
                     )}
                 </Box>
+                {/* 匯出當日聊天紀錄按鈕 */}
                 {isAdmin && (
                     <Button
                         variant='contained'
@@ -163,7 +171,7 @@ const StationChatPage = () => {
                     </Button>
                 )}
             </Stack>
-            {/* 聊天區域 */}
+            {/* 公告與聊天訊息區域 */}
             <Stack
                 sx={{
                     borderRadius: 3,
@@ -180,7 +188,7 @@ const StationChatPage = () => {
                     flexDirection: 'column',
                 }}
             >
-                {/* 公告列 */}
+                {/* 顯示公告列 */}
                 {selectedStation && (announcements.length > 0 || isAdmin) && (
                     <AnnouncementSection
                         announcements={announcements}
@@ -196,7 +204,7 @@ const StationChatPage = () => {
                         onLoadMore={handleLoadMoreAnnouncements}
                     />
                 )}
-
+                {/* 聊天訊息區域 */}
                 <MessageSection
                     selectedStation={selectedStation}
                     messages={messages}
@@ -214,16 +222,14 @@ const StationChatPage = () => {
                     onOpenShareTripPlan={handleOpenShareTripPlan}
                 />
             </Stack>
-
-            {/* 分享旅程規劃 Dialog */}
+            {/* 分享旅程規劃對話框 */}
             <ShareTripPlanDialog
                 key={shareTripPlanSessionId}
                 isOpen={isShareTripPlanOpen}
                 onClose={() => setIsShareTripPlanOpen(false)}
                 onShare={handleShareTripPlan}
             />
-
-            {/* 公告管理 Dialog */}
+            {/* 公告管理對話框 */}
             {selectedStation && (
                 <CreateAnnouncementDialog
                     isOpen={isCreateAnnouncementOpen}

@@ -27,16 +27,21 @@ interface UseChatMessagesResult {
     sendTripPlanMessage: (tripPlanId: number) => void;
 }
 
-// 管理聊天訊息與 WebSocket 連線：訊息載入／分頁、即時事件、發送與刪除訊息
+/* 管理 WebSocket 連線的聊天訊息。
+ * 包含訊息載入、分頁、即時事件、發送與刪除訊息
+*/
 export const useChatMessages = (
     selectedStation: StationDetails | null
 ): UseChatMessagesResult => {
     const [messages, setMessages] = useState<StationChatMessage[]>([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(false);
+
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+
     const [isConnected, setIsConnected] = useState(false);
+
     const [inputMessage, setInputMessage] = useState('');
 
     const socketRef = useRef<StationChatSocket | null>(null);
@@ -51,6 +56,10 @@ export const useChatMessages = (
         });
     }, []);
 
+    /* 自動處理
+     * 1. 未選擇車站: 不建立連線
+     * 2. 切換車站時，中斷舊連線、清空訊息，並建立新連線、取得新歷史資料
+    */
     useEffect(() => {
         if (!selectedStation) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -64,6 +73,7 @@ export const useChatMessages = (
 
         const init = async () => {
             setIsLoadingMessages(true);
+
             try {
                 const response = await getMessageByStationId({
                     stationId: selectedStation.id,
@@ -71,9 +81,10 @@ export const useChatMessages = (
                     size: MESSAGE_PAGE_SIZE,
                 });
 
+                // 避免快速連續切站時，取得舊站點資料
                 if (isCancelled) return;
 
-                // API 依建立時間新到舊排序，畫面需舊到新（新訊息在下方）
+                // API 依建立時間新到舊排序，但畫面顯示為從舊到新，讓新訊息顯示在下方
                 setMessages([...response.content].reverse());
                 setHasMore(response.totalPages > 1);
                 setPage(0);
@@ -130,6 +141,7 @@ export const useChatMessages = (
         const nextPage = page + 1;
 
         setIsLoadingMore(true);
+
         try {
             const response = await getMessageByStationId({
                 stationId: selectedStation.id,

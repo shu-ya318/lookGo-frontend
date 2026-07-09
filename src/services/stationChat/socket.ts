@@ -12,11 +12,8 @@ const TOPIC_PREFIX = '/topic/station-chat/';
 const APP_PREFIX = '/app/station-chat/';
 
 interface StationChatSocketHandlers {
-    // 收到新訊息或刪除訊息廣播時觸發
     onEvent: (event: StationChatEvent) => void;
-    // 發送／刪除訊息失敗時觸發（如每日上限、表單驗證錯誤）
     onError?: (message: string) => void;
-    // 連線狀態變化時觸發（連線建立／中斷、重連期間）
     onConnectionChange?: (isConnected: boolean) => void;
 }
 
@@ -28,7 +25,7 @@ export interface StationChatSocket {
 
 /**
  * 建立指定車站的 STOMP WebSocket 連線，訂閱該站的即時聊天事件。
- * 需在切換車站或元件卸載時呼叫回傳物件的 disconnect()，避免重複訂閱。
+ * 切換車站或元件卸載時，呼叫回傳物件的 disconnect()，避免重複訂閱。
  */
 export const connectStationChatSocket = (
     stationId: number,

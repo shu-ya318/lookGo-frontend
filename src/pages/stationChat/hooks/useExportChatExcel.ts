@@ -11,7 +11,9 @@ interface UseExportChatExcelResult {
     handleExportExcel: () => Promise<void>;
 }
 
-// 管理當日聊天紀錄的 Excel 匯出：下載 blob 並觸發瀏覽器存檔
+/* 管理當日聊天紀錄的 Excel 匯出。
+*下載 blob 並觸發瀏覽器存檔
+*/
 export const useExportChatExcel = (
     selectedStation: StationDetails | null
 ): UseExportChatExcelResult => {
@@ -21,6 +23,7 @@ export const useExportChatExcel = (
         if (!selectedStation) return;
 
         setIsExportingExcel(true);
+
         try {
             const blob = await getExcelByStationId({
                 stationId: selectedStation.id,
