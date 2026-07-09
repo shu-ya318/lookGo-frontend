@@ -18,13 +18,13 @@ const NotFoundPage = () => {
       }}
     >
       <Typography variant='h4' gutterBottom>
-        Not Found
+        查無頁面
       </Typography>
       <Typography variant='body1' gutterBottom>
-        The page you are looking for does not exist.
+        您要找的頁面不存在
       </Typography>
       <Button variant='contained' color='primary' onClick={handleBackToHomepage}>
-        Back to Homepage
+        返回首頁
       </Button>
     </Box>
   );

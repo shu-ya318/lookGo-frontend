@@ -71,7 +71,7 @@ const ForgetPasswordPage = () => {
         gap: '6rem',
       }}
     >
-      {/* Title */}
+      {/* 標題 */}
       <Stack>
         <Typography
           variant='h4'
@@ -87,7 +87,7 @@ const ForgetPasswordPage = () => {
         </Typography>
       </Stack>
       <Stack sx={{ gap: '2rem' }}>
-        {/* Email */}
+        {/* 電子郵件 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='Email'
@@ -115,7 +115,7 @@ const ForgetPasswordPage = () => {
             )}
           />
         </FormControl>
-        {/* Phone Number */}
+        {/* 手機號碼 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='cellphone'
@@ -143,7 +143,7 @@ const ForgetPasswordPage = () => {
             )}
           />
         </FormControl>
-        {/* Submit button */}
+        {/* 提交按鈕 */}
         <Button
           aria-label=''
           type='submit'

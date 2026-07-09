@@ -74,12 +74,12 @@ const ResetPasswordPage = () => {
         return;
       }
 
-      const { successMessage } = await resetPassword({
+      const response = await resetPassword({
         resetPasswordToken,
         newPassword,
       });
 
-      enqueueSnackbar(successMessage || '密碼重設成功！', {
+      enqueueSnackbar(response.successMessage || '密碼重設成功！', {
         variant: 'success',
       });
       navigate('/auth/login', { replace: true });
@@ -102,7 +102,7 @@ const ResetPasswordPage = () => {
         gap: '6rem',
       }}
     >
-      {/* Title */}
+      {/* 標題 */}
       <Stack>
         <Typography
           variant='h4'
@@ -118,7 +118,7 @@ const ResetPasswordPage = () => {
         </Typography>
       </Stack>
       <Stack sx={{ gap: '2rem' }}>
-        {/* New Password */}
+        {/* 新密碼 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='NewPassword'
@@ -160,7 +160,7 @@ const ResetPasswordPage = () => {
             )}
           />
         </FormControl>
-        {/* Confirm Password */}
+        {/* 確認新密碼 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='ConfirmPassword'
@@ -208,7 +208,7 @@ const ResetPasswordPage = () => {
             )}
           />
         </FormControl>
-        {/* Submit button */}
+        {/* 提交按鈕 */}
         <Button
           aria-label=''
           type='submit'
@@ -229,7 +229,7 @@ const ResetPasswordPage = () => {
           重設密碼
         </Button>
       </Stack>
-      {/* Return to Login Link */}
+      {/* 返回登入連結 */}
       <Link
         component='button'
         type='button'

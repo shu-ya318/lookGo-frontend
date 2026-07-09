@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as XLSX from 'xlsx';
 
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
@@ -14,17 +13,10 @@ import { enqueueSnackbar } from 'notistack';
 
 import { Dialog } from '@/components/Dialog';
 import { StationAutocomplete } from '@/components/StationAutocomplete';
+import { MetroSyncSection } from '@/components/admin/MetroSyncSection';
 import { UpdateStationDialog } from '@/components/admin/UpdateStationDialog';
 import { getAllStationPaginated, getStationById } from '@/services/metro';
 import { FACILITY_DETAIL_LABELS } from '@/services/metro/types';
-import {
-  syncAllLine,
-  syncAllLineStation,
-  syncAllLineStationCumulativeTime,
-  syncAllLineTransfer,
-  syncAllStation,
-  syncAllStationFare,
-} from '@/services/metroSync';
 import { formatDateTime } from '@/utils/date';
 
 import type {
@@ -32,7 +24,6 @@ import type {
   GridRenderCellParams,
   GridRowSelectionModel,
 } from '@mui/x-data-grid';
-import type { MessageVO } from '@/services/metroSync/interface';
 import type {
   Station,
   StationOption,
@@ -45,37 +36,6 @@ const exportColumnMap: Record<string, string> = {
   nameEn: '英文站名',
   updatedAt: '更新時間',
 };
-
-type MetroSyncKey =
-  | 'line'
-  | 'lineTransfer'
-  | 'station'
-  | 'lineStation'
-  | 'lineStationCumulativeTime'
-  | 'stationFare';
-
-const metroSyncItems: {
-  key: MetroSyncKey;
-  label: string;
-  note?: string;
-  sync: () => Promise<MessageVO>;
-}[] = [
-    { key: 'line', label: '路線', sync: syncAllLine },
-    { key: 'lineTransfer', label: '路線換乘', sync: syncAllLineTransfer },
-    { key: 'station', label: '車站', sync: syncAllStation },
-    { key: 'lineStation', label: '路線車站', sync: syncAllLineStation },
-    {
-      key: 'lineStationCumulativeTime',
-      label: '路線車站累計行駛時間',
-      sync: syncAllLineStationCumulativeTime,
-    },
-    {
-      key: 'stationFare',
-      label: '票價',
-      note: '同步時間較長，請耐心等候',
-      sync: syncAllStationFare,
-    },
-  ];
 
 const StationManagementPage = () => {
   const [rows, setRows] = useState<StationSummary[]>([]);
@@ -95,7 +55,6 @@ const StationManagementPage = () => {
   const [isFacilityLoading, setIsFacilityLoading] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editStationId, setEditStationId] = useState<number | null>(null);
-  const [syncingKey, setSyncingKey] = useState<MetroSyncKey | null>(null);
 
   const selectedRows =
     rowSelectionModel.type === 'include'
@@ -133,39 +92,6 @@ const StationManagementPage = () => {
     setFacilityDialogOpen(false);
     setFacilityStation(null);
   };
-
-  const handleSync = async (item: (typeof metroSyncItems)[number]) => {
-    setSyncingKey(item.key);
-    try {
-      const { message } = await item.sync();
-      enqueueSnackbar(message || `${item.label}同步成功！`, {
-        variant: 'success',
-      });
-    } catch (error) {
-      enqueueSnackbar((error as string) || `${item.label}同步失敗！`, {
-        variant: 'error',
-      });
-    } finally {
-      setSyncingKey(null);
-    }
-  };
-
-  useEffect(() => {
-    if (!syncingKey) return;
-
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () =>
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [syncingKey]);
-
-  const syncingLabel = metroSyncItems.find(
-    (item) => item.key === syncingKey
-  )?.label;
 
   const handleExportExcel = () => {
     if (selectedRows.length === 0) return;
@@ -242,16 +168,17 @@ const StationManagementPage = () => {
     [handleOpenFacilityDialog]
   );
 
-  const fetchStations = useCallback(async () => {
+  const fetchAllStation = useCallback(async () => {
     setIsLoading(true);
+
     try {
-      const { content, totalElements } = await getAllStationPaginated({
+      const response = await getAllStationPaginated({
         keyword: searchValue?.nameZhTw,
         page: paginationModel.page,
         size: paginationModel.pageSize,
       });
-      setRows(content);
-      setRowCount(totalElements);
+      setRows(response.content);
+      setRowCount(response.totalElements);
     } catch (error) {
       enqueueSnackbar((error as string) || '取得車站列表失敗', {
         variant: 'error',
@@ -263,8 +190,8 @@ const StationManagementPage = () => {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchStations();
-  }, [fetchStations]);
+    fetchAllStation();
+  }, [fetchAllStation]);
 
   const handleSearchChange = (newValue: StationOption | null) => {
     setSearchValue(newValue);
@@ -283,45 +210,7 @@ const StationManagementPage = () => {
     >
       <Typography variant='h5'>車站資訊管理</Typography>
       {/* 捷運資訊同步 */}
-      <Stack sx={{ gap: '0.625rem' }}>
-        <Typography sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
-          捷運資訊同步
-        </Typography>
-        {syncingKey && (
-          <Alert severity='warning' sx={{ maxWidth: '33.375rem' }}>
-            正在同步「{syncingLabel}」，同步完成前請勿關閉或重新整理分頁
-          </Alert>
-        )}
-        <Stack sx={{ gap: '1.125rem', maxWidth: '33.375rem' }}>
-          {metroSyncItems.map((item) => (
-            <Stack
-              key={item.key}
-              direction='row'
-              sx={{ alignItems: 'center', justifyContent: 'space-between' }}
-            >
-              <Stack>
-                <Typography sx={{ color: 'text.secondary' }}>
-                  {item.label}
-                </Typography>
-                {item.note && (
-                  <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                    {item.note}
-                  </Typography>
-                )}
-              </Stack>
-              <Button
-                variant='outlined'
-                size='small'
-                loading={syncingKey === item.key}
-                disabled={syncingKey !== null && syncingKey !== item.key}
-                onClick={() => handleSync(item)}
-              >
-                同步
-              </Button>
-            </Stack>
-          ))}
-        </Stack>
-      </Stack>
+      <MetroSyncSection />
       {/* 車站資訊編輯 */}
       <Typography sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
         車站資訊編輯
@@ -358,6 +247,7 @@ const StationManagementPage = () => {
           </Button>
         </Stack>
       </Stack>
+      {/* 車站資訊表格 */}
       <DataGrid
         rows={rows}
         columns={columns}
@@ -394,7 +284,7 @@ const StationManagementPage = () => {
           },
         }}
       />
-
+      {/* 設備資訊對話框 */}
       <Dialog
         isOpen={facilityDialogOpen}
         onClose={handleCloseFacilityDialog}
@@ -422,12 +312,12 @@ const StationManagementPage = () => {
           </Stack>
         )}
       </Dialog>
-
+      {/* 更新車站資訊對話框 */}
       <UpdateStationDialog
         isOpen={editDialogOpen}
         onClose={handleCloseEditDialog}
         stationId={editStationId}
-        onSuccess={fetchStations}
+        onSuccess={fetchAllStation}
       />
     </Stack>
   );

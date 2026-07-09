@@ -15,13 +15,13 @@ const NotAuthorizedPage = () => {
       }}
     >
       <Typography variant='h4' gutterBottom>
-        Not Authorized
+        權限不足
       </Typography>
       <Typography variant='body1' gutterBottom>
-        You do not have permission to access this page.
+        您沒有足夠權限訪問此頁面
       </Typography>
       <Button component={Link} to='/' variant='contained' color='primary'>
-        Back to Homepage
+        返回首頁
       </Button>
     </Box>
   );

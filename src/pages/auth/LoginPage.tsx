@@ -67,10 +67,8 @@ const LoginPage = () => {
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
       });
-
       const userInfo = await getCurrentUser();
       useUserStore.setState({ userInfo });
-
       navigate('/', { replace: true });
       enqueueSnackbar('登入成功，歡迎回來', { variant: 'success' });
     } catch (error) {
@@ -90,7 +88,7 @@ const LoginPage = () => {
         gap: '2rem',
       }}
     >
-      {/* Title */}
+      {/* 標題 */}
       <Stack>
         <Typography
           variant='h4'
@@ -106,7 +104,7 @@ const LoginPage = () => {
         </Typography>
       </Stack>
       <Stack sx={{ gap: '1.5rem' }}>
-        {/* Email */}
+        {/* 電子郵件 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='Email'
@@ -134,7 +132,7 @@ const LoginPage = () => {
             )}
           />
         </FormControl>
-        {/* Password */}
+        {/* 密碼 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='Password'
@@ -176,7 +174,7 @@ const LoginPage = () => {
             )}
           />
         </FormControl>
-        {/* Forget password Link */}
+        {/* 忘記密碼連結 */}
         <Link
           component='button'
           type='button'
@@ -189,7 +187,7 @@ const LoginPage = () => {
           忘記密碼?
         </Link>
       </Stack>
-      {/* Submit button */}
+      {/* 提交按鈕 */}
       <Button
         aria-label=''
         type='submit'
@@ -209,7 +207,7 @@ const LoginPage = () => {
       >
         登入
       </Button>
-      {/* Sign up Link */}
+      {/* 登入連結 */}
       <Link
         component='button'
         type='button'

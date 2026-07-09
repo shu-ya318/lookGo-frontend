@@ -17,15 +17,16 @@ import { DataGrid } from '@mui/x-data-grid';
 import { SearchInput } from '@/components/SearchInput';
 import { getAllUser, updateStatus } from '@/services/user';
 
+import { formatDateTime } from '@/utils/date';
+
 import type { ChipProps } from '@mui/material/Chip';
-import type { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import type { GridRenderCellParams } from '@mui/x-data-grid';
 import type {
   GetCurrentUserResponse,
   MembershipTier,
   UserRole,
   UserStatus,
 } from '@/services/user/interface';
-import { formatDateTime } from '@/utils/date';
 
 const roleColorMap: Record<UserRole, ChipProps['color']> = {
   ADMIN: 'primary',
@@ -53,16 +54,17 @@ const UserPermissionPage = () => {
     pageSize: 10,
   });
 
-  const fetchUser = useCallback(async () => {
+  const fetchAllUser = useCallback(async () => {
     setIsLoading(true);
+
     try {
-      const { content, totalElements } = await getAllUser({
+      const response = await getAllUser({
         keyword,
         page: paginationModel.page,
         size: paginationModel.pageSize,
       });
-      setRows(content);
-      setRowCount(totalElements);
+      setRows(response.content);
+      setRowCount(response.totalElements);
     } catch (error) {
       enqueueSnackbar((error as string) || '取得使用者列表失敗', {
         variant: 'error',
@@ -74,8 +76,8 @@ const UserPermissionPage = () => {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchUser();
-  }, [fetchUser]);
+    fetchAllUser();
+  }, [fetchAllUser]);
 
   const debouncedSetKeyword = useMemo(
     () =>
@@ -99,17 +101,17 @@ const UserPermissionPage = () => {
       try {
         await updateStatus({ userId, status: newStatus });
         enqueueSnackbar('使用者狀態已更新', { variant: 'success' });
-        await fetchUser();
+        await fetchAllUser();
       } catch (error) {
         enqueueSnackbar((error as string) || '更新使用者狀態失敗', {
           variant: 'error',
         });
       }
     },
-    [fetchUser]
+    [fetchAllUser]
   );
 
-  const columns: GridColDef[] = useMemo(
+  const columns = useMemo(
     () => [
       { field: 'email', headerName: '電子郵件', flex: 1.5, minWidth: 200 },
       { field: 'username', headerName: '使用者名稱', flex: 1, minWidth: 120 },

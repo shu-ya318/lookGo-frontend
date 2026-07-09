@@ -124,7 +124,7 @@ const SignupPage = () => {
         gap: '2rem',
       }}
     >
-      {/* Title */}
+      {/* 標題 */}
       <Stack>
         <Typography
           variant='h4'
@@ -140,7 +140,7 @@ const SignupPage = () => {
         </Typography>
       </Stack>
       <Stack sx={{ gap: '1.5rem' }}>
-        {/* Email */}
+        {/* 電子郵件 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='Email'
@@ -168,7 +168,7 @@ const SignupPage = () => {
             )}
           />
         </FormControl>
-        {/* Username */}
+        {/* 使用者名稱 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='Username'
@@ -196,7 +196,7 @@ const SignupPage = () => {
             )}
           />
         </FormControl>
-        {/* Cellphone*/}
+        {/* 手機號碼 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='cellphone'
@@ -224,7 +224,7 @@ const SignupPage = () => {
             )}
           />
         </FormControl>
-        {/* Birth Date */}
+        {/* 出生日期 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='BirthDate'
@@ -261,7 +261,7 @@ const SignupPage = () => {
             )}
           />
         </FormControl>
-        {/* Password */}
+        {/* 密碼 */}
         <FormControl fullWidth>
           <FormLabel
             htmlFor='Password'
@@ -304,7 +304,7 @@ const SignupPage = () => {
           />
         </FormControl>
       </Stack>
-      {/* Submit button */}
+      {/* 提交按鈕 */}
       <Button
         aria-label='註冊'
         type='submit'
@@ -324,7 +324,7 @@ const SignupPage = () => {
       >
         註冊
       </Button>
-      {/* Login Link */}
+      {/* 登入連結 */}
       <Link
         component='button'
         type='button'
