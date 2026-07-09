@@ -4,43 +4,46 @@ import {
   useMemo,
   useState,
   type ChangeEvent,
-} from "react";
-import dayjs from "dayjs";
-import { enqueueSnackbar } from "notistack";
-import { debounce } from "lodash-es";
+} from 'react';
+import dayjs from 'dayjs';
+import { enqueueSnackbar } from 'notistack';
+import { debounce } from 'lodash-es';
 
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
-import { BookmarkStationCard } from "@/components/stationBookmark/StationBookmarkCard";
-import { DeleteDialog } from "@/components/DeleteDialog";
-import { SearchInput } from "@/components/SearchInput";
+import { BookmarkStationCard } from '@/components/stationBookmark/StationBookmarkCard';
+import { DeleteDialog } from '@/components/DeleteDialog';
+import { SearchInput } from '@/components/SearchInput';
 
 import {
   deleteStationBookmark,
   getAllStationBookmarkPaginated,
   getStationBookmarkByStationName,
   getStationBookmarkExcel,
-} from "@/services/stationBookmark";
+} from '@/services/stationBookmark';
 
-import type { StationBookmark } from "@/services/stationBookmark/interface";
+import type { StationBookmark } from '@/services/stationBookmark/interface';
 
 const STATION_BOOKMARK_PAGE_SIZE = 8;
 
 const StationBookmarkPage = () => {
-  const [inputValue, setInputValue] = useState("");
-  const [keyword, setKeyword] = useState("");
+  const [inputValue, setInputValue] = useState('');
+  const [keyword, setKeyword] = useState('');
   const [allStationBookmark, setAllStationBookmark] = useState<StationBookmark[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   const [deletingBookmark, setDeletingBookmark] =
     useState<StationBookmark | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
   const [isExportingExcel, setIsExportingExcel] = useState(false);
 
   const hasMore = page + 1 < totalPages;
@@ -71,8 +74,8 @@ const StationBookmarkPage = () => {
         setPage(0);
         setTotalPages(0);
       } else {
-        enqueueSnackbar((error as string) || "取得車站書籤失敗", {
-          variant: "error",
+        enqueueSnackbar((error as string) || '取得車站書籤失敗', {
+          variant: 'error',
         });
       }
     } finally {
@@ -115,8 +118,8 @@ const StationBookmarkPage = () => {
       setPage(nextPage);
       setTotalPages(response.totalPages);
     } catch (error) {
-      enqueueSnackbar((error as string) || "載入更多車站書籤失敗", {
-        variant: "error",
+      enqueueSnackbar((error as string) || '載入更多車站書籤失敗', {
+        variant: 'error',
       });
     } finally {
       setIsLoadingMore(false);
@@ -132,12 +135,12 @@ const StationBookmarkPage = () => {
       const response = await deleteStationBookmark({
         bookmarkId: deletingBookmark.id,
       });
-      enqueueSnackbar(response.message || "車站書籤刪除成功", { variant: "success" });
+      enqueueSnackbar(response.message || '車站書籤刪除成功', { variant: 'success' });
       setDeletingBookmark(null);
       await fetchAllStationBookmark();
     } catch (error) {
-      enqueueSnackbar((error as string) || "車站書籤刪除失敗", {
-        variant: "error",
+      enqueueSnackbar((error as string) || '車站書籤刪除失敗', {
+        variant: 'error',
       });
     } finally {
       setIsDeleting(false);
@@ -154,20 +157,20 @@ const StationBookmarkPage = () => {
     try {
       const blob = await getStationBookmarkExcel();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = document.createElement('a');
 
       link.href = url;
       link.setAttribute(
-        "download",
-        `車站書籤_${dayjs().format("YYYYMMDD")}.xlsx`
+        'download',
+        `車站書籤_${dayjs().format('YYYYMMDD')}.xlsx`
       );
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      enqueueSnackbar("匯出車站書籤成功", { variant: "success" });
+      enqueueSnackbar('匯出車站書籤成功', { variant: 'success' });
     } catch (error) {
-      enqueueSnackbar((error as string) || "匯出車站書籤失敗", { variant: "error" });
+      enqueueSnackbar((error as string) || '匯出車站書籤失敗', { variant: 'error' });
     } finally {
       setIsExportingExcel(false);
     }
@@ -176,19 +179,19 @@ const StationBookmarkPage = () => {
   return (
     <Stack
       sx={{
-        width: "100%",
-        maxWidth: "1280px",
-        margin: "3.75rem auto",
-        gap: "2rem",
-        justifyContent: "center",
+        width: '100%',
+        maxWidth: '1280px',
+        margin: '3.75rem auto',
+        gap: '2rem',
+        justifyContent: 'center',
       }}
     >
       <Typography variant='h5'>車站書籤</Typography>
       <Stack
         direction='row'
         sx={{
-          alignItems: "center",
-          justifyContent: "space-between",
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
         {/* 搜尋欄 */}
@@ -198,7 +201,7 @@ const StationBookmarkPage = () => {
           placeholder='請輸入車站中文名稱搜尋'
         />
         {/* 按鈕: 列印與下載全部 */}
-        <Stack direction='row' sx={{ gap: "1rem", alignItems: "center" }}>
+        <Stack direction='row' sx={{ gap: '1rem', alignItems: 'center' }}>
           <Button variant='outlined' color='neutral' onClick={handlePrint}>
             列印
           </Button>
@@ -219,14 +222,14 @@ const StationBookmarkPage = () => {
       </Stack>
       {/* 資料顯示畫面 */}
       {isLoading && allStationBookmark.length === 0 ? (
-        <Stack sx={{ alignItems: "center", py: 4 }}>
+        <Stack sx={{ alignItems: 'center', py: 4 }}>
           <CircularProgress size='1.5rem' />
         </Stack>
       ) : allStationBookmark.length === 0 ? (
         <Typography
           variant='body2'
           color='text.secondary'
-          sx={{ textAlign: "center", py: 4 }}
+          sx={{ textAlign: 'center', py: 4 }}
         >
           尚無車站書籤
         </Typography>
@@ -234,8 +237,8 @@ const StationBookmarkPage = () => {
         <Stack sx={{ gap: 2 }}>
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
               gap: 2,
             }}
           >
@@ -251,10 +254,10 @@ const StationBookmarkPage = () => {
           {hasMore && (
             <Stack
               sx={{
-                alignItems: "center",
+                alignItems: 'center',
                 py: 1,
-                borderTop: "1px solid",
-                borderColor: "divider",
+                borderTop: '1px solid',
+                borderColor: 'divider',
               }}
             >
               <Button
@@ -267,12 +270,12 @@ const StationBookmarkPage = () => {
                   ) : undefined
                 }
                 sx={{
-                  fontSize: "1rem",
-                  backgroundColor: "transparent",
-                  color: "primary.main",
-                  "&:hover": {
-                    backgroundColor: "transparent",
-                    color: "primary.light",
+                  fontSize: '1rem',
+                  backgroundColor: 'transparent',
+                  color: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: 'primary.light',
                   },
                 }}
               >
@@ -284,14 +287,14 @@ const StationBookmarkPage = () => {
       )}
       {/* 刪除確認對話框 */}
       <DeleteDialog
-        title={deletingBookmark?.stationNameZhTw ?? ""}
+        title={deletingBookmark?.stationNameZhTw ?? ''}
         isOpen={!!deletingBookmark}
         isSubmitting={isDeleting}
         onClose={() => setDeletingBookmark(null)}
         onDeleteItem={handleConfirmDelete}
       >
         <Typography variant='body2'>
-          確定要刪除這筆車站書籤嗎？此操作無法復原。
+          確定刪除這筆車站書籤嗎？此操作無法復原。
         </Typography>
       </DeleteDialog>
     </Stack>

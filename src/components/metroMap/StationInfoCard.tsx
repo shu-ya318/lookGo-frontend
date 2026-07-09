@@ -58,7 +58,7 @@ export const StationInfoCard = ({
   const transferLines = allLines.filter(
     (lines) =>
       lines.letter !== line.letter &&
-      lines.stations.some((s) => s.nameZhTw === station.nameZhTw)
+      lines.stations.some((station) => station.nameZhTw === station.nameZhTw)
   );
 
   return (
@@ -128,7 +128,7 @@ export const StationInfoCard = ({
           />
           {transferLines.map((transferLine) => {
             const transferStation = transferLine.stations.find(
-              (s) => s.nameZhTw === station.nameZhTw
+              (station) => station.nameZhTw === station.nameZhTw
             );
             return (
               <Chip

@@ -16,8 +16,8 @@ import { Dialog } from "@/components/Dialog";
 import { StationFacilityList } from "@/components/StationFacilityList";
 
 import { useMetroMapStore } from "@/stores/metroMapStore";
-
 import { getStationById } from "@/services/metro";
+
 import { formatDateTime } from "@/utils/date";
 
 import type { Station } from "@/services/metro/interface";
@@ -25,8 +25,8 @@ import type { StationBookmark } from "@/services/stationBookmark/interface";
 
 const CARD_HEIGHT = "12rem";
 
-// 路線代表色通常以不含 # 的六碼色碼儲存，統一補上前綴才能當作 CSS 色值使用
-function normalizeColor(raw: string): string {
+// 路線代表色以不含 # 的六碼色碼儲存，統一補上前綴才能當作 CSS 色值使用
+const normalizeColor = (raw: string) => {
   return raw.startsWith("#") ? raw : `#${raw}`;
 }
 
@@ -39,13 +39,14 @@ export const BookmarkStationCard = ({
   bookmark,
   onDelete,
 }: BookmarkStationCardProps) => {
+  const lines = useMetroMapStore((state) => state.lines);
+
   const [isFacilityDialogOpen, setIsFacilityDialogOpen] = useState(false);
   const [facilityStation, setFacilityStation] = useState<Station | null>(
     null
   );
   const [isFacilityLoading, setIsFacilityLoading] = useState(false);
 
-  const lines = useMetroMapStore((state) => state.lines);
   const fetchMetroMap = useMetroMapStore((state) => state.fetchMetroMap);
 
   useEffect(() => {
@@ -57,8 +58,9 @@ export const BookmarkStationCard = ({
     () =>
       lines.flatMap((line) => {
         const matchedStation = line.stations.find(
-          (s) => s.stationId === bookmark.stationId
+          (station) => station.stationId === bookmark.stationId
         );
+
         return matchedStation
           ? [{ line, stationCode: matchedStation.stationCode }]
           : [];
@@ -75,10 +77,10 @@ export const BookmarkStationCard = ({
     setIsFacilityLoading(true);
 
     try {
-      const result = await getStationById({
+      const response = await getStationById({
         id: bookmark.stationId,
       });
-      setFacilityStation(result);
+      setFacilityStation(response);
     } catch (error) {
       enqueueSnackbar((error as string) || "取得設備資訊失敗", {
         variant: "error",
