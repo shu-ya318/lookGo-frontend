@@ -18,7 +18,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { DeleteDialog } from "@/components/DeleteDialog";
 import { SearchInput } from "@/components/SearchInput";
 import { TripPlanCard } from "@/components/tripPlan/TripPlanCard";
-import { TripPlanFormDialog } from "@/components/tripPlan/TripPlanFormDialog";
+import { TripPlanEditorDialog } from "@/components/tripPlan/TripPlanEditorDialog";
 
 import {
     deleteTripPlan,
@@ -30,10 +30,10 @@ import type { TripPlan } from "@/services/tripPlan/interface";
 
 const TRIP_PLAN_PAGE_SIZE = 8;
 
-const TripPlannerPage = () => {
+const TripPlanPage = () => {
     const [inputValue, setInputValue] = useState("");
     const [keyword, setKeyword] = useState("");
-    const [tripPlans, setTripPlans] = useState<TripPlan[]>([]);
+    const [allTripPlan, setAllTripPlan] = useState<TripPlan[]>([]);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -51,12 +51,13 @@ const TripPlannerPage = () => {
 
     const hasMore = page + 1 < totalPages;
 
-    const fetchTripPlans = useCallback(async (): Promise<void> => {
+    const fetchAllTripPlan = useCallback(async (): Promise<void> => {
         setIsLoading(true);
+
         try {
             if (keyword) {
                 const response = await getTripPlan({ keyword });
-                setTripPlans(response ? [response] : []);
+                setAllTripPlan(response ? [response] : []);
                 setPage(0);
                 setTotalPages(1);
             } else {
@@ -64,13 +65,13 @@ const TripPlannerPage = () => {
                     page: 0,
                     size: TRIP_PLAN_PAGE_SIZE,
                 });
-                setTripPlans(response.content);
+                setAllTripPlan(response.content);
                 setPage(0);
                 setTotalPages(response.totalPages);
             }
         } catch (error) {
             if (keyword) {
-                setTripPlans([]);
+                setAllTripPlan([]);
                 setPage(0);
                 setTotalPages(0);
             } else {
@@ -85,8 +86,8 @@ const TripPlannerPage = () => {
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        fetchTripPlans();
-    }, [fetchTripPlans]);
+        fetchAllTripPlan();
+    }, [fetchAllTripPlan]);
 
     const debouncedSetKeyword = useMemo(
         () =>
@@ -107,14 +108,13 @@ const TripPlannerPage = () => {
         if (isLoadingMore) return;
 
         const nextPage = page + 1;
-
         setIsLoadingMore(true);
         try {
             const response = await getAllTripPlanPaginated({
                 page: nextPage,
                 size: TRIP_PLAN_PAGE_SIZE,
             });
-            setTripPlans((prev) => [...prev, ...response.content]);
+            setAllTripPlan((prev) => [...prev, ...response.content]);
             setPage(nextPage);
             setTotalPages(response.totalPages);
         } catch (error) {
@@ -130,12 +130,15 @@ const TripPlannerPage = () => {
         if (!deletingTripPlan) return;
 
         setIsDeleting(true);
+
         try {
-            const { message } = await deleteTripPlan({
+            const response = await deleteTripPlan({
                 tripPlanId: deletingTripPlan.id,
             });
-            enqueueSnackbar(message || "旅程刪除成功！", { variant: "success" });
-            setTripPlans((prev) =>
+            enqueueSnackbar(response.message || "旅程刪除成功！", {
+                variant: "success",
+            });
+            setAllTripPlan((prev) =>
                 prev.filter((plan) => plan.id !== deletingTripPlan.id)
             );
             setDeletingTripPlan(null);
@@ -161,7 +164,7 @@ const TripPlannerPage = () => {
     };
 
     const handleTripPlanSaved = (tripPlan: TripPlan, isNew: boolean): void => {
-        setTripPlans((prev) =>
+        setAllTripPlan((prev) =>
             isNew
                 ? [tripPlan, ...prev]
                 : prev.map((plan) => (plan.id === tripPlan.id ? tripPlan : plan))
@@ -170,7 +173,7 @@ const TripPlannerPage = () => {
     };
 
     const handleTripPlanUpdated = (tripPlan: TripPlan): void => {
-        setTripPlans((prev) =>
+        setAllTripPlan((prev) =>
             prev.map((plan) => (plan.id === tripPlan.id ? tripPlan : plan))
         );
     };
@@ -186,7 +189,6 @@ const TripPlannerPage = () => {
             }}
         >
             <Typography variant='h5'>旅程規劃</Typography>
-
             <Stack
                 direction='row'
                 sx={{
@@ -194,14 +196,14 @@ const TripPlannerPage = () => {
                     justifyContent: "space-between",
                 }}
             >
-                {/* Search */}
+                {/* 搜尋欄 */}
                 <SearchInput
                     searchTerm={inputValue}
                     onChange={handleSearch}
                     placeholder='請輸入旅程名稱搜尋'
                 />
 
-                {/* Button: Create trip plan */}
+                {/* 新增旅程按鈕 */}
                 <Button
                     variant='contained'
                     startIcon={<AddIcon />}
@@ -210,12 +212,12 @@ const TripPlannerPage = () => {
                     新增旅程
                 </Button>
             </Stack>
-
-            {isLoading && tripPlans.length === 0 ? (
+            {/* 顯示旅程結果畫面 */}
+            {isLoading && allTripPlan.length === 0 ? (
                 <Stack sx={{ alignItems: "center", py: 4 }}>
                     <CircularProgress size='1.5rem' />
                 </Stack>
-            ) : tripPlans.length === 0 ? (
+            ) : allTripPlan.length === 0 ? (
                 <Typography
                     variant='body2'
                     color='text.secondary'
@@ -232,7 +234,7 @@ const TripPlannerPage = () => {
                             gap: 2,
                         }}
                     >
-                        {tripPlans.map((tripPlan) => (
+                        {allTripPlan.map((tripPlan) => (
                             <TripPlanCard
                                 key={tripPlan.id}
                                 tripPlan={tripPlan}
@@ -242,7 +244,7 @@ const TripPlannerPage = () => {
                             />
                         ))}
                     </Box>
-
+                    {/* 載入更多按鈕 */}
                     {hasMore && (
                         <Stack
                             sx={{
@@ -277,7 +279,7 @@ const TripPlannerPage = () => {
                     )}
                 </Stack>
             )}
-
+            {/* 刪除旅程對話框 */}
             <DeleteDialog
                 title={deletingTripPlan?.name ?? ""}
                 isOpen={!!deletingTripPlan}
@@ -289,8 +291,8 @@ const TripPlannerPage = () => {
                     確定要刪除這筆旅程規劃嗎？此操作無法復原。
                 </Typography>
             </DeleteDialog>
-
-            <TripPlanFormDialog
+            {/* 旅程新增與編輯對話框 */}
+            <TripPlanEditorDialog
                 key={formDialogSessionId}
                 isOpen={isFormDialogOpen}
                 onClose={() => setIsFormDialogOpen(false)}
@@ -301,4 +303,4 @@ const TripPlannerPage = () => {
     );
 };
 
-export default TripPlannerPage;
+export default TripPlanPage;

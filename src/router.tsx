@@ -19,7 +19,7 @@ import NotAuthorizedPage from "@/pages/auth/NotAuthorizedPage";
 import HomePage from "@/pages/HomePage";
 import SettingPage from "@/pages/user/SettingPage";
 import MetroMapPage from "@/pages/metroMap/MetroMapPage";
-import TripPlannerPage from "@/pages/tripPlan/TripPlannerPage";
+import TripPlanPage from "@/pages/tripPlan/TripPlanPage";
 import StationBookmarkPage from "@/pages/stationBookmark/StationBookmarkPage";
 import ChatRoomPage from "@/pages/stationChat/StationChatPage";
 import UserPermissionPage from "@/pages/admin/UserPermissionPage";
@@ -126,7 +126,7 @@ const mainRoutes = {
     },
     {
       path: "trip-planner",
-      element: <TripPlannerPage />,
+      element: <TripPlanPage />,
       loader: requireAuthLoader,
     },
     {

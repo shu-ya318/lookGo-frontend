@@ -54,7 +54,7 @@ const fieldLabelMap: { name: keyof FormData; label: string }[] = [
 interface UpdateStationDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  stationId: string | null;
+  stationId: number | null;
   onSuccess: () => Promise<void>;
 }
 
@@ -120,7 +120,7 @@ export const UpdateStationDialog = ({
 
     try {
       const { message } = await updateStation({
-        id: Number(stationId),
+        id: stationId,
         ...data,
       });
       enqueueSnackbar(message || "車站資訊修改成功！", {

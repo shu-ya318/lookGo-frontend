@@ -94,7 +94,7 @@ const StationManagementPage = () => {
   );
   const [isFacilityLoading, setIsFacilityLoading] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editStationId, setEditStationId] = useState<string | null>(null);
+  const [editStationId, setEditStationId] = useState<number | null>(null);
   const [syncingKey, setSyncingKey] = useState<MetroSyncKey | null>(null);
 
   const selectedRows =
@@ -103,7 +103,7 @@ const StationManagementPage = () => {
       : rows.filter((row) => !rowSelectionModel.ids.has(row.id));
   const selectedCount = selectedRows.length;
 
-  const handleEdit = (id: string) => {
+  const handleEdit = (id: number) => {
     setEditStationId(id);
     setEditDialogOpen(true);
   };
@@ -113,7 +113,7 @@ const StationManagementPage = () => {
     setEditStationId(null);
   };
 
-  const handleOpenFacilityDialog = useCallback(async (id: string) => {
+  const handleOpenFacilityDialog = useCallback(async (id: number) => {
     setFacilityDialogOpen(true);
     setIsFacilityLoading(true);
     try {

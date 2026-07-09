@@ -93,7 +93,7 @@ const UserPermissionPage = () => {
   };
 
   const handleToggleStatus = useCallback(
-    async (userId: string, currentStatus: UserStatus): Promise<void> => {
+    async (userId: number, currentStatus: UserStatus): Promise<void> => {
       const newStatus = currentStatus === "ACTIVE" ? "DISABLED" : "ACTIVE";
 
       try {
@@ -203,7 +203,7 @@ const UserPermissionPage = () => {
               color={isActive ? "error" : "success"}
               disabled={isAdmin}
               onClick={() =>
-                handleToggleStatus(String(params.row.id), params.row.status)
+                handleToggleStatus(params.row.id, params.row.status)
               }
             >
               {isActive ? "禁用" : "重啟"}

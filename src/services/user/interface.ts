@@ -40,7 +40,7 @@ export interface GetAllUserRequest {
 }
 
 export interface UpdateStatusRequest {
-    userId: string;
+    userId: number;
     status: UserStatus;
 }
 

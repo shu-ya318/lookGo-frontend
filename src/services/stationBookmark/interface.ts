@@ -31,7 +31,7 @@ export interface CreateStationBookmarkRequest {
 // Delete Station Bookmark
 
 export interface DeleteStationBookmarkRequest {
-    bookmarkId: string;
+    bookmarkId: number;
 }
 
 export interface DeleteStationBookmarkResponse {

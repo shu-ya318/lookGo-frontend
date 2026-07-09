@@ -115,11 +115,11 @@ export type GetAllLineStationResponse = LineStation[];
 // Station By Id
 
 export interface GetStationByIdRequest {
-    id: string;
+    id: number;
 }
 
 export interface Station {
-    id: string;
+    id: number;
     nameZhTw: string;
     nameEn: string;
     atm: string;
@@ -143,7 +143,7 @@ export interface GetAllStationPaginatedRequest {
 }
 
 export interface StationSummary {  // 僅摘要資訊
-    id: string;
+    id: number;
     nameZhTw: string;
     nameEn: string;
     updatedAt: string;
@@ -154,7 +154,7 @@ export type GetAllStationPaginatedResponse = PageResponse<StationSummary>;
 // All Station Id Option
 
 export interface StationIdOption {
-    id: string;
+    id: number;
     nameZhTw: string;
 }
 

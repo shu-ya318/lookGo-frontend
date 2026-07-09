@@ -58,7 +58,7 @@ export const useStationBookmarkStore = create<StationBookmarkState>((set, get) =
 
     try {
       if (existing) {
-        await deleteStationBookmark({ bookmarkId: existing.id.toString() });
+        await deleteStationBookmark({ bookmarkId: existing.id });
         set({
           bookmarks: get().bookmarks.filter(
             bookmark => bookmark.id !== existing.id

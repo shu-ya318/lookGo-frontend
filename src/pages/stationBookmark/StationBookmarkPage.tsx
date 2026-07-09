@@ -35,7 +35,7 @@ const StationBookmarkPage = () => {
   const [keyword, setKeyword] = useState("");
   const [allStationBookmark, setAllStationBookmark] = useState<StationBookmark[]>([]);
   const [page, setPage] = useState(0);
-  const [totalPage, setTotalPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [deletingBookmark, setDeletingBookmark] =
@@ -43,7 +43,7 @@ const StationBookmarkPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isExportingExcel, setIsExportingExcel] = useState(false);
 
-  const hasMore = page + 1 < totalPage;
+  const hasMore = page + 1 < totalPages;
 
   const fetchAllStationBookmark = useCallback(async (): Promise<void> => {
     setIsLoading(true);
@@ -55,7 +55,7 @@ const StationBookmarkPage = () => {
         });
         setAllStationBookmark(response ? [response] : []);
         setPage(0);
-        setTotalPage(1);
+        setTotalPages(1);
       } else {
         const response = await getAllStationBookmarkPaginated({
           page: 0,
@@ -63,13 +63,13 @@ const StationBookmarkPage = () => {
         });
         setAllStationBookmark(response.content);
         setPage(0);
-        setTotalPage(response.totalPages);
+        setTotalPages(response.totalPages);
       }
     } catch (error) {
       if (keyword) {
         setAllStationBookmark([]);
         setPage(0);
-        setTotalPage(0);
+        setTotalPages(0);
       } else {
         enqueueSnackbar((error as string) || "取得車站書籤失敗", {
           variant: "error",
@@ -113,7 +113,7 @@ const StationBookmarkPage = () => {
       });
       setAllStationBookmark((prev) => [...prev, ...response.content]);
       setPage(nextPage);
-      setTotalPage(response.totalPages);
+      setTotalPages(response.totalPages);
     } catch (error) {
       enqueueSnackbar((error as string) || "載入更多車站書籤失敗", {
         variant: "error",
@@ -130,7 +130,7 @@ const StationBookmarkPage = () => {
 
     try {
       const response = await deleteStationBookmark({
-        bookmarkId: deletingBookmark.id.toString(),
+        bookmarkId: deletingBookmark.id,
       });
       enqueueSnackbar(response.message || "車站書籤刪除成功", { variant: "success" });
       setDeletingBookmark(null);

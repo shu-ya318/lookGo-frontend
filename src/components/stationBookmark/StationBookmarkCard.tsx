@@ -76,7 +76,7 @@ export const BookmarkStationCard = ({
 
     try {
       const result = await getStationById({
-        id: bookmark.stationId.toString(),
+        id: bookmark.stationId,
       });
       setFacilityStation(result);
     } catch (error) {

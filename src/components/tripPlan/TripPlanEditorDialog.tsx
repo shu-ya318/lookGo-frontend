@@ -16,6 +16,12 @@ import { StationAutocomplete } from "@/components/StationAutocomplete";
 import { useMetroMapStore } from "@/stores/metroMapStore";
 
 import { getOriginDestinationDetails, getStationByCode } from "@/services/metro";
+
+import {
+  createTripPlan,
+  updateTripPlan,
+  updateTripPlanName,
+} from "@/services/tripPlan";
 import {
   FARE_TYPE_LABELS,
   FARE_TYPE_OPTIONS,
@@ -24,12 +30,6 @@ import {
   type FareType,
   type RoutingStrategy,
 } from "@/services/metro/types";
-import {
-  createTripPlan,
-  updateTripPlan,
-  updateTripPlanName,
-} from "@/services/tripPlan";
-
 import type { StationOption } from "@/services/metro/interface";
 import type { TripPlan } from "@/services/tripPlan/interface";
 
@@ -60,10 +60,10 @@ const resolveStationId = async (
   station: StationOption
 ): Promise<number | null> => {
   try {
-    const details = await getStationByCode({
+    const response = await getStationByCode({
       stationCode: station.stationCode,
     });
-    return details.id;
+    return response.id;
   } catch (error) {
     enqueueSnackbar((error as string) || "取得車站資訊失敗", {
       variant: "error",
@@ -94,19 +94,19 @@ function RequiredFieldLabel({
   );
 }
 
-interface TripPlanFormDialogProps {
+interface TripPlanEditorDialogProps {
   isOpen: boolean;
   onClose: () => void;
   tripPlan: TripPlan | null;
   onSaved: (tripPlan: TripPlan, isNew: boolean) => void;
 }
 
-export function TripPlanFormDialog({
+export function TripPlanEditorDialog({
   isOpen,
   onClose,
   tripPlan,
   onSaved,
-}: TripPlanFormDialogProps): React.ReactElement {
+}: TripPlanEditorDialogProps): React.ReactElement {
   const isEditMode = tripPlan !== null;
 
   const stationOptions = useMetroMapStore((state) => state.stationOptions);
