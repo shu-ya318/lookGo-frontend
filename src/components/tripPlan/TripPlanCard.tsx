@@ -74,7 +74,7 @@ export function TripPlanCard({
     setIsNameDialogOpen(false);
   };
 
-  const handleExportExcel = async (): Promise<void> => {
+  const handleExportExcel = async () => {
     setIsExportingExcel(true);
     try {
       const blob = await getTripPlanExcel({ tripPlanId: tripPlan.id });

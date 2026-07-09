@@ -78,7 +78,7 @@ export const useAnnouncements = (
     }, [selectedStation]);
 
     // 供新增／編輯／刪除公告成功後重新載入第一頁
-    const refetchAnnouncements = useCallback(async (): Promise<void> => {
+    const refetchAnnouncements = useCallback(async () => {
         if (!selectedStation) return;
 
         try {
@@ -99,7 +99,7 @@ export const useAnnouncements = (
         }
     }, [selectedStation]);
 
-    const handleLoadMoreAnnouncements = async (): Promise<void> => {
+    const handleLoadMoreAnnouncements = async () => {
         if (!selectedStation || isLoadingMoreAnnouncements) return;
 
         const nextPage = announcementPage + 1;

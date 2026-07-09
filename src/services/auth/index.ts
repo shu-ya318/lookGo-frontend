@@ -22,7 +22,7 @@ export const refreshTokens = async (): Promise<AuthResponse> => {
   return await postRequest<AuthResponse>("/auth/refresh-tokens");
 };
 
-export const logout = async (): Promise<void> => {
+export const logout = async () => {
   await postRequest("/auth/log-out");
 };
 

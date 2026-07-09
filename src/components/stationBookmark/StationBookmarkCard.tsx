@@ -68,7 +68,7 @@ export const BookmarkStationCard = ({
     [lines, bookmark.stationId]
   );
 
-  const handleOpenFacilityDialog = async (): Promise<void> => {
+  const handleOpenFacilityDialog = async () => {
     setIsFacilityDialogOpen(true);
 
     // 已載入過的設備資訊直接沿用，避免重複請求

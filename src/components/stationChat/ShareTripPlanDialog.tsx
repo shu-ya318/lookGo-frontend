@@ -54,7 +54,7 @@ export const ShareTripPlanDialog = ({
         };
     }, [isOpen]);
 
-    const handleShare = async (): Promise<void> => {
+    const handleShare = async () => {
         if (!selectedName) return;
 
         setIsSharing(true);

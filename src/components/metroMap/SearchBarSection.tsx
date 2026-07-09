@@ -82,6 +82,7 @@ export const SearchBarSection = () => {
     setSearchParams({}, { replace: true });
   }, [allStations, searchParams, setSearchParams, selectAndFetchStation]);
 
+  // 判斷使用者只選擇單一車站或起訖車站，並設定對應的搜尋行為
   const hasStartStation = startStation !== null;
   const hasEndStation = endStation !== null;
   const isSingleStationMode = hasStartStation && !hasEndStation;
@@ -94,7 +95,7 @@ export const SearchBarSection = () => {
       ? `已選起始站「${formatStationLabel(startStation)}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
       : `已選起訖站，可查詢路徑（${formatStationLabel(startStation)} → ${formatStationLabel(endStation!)}）`;
 
-  const handleToggleEquipment = (value: StationFacility): void => {
+  const handleToggleEquipment = (value: StationFacility) => {
     setAdvancedFilters((prev) => {
       const updated = prev.equipment.includes(value)
         ? prev.equipment.filter((v) => v !== value)
@@ -106,21 +107,21 @@ export const SearchBarSection = () => {
     });
   };
 
-  const handleSelectFare = (value: FareType): void => {
+  const handleSelectFare = (value: FareType) => {
     setAdvancedFilters((prev) => ({
       ...prev,
       fare: prev.fare === value ? null : value,
     }));
   };
 
-  const handleSelectTime = (value: RoutingStrategy): void => {
+  const handleSelectTime = (value: RoutingStrategy) => {
     setAdvancedFilters((prev) => ({
       ...prev,
       routingStrategy: prev.routingStrategy === value ? null : value,
     }));
   };
 
-  const handleSearch = async (): Promise<void> => {
+  const handleSearch = async () => {
     if (!startStation) return;
 
     // 單站查詢模式：呼叫單站詳細資訊 API（與點擊地圖車站行為一致）
@@ -133,12 +134,10 @@ export const SearchBarSection = () => {
 
     clearSelection();
 
-    // 使用者選取的票種（預設全票）
-    const fareType: FareType = advancedFilters.fare ?? FareType.FULL;
-
-    // 使用者選取的路線策略（預設最少轉乘）
-    const routingStrategy: RoutingStrategy =
-      advancedFilters.routingStrategy ?? RoutingStrategy.MIN_TRANSFER;
+    // 使用者選取的票價種類（預設全票）
+    const fareType = advancedFilters.fare ?? FareType.FULL;
+    // 使用者選取的路線策略（預設最少轉乘時間）
+    const routingStrategy = advancedFilters.routingStrategy ?? RoutingStrategy.MIN_TRANSFER;
 
     await fetchRoute({
       fromStationCode: startStation.stationCode,

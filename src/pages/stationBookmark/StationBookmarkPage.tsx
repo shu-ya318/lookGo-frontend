@@ -48,7 +48,7 @@ const StationBookmarkPage = () => {
 
   const hasMore = page + 1 < totalPages;
 
-  const fetchAllStationBookmark = useCallback(async (): Promise<void> => {
+  const fetchAllStationBookmark = useCallback(async () => {
     setIsLoading(true);
 
     try {

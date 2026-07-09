@@ -17,7 +17,7 @@ export const useExportChatExcel = (
 ): UseExportChatExcelResult => {
     const [isExportingExcel, setIsExportingExcel] = useState(false);
 
-    const handleExportExcel = async (): Promise<void> => {
+    const handleExportExcel = async () => {
         if (!selectedStation) return;
 
         setIsExportingExcel(true);

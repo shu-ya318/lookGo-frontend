@@ -122,7 +122,7 @@ export const useChatMessages = (
         };
     }, [selectedStation, scrollToBottom]);
 
-    const handleLoadMoreMessages = async (): Promise<void> => {
+    const handleLoadMoreMessages = async () => {
         if (!selectedStation || isLoadingMore) return;
 
         const container = messageListRef.current;

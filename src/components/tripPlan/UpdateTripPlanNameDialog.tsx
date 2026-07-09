@@ -29,17 +29,18 @@ export function UpdateTripPlanNameDialog({
   const [name, setName] = useState(tripPlan.name);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async (): Promise<void> => {
+  const handleSave = async () => {
     if (!name.trim()) return;
 
     setIsSaving(true);
+
     try {
-      const updated = await updateTripPlanName({
+      const response = await updateTripPlanName({
         tripPlanId: tripPlan.id,
         name: name.trim(),
       });
       enqueueSnackbar("旅程名稱更新成功！", { variant: "success" });
-      onSaved(updated);
+      onSaved(response);
     } catch (error) {
       enqueueSnackbar((error as string) || "旅程名稱更新失敗", {
         variant: "error",

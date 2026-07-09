@@ -46,7 +46,7 @@ const SettingPage = () => {
   const userInfo = useUserStore((state) => state.userInfo);
 
   useEffect(() => {
-    const fetchUserInfo = async (): Promise<void> => {
+    const fetchUserInfo = async () => {
       try {
         const user = await getCurrentUser();
         useUserStore.setState({ userInfo: user });
@@ -65,7 +65,7 @@ const SettingPage = () => {
   const [isCellphoneDialogOpen, setIsCellphoneDialogOpen] = useState(false);
   const [isBirthDateDialogOpen, setIsBirthDateDialogOpen] = useState(false);
 
-  const refreshUserInfo = async (): Promise<void> => {
+  const refreshUserInfo = async () => {
     const user = await getCurrentUser();
     useUserStore.setState({ userInfo: user });
   };

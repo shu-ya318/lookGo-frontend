@@ -84,7 +84,7 @@ const StationChatPage = () => {
         setIsShareTripPlanOpen(false);
     };
 
-    const handleDeleteAnnouncement = async (): Promise<void> => {
+    const handleDeleteAnnouncement = async () => {
         if (!deletingAnnouncement) return;
 
         setIsDeletingAnnouncement(true);
