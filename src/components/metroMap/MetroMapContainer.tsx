@@ -6,11 +6,12 @@ import Typography from '@mui/material/Typography';
 
 import { useMetroMapStore } from '@/stores/metroMapStore';
 import { useStationStore } from '@/stores/stationStore';
-import type { MetroMapLine, MetroMapStation } from '@/services/metro/interface';
+
 import { MetroMapImageViewer } from './MetroMapImageViewer';
+import { RouteResultCard } from './RouteResultCard';
 import { StationInfoCard } from './StationInfoCard';
 
-export function MetroMapContainer(): React.ReactElement {
+export const MetroMapContainer = () => {
   const { lines, isLoading, error, fetchMetroMap, routeResult, clearRoute } = useMetroMapStore();
   const currentStationCode = useStationStore((state) => state.currentStationCode);
   const clearSelection = useStationStore((state) => state.clearSelection);
@@ -19,8 +20,9 @@ export function MetroMapContainer(): React.ReactElement {
     fetchMetroMap();
   }, [fetchMetroMap]);
 
-  let selectedStation: MetroMapStation | null = null;
-  let selectedLine: MetroMapLine | null = null;
+  // 遍歷方式，透過車站代碼找到對應的路線與車站資料，找到就停止搜尋，不用找其他路線
+  let selectedStation = null;
+  let selectedLine = null;
   if (currentStationCode) {
     for (const line of lines) {
       const station = line.stations.find((station) => station.stationCode === currentStationCode);
@@ -32,6 +34,7 @@ export function MetroMapContainer(): React.ReactElement {
     }
   }
 
+  {/* 資料載入中的提示畫面 */ }
   if (isLoading) {
     return (
       <Box
@@ -46,12 +49,13 @@ export function MetroMapContainer(): React.ReactElement {
       >
         <CircularProgress />
         <Typography variant='body2' color='text.secondary'>
-          路網資料載入中…
+          路網圖資料載入中…
         </Typography>
       </Box>
     );
   }
 
+  {/* 資料載入失敗的提示畫面 */ }
   if (error) {
     return (
       <Box
@@ -63,15 +67,18 @@ export function MetroMapContainer(): React.ReactElement {
         }}
       >
         <Typography variant='body2' color='error'>
-          路網資料載入失敗，請重新整理頁面
+          路網圖資料載入失敗，請重新整理頁面嘗試
         </Typography>
       </Box>
     );
   }
 
+  {/* 資料載入成功的顯示畫面 */ }
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+      {/* 顯示路網圖與可點擊區域 */}
       <MetroMapImageViewer lines={lines} />
+      {/* 顯示選取車站的資訊 */}
       {selectedStation && selectedLine && (
         <StationInfoCard
           station={selectedStation}
@@ -80,11 +87,9 @@ export function MetroMapContainer(): React.ReactElement {
           onClose={clearSelection}
         />
       )}
+      {/* 顯示起訖車站查詢結果的資訊 */}
       {!selectedStation && routeResult && (
-        <StationInfoCard
-          routeResult={routeResult}
-          onClose={clearRoute}
-        />
+        <RouteResultCard routeResult={routeResult} onClose={clearRoute} />
       )}
     </Box>
   );

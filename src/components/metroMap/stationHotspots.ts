@@ -1,4 +1,4 @@
-// 座標系：trtc_map.jpg 原始尺寸 5669 × 7710 px
+// 座標系：依據 trtc_map.jpg 原始尺寸 5669 × 7710 px
 export const STATION_PERCENT_POSITIONS: Record<string, { x: number; y: number }> = {
     // 淡水信義線 (R)  — 來源：image-map.net coords，Center = (X1+X2)/2, (Y1+Y2)/2
     "R28": { x: 762, y: 1192 }, "R27": { x: 922, y: 1422 }, "R26": { x: 924, y: 1667 },

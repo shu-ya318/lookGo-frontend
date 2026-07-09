@@ -26,12 +26,11 @@ export const useStationStore = create<StationState>((set) => ({
 
     try {
       const { selectedFacilities } = useMetroMapStore.getState();
-      const details = await getStationByCode({
+      const response = await getStationByCode({
         stationCode,
         stationFacilities: selectedFacilities.length > 0 ? selectedFacilities : undefined,
       });
-
-      set({ stationDetails: details });
+      set({ stationDetails: response });
     } catch (error) {
       set({ error: handleApiError(error) });
     } finally {

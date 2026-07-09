@@ -41,17 +41,16 @@ export const useMetroMapStore = create<MetroMapState>((set, get) => ({
   selectedFacilities: [],
 
   fetchMetroMap: async () => {
-    // 各頁面共用同一份路網資料快取，已載入過就不重複 fetch
     if (get().lines.length > 0) return;
 
     set({ isLoading: true, error: null });
 
     try {
-      const { lines } = await getMetroMap();
+      const response = await getMetroMap();
       const seen = new Set<string>();
       const allStations: MetroMapStation[] = [];
 
-      for (const line of lines) {
+      for (const line of response.lines) {
         for (const station of line.stations) {
           if (!seen.has(station.stationCode)) {
             seen.add(station.stationCode);
@@ -59,24 +58,23 @@ export const useMetroMapStore = create<MetroMapState>((set, get) => ({
           }
         }
       }
-      set({ lines, allStations });
-    } catch (err) {
-      set({ error: err as string });
+      set({ lines: response.lines, allStations });
+    } catch (error) {
+      set({ error: error as string });
     } finally {
       set({ isLoading: false });
     }
   },
 
   fetchStationOptions: async () => {
-    // 各頁面共用同一份車站選項快取，已載入過就不重複 fetch
     if (get().stationOptions.length > 0) return;
 
     set({ isStationOptionsLoading: true });
     try {
-      const options = await getAllStationOption();
-      set({ stationOptions: options });
-    } catch (err) {
-      enqueueSnackbar((err as string) || '取得車站選項失敗', { variant: 'error' });
+      const response = await getAllStationOption();
+      set({ stationOptions: response });
+    } catch (error) {
+      enqueueSnackbar((error as string) || '取得車站選項失敗', { variant: 'error' });
     } finally {
       set({ isStationOptionsLoading: false });
     }
@@ -84,11 +82,12 @@ export const useMetroMapStore = create<MetroMapState>((set, get) => ({
 
   fetchRoute: async (request) => {
     set({ isRouteLoading: true });
+
     try {
-      const result = await getOriginDestinationDetails(request);
-      set({ routeResult: result });
-    } catch (err) {
-      enqueueSnackbar((err as string) || '路徑查詢失敗', { variant: 'error' });
+      const response = await getOriginDestinationDetails(request);
+      set({ routeResult: response });
+    } catch (error) {
+      enqueueSnackbar((error as string) || '路徑查詢失敗', { variant: 'error' });
     } finally {
       set({ isRouteLoading: false });
     }

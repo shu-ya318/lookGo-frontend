@@ -1,15 +1,16 @@
 import { useRef, useEffect } from "react";
 import { select } from "d3-selection";
-import { zoom, type ZoomBehavior } from "d3-zoom";
+import { zoom } from "d3-zoom";
 import "d3-transition";
 
 import Box from "@mui/material/Box";
 
-import metroMapImg from "../../assets/trtc_map.jpg";
 import { useStationStore } from "@/stores/stationStore";
 import { STATION_PERCENT_POSITIONS } from "./stationHotspots";
 
 import type { MetroMapLine } from "@/services/metro/interface";
+
+import metroMapImg from "../../assets/trtc_map.jpg";
 
 const MAP_BASE_WIDTH = 5669;
 const MAP_BASE_HEIGHT = 7710;
@@ -18,20 +19,22 @@ interface Props {
   lines: MetroMapLine[];
 }
 
-export function MetroMapImageViewer({ lines }: Props): React.ReactElement {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const gRef = useRef<SVGGElement>(null);
-
+export const MetroMapImageViewer = ({ lines }: Props) => {
   const selectAndFetchStation = useStationStore(
     (state) => state.selectAndFetchStation
   );
 
+  // 取得 DOM 節點讓 d3.js 去綁定事件，另外也避免頻繁拖曳、縮放時觸發重新渲染
+  const svgRef = useRef<SVGSVGElement>(null);
+  const gRef = useRef<SVGGElement>(null);
+
+  // 自動處理拖曳、縮放操作
   useEffect(() => {
     const svgEl = svgRef.current;
     const gEl = gRef.current;
     if (!svgEl || !gEl) return;
 
-    const zoomBehavior: ZoomBehavior<SVGSVGElement, unknown> = zoom<
+    const zoomBehavior = zoom<
       SVGSVGElement,
       unknown
     >()
