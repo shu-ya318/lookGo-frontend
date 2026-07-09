@@ -1,22 +1,22 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import * as XLSX from "xlsx";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import * as XLSX from 'xlsx';
 
-import Alert from "@mui/material/Alert";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import { DataGrid } from "@mui/x-data-grid";
-import { enqueueSnackbar } from "notistack";
+import Alert from '@mui/material/Alert';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { DataGrid } from '@mui/x-data-grid';
+import { enqueueSnackbar } from 'notistack';
 
-import { Dialog } from "@/components/Dialog";
-import { StationAutocomplete } from "@/components/StationAutocomplete";
-import { UpdateStationDialog } from "@/components/admin/UpdateStationDialog";
-import { getAllStationPaginated, getStationById } from "@/services/metro";
-import { FACILITY_DETAIL_LABELS } from "@/services/metro/types";
+import { Dialog } from '@/components/Dialog';
+import { StationAutocomplete } from '@/components/StationAutocomplete';
+import { UpdateStationDialog } from '@/components/admin/UpdateStationDialog';
+import { getAllStationPaginated, getStationById } from '@/services/metro';
+import { FACILITY_DETAIL_LABELS } from '@/services/metro/types';
 import {
   syncAllLine,
   syncAllLineStation,
@@ -24,35 +24,35 @@ import {
   syncAllLineTransfer,
   syncAllStation,
   syncAllStationFare,
-} from "@/services/metroSync";
-import { formatDateTime } from "@/utils/date";
+} from '@/services/metroSync';
+import { formatDateTime } from '@/utils/date';
 
 import type {
   GridColDef,
   GridRenderCellParams,
   GridRowSelectionModel,
-} from "@mui/x-data-grid";
-import type { MessageVO } from "@/services/metroSync/interface";
+} from '@mui/x-data-grid';
+import type { MessageVO } from '@/services/metroSync/interface';
 import type {
   Station,
   StationOption,
   StationSummary,
-} from "@/services/metro/interface";
+} from '@/services/metro/interface';
 
 const exportColumnMap: Record<string, string> = {
-  id: "ID",
-  nameZhTw: "中文站名",
-  nameEn: "英文站名",
-  updatedAt: "更新時間",
+  id: 'ID',
+  nameZhTw: '中文站名',
+  nameEn: '英文站名',
+  updatedAt: '更新時間',
 };
 
 type MetroSyncKey =
-  | "line"
-  | "lineTransfer"
-  | "station"
-  | "lineStation"
-  | "lineStationCumulativeTime"
-  | "stationFare";
+  | 'line'
+  | 'lineTransfer'
+  | 'station'
+  | 'lineStation'
+  | 'lineStationCumulativeTime'
+  | 'stationFare';
 
 const metroSyncItems: {
   key: MetroSyncKey;
@@ -60,19 +60,19 @@ const metroSyncItems: {
   note?: string;
   sync: () => Promise<MessageVO>;
 }[] = [
-    { key: "line", label: "路線", sync: syncAllLine },
-    { key: "lineTransfer", label: "路線換乘", sync: syncAllLineTransfer },
-    { key: "station", label: "車站", sync: syncAllStation },
-    { key: "lineStation", label: "路線車站", sync: syncAllLineStation },
+    { key: 'line', label: '路線', sync: syncAllLine },
+    { key: 'lineTransfer', label: '路線換乘', sync: syncAllLineTransfer },
+    { key: 'station', label: '車站', sync: syncAllStation },
+    { key: 'lineStation', label: '路線車站', sync: syncAllLineStation },
     {
-      key: "lineStationCumulativeTime",
-      label: "路線車站累計行駛時間",
+      key: 'lineStationCumulativeTime',
+      label: '路線車站累計行駛時間',
       sync: syncAllLineStationCumulativeTime,
     },
     {
-      key: "stationFare",
-      label: "票價",
-      note: "同步時間較長，請耐心等候",
+      key: 'stationFare',
+      label: '票價',
+      note: '同步時間較長，請耐心等候',
       sync: syncAllStationFare,
     },
   ];
@@ -87,7 +87,7 @@ const StationManagementPage = () => {
   });
   const [searchValue, setSearchValue] = useState<StationOption | null>(null);
   const [rowSelectionModel, setRowSelectionModel] =
-    useState<GridRowSelectionModel>({ type: "include", ids: new Set() });
+    useState<GridRowSelectionModel>({ type: 'include', ids: new Set() });
   const [facilityDialogOpen, setFacilityDialogOpen] = useState(false);
   const [facilityStation, setFacilityStation] = useState<Station | null>(
     null
@@ -98,7 +98,7 @@ const StationManagementPage = () => {
   const [syncingKey, setSyncingKey] = useState<MetroSyncKey | null>(null);
 
   const selectedRows =
-    rowSelectionModel.type === "include"
+    rowSelectionModel.type === 'include'
       ? rows.filter((row) => rowSelectionModel.ids.has(row.id))
       : rows.filter((row) => !rowSelectionModel.ids.has(row.id));
   const selectedCount = selectedRows.length;
@@ -120,8 +120,8 @@ const StationManagementPage = () => {
       const station = await getStationById({ id });
       setFacilityStation(station);
     } catch (error) {
-      enqueueSnackbar((error as string) || "取得設備資訊失敗", {
-        variant: "error",
+      enqueueSnackbar((error as string) || '取得設備資訊失敗', {
+        variant: 'error',
       });
       setFacilityDialogOpen(false);
     } finally {
@@ -139,11 +139,11 @@ const StationManagementPage = () => {
     try {
       const { message } = await item.sync();
       enqueueSnackbar(message || `${item.label}同步成功！`, {
-        variant: "success",
+        variant: 'success',
       });
     } catch (error) {
       enqueueSnackbar((error as string) || `${item.label}同步失敗！`, {
-        variant: "error",
+        variant: 'error',
       });
     } finally {
       setSyncingKey(null);
@@ -158,9 +158,9 @@ const StationManagementPage = () => {
       event.returnValue = "";
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () =>
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [syncingKey]);
 
   const syncingLabel = metroSyncItems.find(
@@ -173,45 +173,45 @@ const StationManagementPage = () => {
     const exportData = selectedRows.map((row) => {
       const mapped: Record<string, unknown> = {};
       for (const [key, header] of Object.entries(exportColumnMap)) {
-        mapped[header] = row[key as keyof StationSummary] ?? "-";
+        mapped[header] = row[key as keyof StationSummary] ?? '-';
       }
       return mapped;
     });
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "車站資訊");
-    XLSX.writeFile(workbook, "車站資訊.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, '車站資訊');
+    XLSX.writeFile(workbook, '車站資訊.xlsx');
   };
 
   const columns: GridColDef[] = useMemo(
     () => [
       {
-        field: "id",
-        headerName: "ID",
+        field: 'id',
+        headerName: 'ID',
       },
       {
-        field: "nameZhTw",
-        headerName: "中文站名",
+        field: 'nameZhTw',
+        headerName: '中文站名',
         flex: 1,
         minWidth: 120,
       },
       {
-        field: "nameEn",
-        headerName: "英文站名",
+        field: 'nameEn',
+        headerName: '英文站名',
         flex: 1.2,
         minWidth: 150,
       },
       {
-        field: "updatedAt",
-        headerName: "更新時間",
+        field: 'updatedAt',
+        headerName: '更新時間',
         flex: 1,
         minWidth: 160,
-        valueGetter: (value: string) => formatDateTime(value) || "-",
+        valueGetter: (value: string) => formatDateTime(value) || '-',
       },
       {
-        field: "facilities",
-        headerName: "設備資訊",
+        field: 'facilities',
+        headerName: '設備資訊',
         flex: 0.6,
         minWidth: 90,
         sortable: false,
@@ -226,8 +226,8 @@ const StationManagementPage = () => {
         ),
       },
       {
-        field: "actions",
-        headerName: "編輯資訊",
+        field: 'actions',
+        headerName: '編輯資訊',
         flex: 0.6,
         minWidth: 80,
         sortable: false,
@@ -253,8 +253,8 @@ const StationManagementPage = () => {
       setRows(content);
       setRowCount(totalElements);
     } catch (error) {
-      enqueueSnackbar((error as string) || "取得車站列表失敗", {
-        variant: "error",
+      enqueueSnackbar((error as string) || '取得車站列表失敗', {
+        variant: 'error',
       });
     } finally {
       setIsLoading(false);
@@ -274,37 +274,37 @@ const StationManagementPage = () => {
   return (
     <Stack
       sx={{
-        width: "100%",
-        maxWidth: "1280px",
-        margin: "3.75rem auto",
-        gap: "2rem",
-        justifyContent: "center",
+        width: '100%',
+        maxWidth: '1280px',
+        margin: '3.75rem auto',
+        gap: '2rem',
+        justifyContent: 'center',
       }}
     >
       <Typography variant='h5'>車站資訊管理</Typography>
       {/* 捷運資訊同步 */}
-      <Stack sx={{ gap: "0.625rem" }}>
-        <Typography sx={{ fontWeight: 700, fontSize: "1.25rem" }}>
+      <Stack sx={{ gap: '0.625rem' }}>
+        <Typography sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
           捷運資訊同步
         </Typography>
         {syncingKey && (
-          <Alert severity='warning' sx={{ maxWidth: "33.375rem" }}>
+          <Alert severity='warning' sx={{ maxWidth: '33.375rem' }}>
             正在同步「{syncingLabel}」，同步完成前請勿關閉或重新整理分頁
           </Alert>
         )}
-        <Stack sx={{ gap: "1.125rem", maxWidth: "33.375rem" }}>
+        <Stack sx={{ gap: '1.125rem', maxWidth: '33.375rem' }}>
           {metroSyncItems.map((item) => (
             <Stack
               key={item.key}
               direction='row'
-              sx={{ alignItems: "center", justifyContent: "space-between" }}
+              sx={{ alignItems: 'center', justifyContent: 'space-between' }}
             >
               <Stack>
-                <Typography sx={{ color: "text.secondary" }}>
+                <Typography sx={{ color: 'text.secondary' }}>
                   {item.label}
                 </Typography>
                 {item.note && (
-                  <Typography variant='caption' sx={{ color: "text.disabled" }}>
+                  <Typography variant='caption' sx={{ color: 'text.disabled' }}>
                     {item.note}
                   </Typography>
                 )}
@@ -323,14 +323,14 @@ const StationManagementPage = () => {
         </Stack>
       </Stack>
       {/* 車站資訊編輯 */}
-      <Typography sx={{ fontWeight: 700, fontSize: "1.25rem" }}>
+      <Typography sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
         車站資訊編輯
       </Typography>
       <Stack
         direction='row'
         sx={{
-          alignItems: "center",
-          justifyContent: "space-between",
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
         <StationAutocomplete
@@ -338,11 +338,11 @@ const StationManagementPage = () => {
           onChange={handleSearchChange}
           sx={{ width: 300 }}
         />
-        <Stack direction='row' sx={{ gap: "1rem", alignItems: "center" }}>
+        <Stack direction='row' sx={{ gap: '1rem', alignItems: 'center' }}>
           {selectedCount === 0 && (
             <Stack
               direction='row'
-              sx={{ alignItems: "center", gap: "0.25rem", color: "text.secondary" }}
+              sx={{ alignItems: 'center', gap: '0.25rem', color: 'text.secondary' }}
             >
               <InfoOutlinedIcon fontSize='small' />
               <Typography variant='body2'>請先勾選要匯出的車站</Typography>
@@ -380,17 +380,17 @@ const StationManagementPage = () => {
           },
         }}
         sx={{
-          ".MuiDataGrid-columnSeparator": { display: "none" },
-          ".MuiDataGrid-columnHeaderTitle": {
+          '.MuiDataGrid-columnSeparator': { display: 'none' },
+          '.MuiDataGrid-columnHeaderTitle': {
             fontWeight: 700,
-            lineHeight: "1.2",
-            whiteSpace: "normal",
-            wordBreak: "break-word",
+            lineHeight: '1.2',
+            whiteSpace: 'normal',
+            wordBreak: 'break-word',
           },
-          ".MuiDataGrid-cell": {
-            display: "flex",
-            alignItems: "center",
-            padding: "8px 16px",
+          '.MuiDataGrid-cell': {
+            display: 'flex',
+            alignItems: 'center',
+            padding: '8px 16px',
           },
         }}
       />
@@ -399,24 +399,24 @@ const StationManagementPage = () => {
         isOpen={facilityDialogOpen}
         onClose={handleCloseFacilityDialog}
         title={
-          facilityStation ? `${facilityStation.nameZhTw} 設備資訊` : "設備資訊"
+          facilityStation ? `${facilityStation.nameZhTw} 設備資訊` : '設備資訊'
         }
         width='24rem'
       >
         {isFacilityLoading || !facilityStation ? (
           <Typography>載入中...</Typography>
         ) : (
-          <Stack sx={{ gap: "0.75rem" }}>
+          <Stack sx={{ gap: '0.75rem' }}>
             {FACILITY_DETAIL_LABELS.map(({ key, label }) => (
               <Stack
                 key={key}
                 direction='row'
-                sx={{ justifyContent: "space-between" }}
+                sx={{ justifyContent: 'space-between' }}
               >
-                <Typography sx={{ color: "text.secondary" }}>
+                <Typography sx={{ color: 'text.secondary' }}>
                   {label}
                 </Typography>
-                <Typography>{facilityStation[key] || "-"}</Typography>
+                <Typography>{facilityStation[key] || '-'}</Typography>
               </Stack>
             ))}
           </Stack>

@@ -1,29 +1,29 @@
-import { createBrowserRouter, Navigate, redirect } from "react-router-dom";
+import { createBrowserRouter, Navigate, redirect } from 'react-router-dom';
 
-import { useAuthStore } from "./stores/authStore";
-import { useUserStore } from "./stores/userStore";
-import { AdminGuard } from "./AdminGuard";
+import { useAuthStore } from './stores/authStore';
+import { useUserStore } from './stores/userStore';
+import { AdminGuard } from './AdminGuard';
 
-import { getCurrentUser } from "@/services/user";
+import { getCurrentUser } from '@/services/user';
 
-import { AuthLayout } from "./layouts/AuthLayout";
-import { Layout } from "./layouts/Layout";
+import { AuthLayout } from './layouts/AuthLayout';
+import { Layout } from './layouts/Layout';
 
-import LoginPage from "@/pages/auth/LoginPage";
-import SignupPage from "@/pages/auth/SignupPage";
-import ForgetPasswordPage from "@/pages/auth/ForgetPasswordPage";
-import ResetPasswordPage from "@/pages/auth/ResetPasswordPage";
-import NotFoundPage from "@/pages/auth/NotFoundPage";
-import NotAuthorizedPage from "@/pages/auth/NotAuthorizedPage";
+import LoginPage from '@/pages/auth/LoginPage';
+import SignupPage from '@/pages/auth/SignupPage';
+import ForgetPasswordPage from '@/pages/auth/ForgetPasswordPage';
+import ResetPasswordPage from '@/pages/auth/ResetPasswordPage';
+import NotFoundPage from '@/pages/auth/NotFoundPage';
+import NotAuthorizedPage from '@/pages/auth/NotAuthorizedPage';
 
-import HomePage from "@/pages/HomePage";
-import SettingPage from "@/pages/user/SettingPage";
-import MetroMapPage from "@/pages/metroMap/MetroMapPage";
-import TripPlanPage from "@/pages/tripPlan/TripPlanPage";
-import StationBookmarkPage from "@/pages/stationBookmark/StationBookmarkPage";
-import ChatRoomPage from "@/pages/stationChat/StationChatPage";
-import UserPermissionPage from "@/pages/admin/UserPermissionPage";
-import StationManagementPage from "@/pages/admin/StationManagementPage";
+import HomePage from '@/pages/HomePage';
+import SettingPage from '@/pages/user/SettingPage';
+import MetroMapPage from '@/pages/metroMap/MetroMapPage';
+import TripPlanPage from '@/pages/tripPlan/TripPlanPage';
+import StationBookmarkPage from '@/pages/stationBookmark/StationBookmarkPage';
+import ChatRoomPage from '@/pages/stationChat/StationChatPage';
+import UserPermissionPage from '@/pages/admin/UserPermissionPage';
+import StationManagementPage from '@/pages/admin/StationManagementPage';
 
 const getAccessToken = () => useAuthStore.getState().accessToken;
 
@@ -37,14 +37,14 @@ const loadUserInfo = async () => {
 const requireAuthLoader = () => {
   const accessToken = getAccessToken();
   if (!accessToken) {
-    return redirect("/auth/login");
+    return redirect('/auth/login');
   }
 
   return null;
 };
 
 const authRoutes = {
-  path: "/auth",
+  path: '/auth',
   element: <AuthLayout />,
   loader: async () => {
     const accessToken = getAccessToken();
@@ -55,7 +55,7 @@ const authRoutes = {
     try {
       const userInfo = await getCurrentUser();
       if (userInfo) {
-        return redirect("/");
+        return redirect('/');
       }
 
       return null;
@@ -67,26 +67,26 @@ const authRoutes = {
   },
   children: [
     {
-      path: "login",
+      path: 'login',
       element: <LoginPage />,
     },
     {
-      path: "signup",
+      path: 'signup',
       element: <SignupPage />,
     },
     {
-      path: "forget-password",
+      path: 'forget-password',
       element: <ForgetPasswordPage />,
     },
     {
-      path: "reset-password",
+      path: 'reset-password',
       element: <ResetPasswordPage />,
     },
   ],
 };
 
 const mainRoutes = {
-  path: "/",
+  path: '/',
   element: <Layout />,
   loader: async () => {
     const accessToken = getAccessToken();
@@ -112,44 +112,44 @@ const mainRoutes = {
       element: <Navigate to='/home' replace />,
     },
     {
-      path: "home",
+      path: 'home',
       element: <HomePage />,
     },
     {
-      path: "network-map",
+      path: 'network-map',
       element: <MetroMapPage />,
     },
     {
-      path: "user-setting",
+      path: 'user-setting',
       element: <SettingPage />,
       loader: requireAuthLoader,
     },
     {
-      path: "trip-planner",
+      path: 'trip-planner',
       element: <TripPlanPage />,
       loader: requireAuthLoader,
     },
     {
-      path: "station-bookmark",
+      path: 'station-bookmark',
       element: <StationBookmarkPage />,
       loader: requireAuthLoader,
     },
     {
-      path: "station-chat-room",
+      path: 'station-chat-room',
       element: <ChatRoomPage />,
       loader: requireAuthLoader,
     },
     {
-      path: "admin",
+      path: 'admin',
       element: <AdminGuard />,
       loader: requireAuthLoader,
       children: [
         {
-          path: "user-management",
+          path: 'user-management',
           element: <UserPermissionPage />,
         },
         {
-          path: "station-management",
+          path: 'station-management',
           element: <StationManagementPage />,
         },
       ],
@@ -159,11 +159,11 @@ const mainRoutes = {
 
 const errorRoutes = [
   {
-    path: "/unauthorized",
+    path: '/unauthorized',
     element: <NotAuthorizedPage />,
   },
   {
-    path: "*",
+    path: '*',
     element: <NotFoundPage />,
   },
 ];

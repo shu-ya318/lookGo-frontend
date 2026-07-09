@@ -1,11 +1,11 @@
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
-import { FACILITY_DETAIL_LABELS } from "@/services/metro/types";
+import { FACILITY_DETAIL_LABELS } from '@/services/metro/types';
 
-import type { ReactNode } from "react";
-import type { FacilityDetailKey } from "@/services/metro/types";
-import type { StationDetails } from "@/services/metro/interface";
+import type { ReactNode } from 'react';
+import type { FacilityDetailKey } from '@/services/metro/types';
+import type { StationDetails } from '@/services/metro/interface';
 
 interface StationFacilityListProps {
   facilities: Pick<StationDetails, FacilityDetailKey>;
@@ -19,7 +19,7 @@ export function StationFacilityList({
 }: StationFacilityListProps): React.ReactElement | null {
   const availableFacilities = FACILITY_DETAIL_LABELS.filter(({ key }) => {
     const value = facilities[key];
-    return value != null && value !== "";
+    return value != null && value !== '';
   });
 
   if (availableFacilities.length === 0) return <>{emptyFallback}</>;
@@ -29,7 +29,7 @@ export function StationFacilityList({
       <Typography
         variant='caption'
         color='text.secondary'
-        sx={{ display: "block", mb: 0.75 }}
+        sx={{ display: 'block', mb: 0.75 }}
       >
         站內設施
       </Typography>
@@ -41,8 +41,8 @@ export function StationFacilityList({
               key={key}
               direction='row'
               sx={{
-                justifyContent: "space-between",
-                alignItems: "baseline",
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
               }}
             >
               <Typography
@@ -52,13 +52,13 @@ export function StationFacilityList({
               >
                 {label}
               </Typography>
-              {note.trim() !== "" && (
+              {note.trim() !== '' && (
                 <Typography
                   variant='caption'
                   sx={{
                     fontSize: 11,
                     fontWeight: 500,
-                    textAlign: "right",
+                    textAlign: 'right',
                     ml: 1,
                   }}
                 >

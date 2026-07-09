@@ -1,28 +1,28 @@
-import { useEffect } from "react";
-import { z } from "zod";
-import { Controller, useForm, type SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { enqueueSnackbar } from "notistack";
-import dayjs from "dayjs";
+import { useEffect } from 'react';
+import { z } from 'zod';
+import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { enqueueSnackbar } from 'notistack';
+import dayjs from 'dayjs';
 
-import Button from "@mui/material/Button";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import Stack from "@mui/material/Stack";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import Stack from '@mui/material/Stack';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-import { Dialog } from "@/components/Dialog";
-import { updateBirthDate } from "@/services/user";
-import { isValidDateFormat, isValidBirthDate } from "@/utils/validation";
+import { Dialog } from '@/components/Dialog';
+import { updateBirthDate } from '@/services/user';
+import { isValidDateFormat, isValidBirthDate } from '@/utils/validation';
 
 const formSchema = z.object({
   birthDate: z
     .string()
-    .min(1, "請選擇出生日期!")
-    .refine(isValidDateFormat, "出生日期格式必須為 yyyy-MM-dd!")
-    .refine(isValidBirthDate, "出生日期必須有效且不得大於今日!"),
+    .min(1, '請選擇出生日期!')
+    .refine(isValidDateFormat, '出生日期格式必須為 yyyy-MM-dd!')
+    .refine(isValidBirthDate, '出生日期必須有效且不得大於今日!'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -46,9 +46,9 @@ export const UpdateBirthDateDialog = ({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    defaultValues: { birthDate: "" },
+    defaultValues: { birthDate: '' },
     resolver: zodResolver(formSchema),
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export const UpdateBirthDateDialog = ({
 
   const handleClose = (): void => {
     onClose();
-    reset({ birthDate: "" });
+    reset({ birthDate: '' });
   };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
@@ -67,14 +67,14 @@ export const UpdateBirthDateDialog = ({
       const { successMessage } = await updateBirthDate({
         birthDate: data.birthDate,
       });
-      enqueueSnackbar(successMessage || "出生日期修改成功！", {
-        variant: "success",
+      enqueueSnackbar(successMessage || '出生日期修改成功！', {
+        variant: 'success',
       });
       handleClose();
       await onSuccess();
     } catch (error) {
-      enqueueSnackbar((error as string) || "出生日期修改失敗！", {
-        variant: "error",
+      enqueueSnackbar((error as string) || '出生日期修改失敗！', {
+        variant: 'error',
       });
     }
   };
@@ -89,7 +89,7 @@ export const UpdateBirthDateDialog = ({
           <Button
             variant='outlined'
             onClick={handleClose}
-            sx={{ color: "neutral.dark", borderColor: "neutral.light" }}
+            sx={{ color: 'neutral.dark', borderColor: 'neutral.light' }}
           >
             取消
           </Button>
@@ -110,8 +110,8 @@ export const UpdateBirthDateDialog = ({
             htmlFor='BirthDate'
             required
             sx={{
-              color: "neutral.dark",
-              "& .MuiFormLabel-asterisk": { color: "error.main" },
+              color: 'neutral.dark',
+              '& .MuiFormLabel-asterisk': { color: 'error.main' },
             }}
           >
             出生日期
@@ -125,15 +125,15 @@ export const UpdateBirthDateDialog = ({
                   value={field.value ? dayjs(field.value) : null}
                   onChange={(newValue) =>
                     field.onChange(
-                      newValue?.isValid() ? newValue.format("YYYY-MM-DD") : ""
+                      newValue?.isValid() ? newValue.format('YYYY-MM-DD') : ''
                     )
                   }
                   format='YYYY-MM-DD'
                   disableFuture
                   slotProps={{
                     textField: {
-                      id: "BirthDate",
-                      variant: "outlined",
+                      id: 'BirthDate',
+                      variant: 'outlined',
                       error: !!errors.birthDate,
                       helperText: errors.birthDate?.message,
                     },

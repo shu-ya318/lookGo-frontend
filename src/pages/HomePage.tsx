@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import Button from "@mui/material/Button";
-import SearchIcon from "@mui/icons-material/Search";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
-import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
-import RouteOutlinedIcon from "@mui/icons-material/RouteOutlined";
-import ChatBubbleOutlineOutlined from "@mui/icons-material/ChatBubbleOutlineOutlined";
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import SearchIcon from '@mui/icons-material/Search';
+import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import RouteOutlinedIcon from '@mui/icons-material/RouteOutlined';
+import ChatBubbleOutlineOutlined from '@mui/icons-material/ChatBubbleOutlineOutlined';
 
-import { StationAutocomplete } from "@/components/StationAutocomplete";
-import type { StationOption } from "@/services/metro/interface";
+import { StationAutocomplete } from '@/components/StationAutocomplete';
+import type { StationOption } from '@/services/metro/interface';
 
-import trtcBanner from "@/assets/trtc_banner.jpg";
+import trtcBanner from '@/assets/trtc_banner.jpg';
 
 const featureSections: {
   title: string;
@@ -24,33 +24,33 @@ const featureSections: {
   icon: React.ReactNode;
 }[] = [
     {
-      title: "路網圖查詢",
-      subtitle: "互動式路網圖",
+      title: '路網圖查詢',
+      subtitle: '互動式路網圖',
       description:
-        "透過動態路網圖，輕鬆瀏覽臺北捷運各站資訊，快速掌握路線與轉乘方式。",
-      path: "/network-map",
+        '透過動態路網圖，輕鬆瀏覽臺北捷運各站資訊，快速掌握路線與轉乘方式。',
+      path: '/network-map',
       icon: <MapOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
     },
     {
-      title: "車站書籤",
-      subtitle: "收藏常用車站",
-      description: "將常用或感興趣的車站加入書籤，隨時快速查看車站資訊。",
-      path: "/station-bookmark",
+      title: '車站書籤',
+      subtitle: '收藏常用車站',
+      description: '將常用或感興趣的車站加入書籤，隨時快速查看車站資訊。',
+      path: '/station-bookmark',
       icon: <BookmarkBorderIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
     },
     {
-      title: "旅程規劃",
-      subtitle: "專屬旅程規劃",
-      description: "依據您的需求客製化規劃捷運旅程，打造最適合您的出行路線。",
-      path: "/trip-planner",
+      title: '旅程規劃',
+      subtitle: '專屬旅程規劃',
+      description: '依據您的需求客製化規劃捷運旅程，打造最適合您的出行路線。',
+      path: '/trip-planner',
       icon: <RouteOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
     },
     {
-      title: "車站聊天室",
-      subtitle: "即時交流平台",
+      title: '車站聊天室',
+      subtitle: '即時交流平台',
       description:
-        "在車站專屬聊天室中與其他旅客即時交流，分享搭乘心得與周邊資訊。",
-      path: "/station-chat-room",
+        '在車站專屬聊天室中與其他旅客即時交流，分享搭乘心得與周邊資訊。',
+      path: '/station-chat-room',
       icon: <ChatBubbleOutlineOutlined sx={{ fontSize: { xs: 40, md: 56 } }} />,
     },
   ];
@@ -64,7 +64,7 @@ const HomePage = () => {
     if (selectedStation) {
       navigate(`/network-map?search=${encodeURIComponent(selectedStation.nameZhTw)}`);
     } else {
-      navigate("/network-map");
+      navigate('/network-map');
     }
   };
 
@@ -73,15 +73,15 @@ const HomePage = () => {
       {/* Banner Section */}
       <Box
         sx={{
-          position: "relative",
-          width: "100%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          minHeight: "640px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          overflow: "hidden",
+          position: 'relative',
+          width: '100%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          minHeight: '640px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          overflow: 'hidden',
         }}
       >
         <Box
@@ -89,42 +89,42 @@ const HomePage = () => {
           src={trtcBanner}
           alt='背景圖片'
           sx={{
-            position: "absolute",
+            position: 'absolute',
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
             zIndex: 0,
           }}
         />
         <Box
           sx={{
-            position: "absolute",
+            position: 'absolute',
             top: 0,
             left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.13)",
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.13)',
             zIndex: 1,
           }}
         />
         <Box
           sx={{
-            position: "relative",
+            position: 'relative',
             zIndex: 2,
             pr: { xs: 4, md: 10 },
             pl: { xs: 4, md: 0 },
             py: 6,
-            maxWidth: "600px",
+            maxWidth: '600px',
           }}
         >
           <Typography
             variant='h4'
             sx={{
-              color: "#FFFFFF",
+              color: '#FFFFFF',
               mb: 1.5,
-              fontSize: { xs: "1.5rem", md: "2rem" },
+              fontSize: { xs: '1.5rem', md: '2rem' },
             }}
           >
             查詢您有興趣的臺北捷運車站
@@ -132,7 +132,7 @@ const HomePage = () => {
           <Typography
             variant='subtitle1'
             sx={{
-              color: "rgba(255, 255, 255, 0.85)",
+              color: 'rgba(255, 255, 255, 0.85)',
               mb: 4,
             }}
           >
@@ -140,10 +140,10 @@ const HomePage = () => {
           </Typography>
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
-              backgroundColor: "rgba(255, 255, 255, 0.9)",
-              borderRadius: "28px",
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              borderRadius: '28px',
               px: 2,
               py: 0.5,
             }}
@@ -154,15 +154,15 @@ const HomePage = () => {
               placeholder='您想找哪個臺北捷運車站?'
               sx={{
                 flex: 1,
-                "& .MuiOutlinedInput-root": {
+                '& .MuiOutlinedInput-root': {
                   paddingTop: 0,
                   paddingBottom: 0,
-                  "& fieldset": {
-                    border: "none",
+                  '& fieldset': {
+                    border: 'none',
                   },
                 },
-                "& .MuiInputBase-input": {
-                  fontSize: "0.95rem",
+                '& .MuiInputBase-input': {
+                  fontSize: '0.95rem',
                   py: 1,
                 },
               }}
@@ -171,7 +171,7 @@ const HomePage = () => {
               onClick={handleSearch}
               disabled={!selectedStation}
               sx={{
-                color: selectedStation ? "primary.main" : "neutral.main",
+                color: selectedStation ? 'primary.main' : 'neutral.main',
                 ml: 1
               }}
             >
@@ -187,12 +187,12 @@ const HomePage = () => {
         const imageBlock = (
           <Box
             sx={{
-              flex: "0 0 auto",
-              width: { xs: "100%", md: "35%" },
-              display: "flex",
+              flex: '0 0 auto',
+              width: { xs: '100%', md: '35%' },
+              display: 'flex',
               // justifyContent: isOdd ? "flex-start" : "flex-end",
-              justifyContent: "center",
-              alignItems: "center",
+              justifyContent: 'center',
+              alignItems: 'center',
               py: { xs: 2, md: 0 },
             }}
           >
@@ -200,14 +200,14 @@ const HomePage = () => {
               sx={{
                 width: { xs: 88, md: 120 },
                 height: { xs: 88, md: 120 },
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                color: "primary.main",
-                backgroundColor: "primary.light",
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                color: 'primary.main',
+                backgroundColor: 'primary.light',
                 opacity: 0.9,
                 // borderRadius: isOdd ? "16px 0 16px 0" : "0 16px 0 16px",
-                borderRadius: "16px 0 16px 0",
+                borderRadius: '16px 0 16px 0',
               }}
             >
               {section.icon}
@@ -218,19 +218,19 @@ const HomePage = () => {
           <Box
             sx={{
               flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
               px: { xs: 2, md: 4 },
               py: { xs: 2, md: 0 },
             }}
           >
-            <Typography variant='h6' sx={{ mb: 0.5, color: "neutral.dark" }}>
+            <Typography variant='h6' sx={{ mb: 0.5, color: 'neutral.dark' }}>
               {section.title}
             </Typography>
             <Typography
               variant='caption'
-              sx={{ mb: 1, color: "secondary.dark" }}
+              sx={{ mb: 1, color: 'secondary.dark' }}
             >
               {section.subtitle}
             </Typography>
@@ -238,9 +238,9 @@ const HomePage = () => {
               variant='body2'
               sx={{
                 mb: 2,
-                color: "text.secondary",
+                color: 'text.secondary',
                 lineHeight: 1.6,
-                fontSize: "0.8125rem",
+                fontSize: '0.8125rem',
               }}
             >
               {section.description}
@@ -252,7 +252,7 @@ const HomePage = () => {
                 size='small'
                 onClick={() => navigate(section.path)}
                 sx={{
-                  borderRadius: "6px",
+                  borderRadius: '6px',
                   px: 2.5,
                   py: 0.75,
                 }}
@@ -267,17 +267,17 @@ const HomePage = () => {
           <Box
             key={section.title}
             sx={{
-              maxWidth: "960px",
-              display: "flex",
+              maxWidth: '960px',
+              display: 'flex',
               flexDirection: {
-                xs: "column",
+                xs: 'column',
                 // md: isOdd ? "row" : "row-reverse",
-                md: "row",
+                md: 'row',
               },
-              alignItems: "center",
+              alignItems: 'center',
               // backgroundColor:
               //   index % 2 === 0 ? "quaternary.main" : "background.default",
-              margin: "0 auto",
+              margin: '0 auto',
               py: { xs: 3, md: 4 },
               px: { xs: 2, md: 8 },
             }}

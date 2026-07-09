@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
-import { z } from "zod";
-import { Controller, useForm, type SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { enqueueSnackbar } from "notistack";
+import { useEffect, useState } from 'react';
+import { z } from 'zod';
+import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { enqueueSnackbar } from 'notistack';
 
-import Button from "@mui/material/Button";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
-import { Dialog } from "@/components/Dialog";
-import { getStationById, updateStation } from "@/services/metro";
-import { FACILITY_DETAIL_LABELS } from "@/services/metro/types";
+import { Dialog } from '@/components/Dialog';
+import { getStationById, updateStation } from '@/services/metro';
+import { FACILITY_DETAIL_LABELS } from '@/services/metro/types';
 
 const formSchema = z.object({
   nameZhTw: z.string(),
@@ -32,22 +32,22 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 const defaultFormValues: FormData = {
-  nameZhTw: "",
-  nameEn: "",
-  atm: "",
-  nursingRoom: "",
-  diaperTable: "",
-  chargingStation: "",
-  ticketMachine: "",
-  drinkingWater: "",
-  restroom: "",
-  elevator: "",
-  escalator: "",
+  nameZhTw: '',
+  nameEn: '',
+  atm: '',
+  nursingRoom: '',
+  diaperTable: '',
+  chargingStation: '',
+  ticketMachine: '',
+  drinkingWater: '',
+  restroom: '',
+  elevator: '',
+  escalator: '',
 };
 
 const fieldLabelMap: { name: keyof FormData; label: string }[] = [
-  { name: "nameZhTw", label: "中文站名" },
-  { name: "nameEn", label: "英文站名" },
+  { name: 'nameZhTw', label: '中文站名' },
+  { name: 'nameEn', label: '英文站名' },
   ...FACILITY_DETAIL_LABELS.map(({ key, label }) => ({ name: key, label })),
 ];
 
@@ -74,7 +74,7 @@ export const UpdateStationDialog = ({
   } = useForm<FormData>({
     defaultValues: defaultFormValues,
     resolver: zodResolver(formSchema),
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   useEffect(() => {
@@ -98,8 +98,8 @@ export const UpdateStationDialog = ({
           escalator: station.escalator,
         });
       } catch (error) {
-        enqueueSnackbar((error as string) || "取得車站資訊失敗", {
-          variant: "error",
+        enqueueSnackbar((error as string) || '取得車站資訊失敗', {
+          variant: 'error',
         });
         onClose();
       } finally {
@@ -123,14 +123,14 @@ export const UpdateStationDialog = ({
         id: stationId,
         ...data,
       });
-      enqueueSnackbar(message || "車站資訊修改成功！", {
-        variant: "success",
+      enqueueSnackbar(message || '車站資訊修改成功！', {
+        variant: 'success',
       });
       onClose();
       await onSuccess();
     } catch (error) {
-      enqueueSnackbar((error as string) || "車站資訊修改失敗！", {
-        variant: "error",
+      enqueueSnackbar((error as string) || '車站資訊修改失敗！', {
+        variant: 'error',
       });
     }
   };
@@ -146,7 +146,7 @@ export const UpdateStationDialog = ({
           <Button
             variant='outlined'
             onClick={handleClose}
-            sx={{ color: "neutral.dark", borderColor: "neutral.light" }}
+            sx={{ color: 'neutral.dark', borderColor: 'neutral.light' }}
           >
             取消
           </Button>
@@ -164,14 +164,14 @@ export const UpdateStationDialog = ({
       {isFetching ? (
         <Typography>載入中...</Typography>
       ) : (
-        <Stack sx={{ pt: 1, gap: "1rem" }}>
+        <Stack sx={{ pt: 1, gap: '1rem' }}>
           {fieldLabelMap.map(({ name, label }) => (
             <FormControl key={name} fullWidth>
               <FormLabel
                 htmlFor={name}
                 sx={{
-                  color: "neutral.dark",
-                  "& .MuiFormLabel-asterisk": { color: "error.main" },
+                  color: 'neutral.dark',
+                  '& .MuiFormLabel-asterisk': { color: 'error.main' },
                 }}
               >
                 {label}

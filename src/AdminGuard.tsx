@@ -1,11 +1,11 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet } from 'react-router-dom';
 
-import { useUserStore } from "./stores/userStore";
+import { useUserStore } from './stores/userStore';
 
 export const AdminGuard = () => {
   const role = useUserStore((state) => state.userInfo?.role);
 
-  if (role !== "ADMIN") {
+  if (role !== 'ADMIN') {
     return <Navigate to='/unauthorized' replace />;
   }
 

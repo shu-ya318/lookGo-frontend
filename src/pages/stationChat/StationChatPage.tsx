@@ -152,7 +152,7 @@ const StationChatPage = () => {
                     <Button
                         variant='contained'
                         color='primary'
-                        size='small'
+                        size='medium'
                         startIcon={
                             isExportingExcel ? (
                                 <CircularProgress
