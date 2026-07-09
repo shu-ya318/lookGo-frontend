@@ -4,9 +4,9 @@ import { enqueueSnackbar } from 'notistack';
 import { useAuthStore } from '@/stores/authStore';
 
 import {
-  createBookmark,
-  deleteBookmark,
-  getAllBookmarkPaginated,
+  createStationBookmark,
+  deleteStationBookmark,
+  getAllStationBookmarkPaginated,
 } from '@/services/stationBookmark';
 
 import type { StationBookmark } from '@/services/stationBookmark/interface';
@@ -32,7 +32,7 @@ export const useStationBookmarkStore = create<StationBookmarkState>((set, get) =
 
     set({ isLoading: true });
     try {
-      const { content } = await getAllBookmarkPaginated({
+      const { content } = await getAllStationBookmarkPaginated({
         page: 0,
         size: FETCH_ALL_SIZE,
       });
@@ -58,14 +58,14 @@ export const useStationBookmarkStore = create<StationBookmarkState>((set, get) =
 
     try {
       if (existing) {
-        await deleteBookmark({ bookmarkId: existing.id.toString() });
+        await deleteStationBookmark({ bookmarkId: existing.id.toString() });
         set({
           bookmarks: get().bookmarks.filter(
             bookmark => bookmark.id !== existing.id
           ),
         });
       } else {
-        const bookmark = await createBookmark({ stationId });
+        const bookmark = await createStationBookmark({ stationId });
         set({ bookmarks: [...get().bookmarks, bookmark] });
       }
     } catch (error) {

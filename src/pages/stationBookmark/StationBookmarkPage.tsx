@@ -20,10 +20,10 @@ import { DeleteDialog } from "@/components/DeleteDialog";
 import { SearchInput } from "@/components/SearchInput";
 
 import {
-  deleteBookmark,
-  getAllBookmarkPaginated,
-  getBookmarkByStationName,
-  getBookmarkExcel,
+  deleteStationBookmark,
+  getAllStationBookmarkPaginated,
+  getStationBookmarkByStationName,
+  getStationBookmarkExcel,
 } from "@/services/stationBookmark";
 
 import type { StationBookmark } from "@/services/stationBookmark/interface";
@@ -50,12 +50,14 @@ const StationBookmarkPage = () => {
 
     try {
       if (keyword) {
-        const response = await getBookmarkByStationName({ stationName: keyword });
+        const response = await getStationBookmarkByStationName({
+          stationName: keyword,
+        });
         setAllStationBookmark(response ? [response] : []);
         setPage(0);
         setTotalPage(1);
       } else {
-        const response = await getAllBookmarkPaginated({
+        const response = await getAllStationBookmarkPaginated({
           page: 0,
           size: STATION_BOOKMARK_PAGE_SIZE,
         });
@@ -105,7 +107,7 @@ const StationBookmarkPage = () => {
     setIsLoadingMore(true);
 
     try {
-      const response = await getAllBookmarkPaginated({
+      const response = await getAllStationBookmarkPaginated({
         page: nextPage,
         size: STATION_BOOKMARK_PAGE_SIZE,
       });
@@ -127,7 +129,7 @@ const StationBookmarkPage = () => {
     setIsDeleting(true);
 
     try {
-      const response = await deleteBookmark({
+      const response = await deleteStationBookmark({
         bookmarkId: deletingBookmark.id.toString(),
       });
       enqueueSnackbar(response.message || "車站書籤刪除成功", { variant: "success" });
@@ -150,7 +152,7 @@ const StationBookmarkPage = () => {
     setIsExportingExcel(true);
 
     try {
-      const blob = await getBookmarkExcel();
+      const blob = await getStationBookmarkExcel();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
 

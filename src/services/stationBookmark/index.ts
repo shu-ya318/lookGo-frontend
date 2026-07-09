@@ -1,28 +1,28 @@
 import postRequest from '../api';
 
 import type {
-    CreateBookmarkRequest,
-    DeleteBookmarkRequest,
-    DeleteBookmarkResponse,
-    GetAllBookmarkPaginatedRequest,
-    GetAllBookmarkPaginatedResponse,
-    GetBookmarkByStationNameRequest,
+    CreateStationBookmarkRequest,
+    DeleteStationBookmarkRequest,
+    DeleteStationBookmarkResponse,
+    GetAllStationBookmarkPaginatedRequest,
+    GetAllStationBookmarkPaginatedResponse,
+    GetStationBookmarkByStationNameRequest,
     StationBookmark,
     StationBookmarkResponse,
 } from './interface';
 
-export const getAllBookmarkPaginated = async (
-    request: GetAllBookmarkPaginatedRequest = {}
-): Promise<GetAllBookmarkPaginatedResponse> => {
-    return await postRequest<GetAllBookmarkPaginatedResponse>(
+export const getAllStationBookmarkPaginated = async (
+    request: GetAllStationBookmarkPaginatedRequest = {}
+): Promise<GetAllStationBookmarkPaginatedResponse> => {
+    return await postRequest<GetAllStationBookmarkPaginatedResponse>(
         '/station-bookmark/get-all-bookmark-paginated',
         {},
         { params: request }
     );
 };
 
-export const createBookmark = async (
-    request: CreateBookmarkRequest
+export const createStationBookmark = async (
+    request: CreateStationBookmarkRequest
 ): Promise<StationBookmark> => {
     return await postRequest<StationBookmark>(
         '/station-bookmark/create-bookmark',
@@ -30,16 +30,16 @@ export const createBookmark = async (
     );
 };
 
-export const deleteBookmark = async (
-    request: DeleteBookmarkRequest
-): Promise<DeleteBookmarkResponse> => {
-    return await postRequest<DeleteBookmarkResponse>(
+export const deleteStationBookmark = async (
+    request: DeleteStationBookmarkRequest
+): Promise<DeleteStationBookmarkResponse> => {
+    return await postRequest<DeleteStationBookmarkResponse>(
         '/station-bookmark/delete-bookmark',
         request
     );
 };
 
-export const getBookmarkExcel = async (): Promise<Blob> => {
+export const getStationBookmarkExcel = async (): Promise<Blob> => {
     return await postRequest<Blob>(
         '/station-bookmark/get-excel',
         {},
@@ -47,8 +47,8 @@ export const getBookmarkExcel = async (): Promise<Blob> => {
     );
 };
 
-export const getBookmarkByStationName = async (
-    request: GetBookmarkByStationNameRequest
+export const getStationBookmarkByStationName = async (
+    request: GetStationBookmarkByStationNameRequest
 ): Promise<StationBookmarkResponse> => {
     return await postRequest<StationBookmarkResponse>(
         '/station-bookmark/get-bookmark-by-station-name',
