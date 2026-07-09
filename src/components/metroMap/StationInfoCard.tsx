@@ -36,6 +36,7 @@ export const StationInfoCard = ({
   allLines,
   onClose,
 }: StationInfoCardProps) => {
+  console.log(station, line);
   const stationDetails = useStationStore((state) => state.stationDetails);
   const isLoading = useStationStore((state) => state.isLoading);
   const bookmarks = useStationBookmarkStore((state) => state.bookmarks);
@@ -56,9 +57,9 @@ export const StationInfoCard = ({
   );
 
   const transferLines = allLines.filter(
-    (lines) =>
-      lines.letter !== line.letter &&
-      lines.stations.some((station) => station.nameZhTw === station.nameZhTw)
+    (candidateLine) =>
+      candidateLine.letter !== line.letter &&
+      candidateLine.stations.some((s) => s.nameZhTw === station.nameZhTw)
   );
 
   return (
@@ -128,8 +129,9 @@ export const StationInfoCard = ({
           />
           {transferLines.map((transferLine) => {
             const transferStation = transferLine.stations.find(
-              (station) => station.nameZhTw === station.nameZhTw
+              (s) => s.nameZhTw === station.nameZhTw
             );
+
             return (
               <Chip
                 key={transferLine.letter}
