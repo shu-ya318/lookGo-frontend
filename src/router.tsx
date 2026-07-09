@@ -20,7 +20,7 @@ import HomePage from "@/pages/HomePage";
 import SettingPage from "@/pages/user/SettingPage";
 import MetroMapPage from "@/pages/metroMap/MetroMapPage";
 import TripPlannerPage from "@/pages/tripPlan/TripPlannerPage";
-import StationBookmarkPage from "@/pages/bookmark/StationBookmarkPage";
+import StationBookmarkPage from "@/pages/stationBookmark/StationBookmarkPage";
 import ChatRoomPage from "@/pages/stationChat/StationChatPage";
 import UserPermissionPage from "@/pages/admin/UserPermissionPage";
 import StationManagementPage from "@/pages/admin/StationManagementPage";

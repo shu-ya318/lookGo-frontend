@@ -15,7 +15,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 
-import { BookmarkStationCard } from "@/components/bookmark/BookmarkStationCard";
+import { BookmarkStationCard } from "@/components/stationBookmark/StationBookmarkCard";
 import { DeleteDialog } from "@/components/DeleteDialog";
 import { SearchInput } from "@/components/SearchInput";
 
@@ -28,14 +28,14 @@ import {
 
 import type { StationBookmark } from "@/services/stationBookmark/interface";
 
-const BOOKMARK_PAGE_SIZE = 8;
+const STATION_BOOKMARK_PAGE_SIZE = 8;
 
 const StationBookmarkPage = () => {
   const [inputValue, setInputValue] = useState("");
   const [keyword, setKeyword] = useState("");
-  const [bookmarks, setBookmarks] = useState<StationBookmark[]>([]);
+  const [allStationBookmark, setAllStationBookmark] = useState<StationBookmark[]>([]);
   const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPage, setTotalPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [deletingBookmark, setDeletingBookmark] =
@@ -43,30 +43,31 @@ const StationBookmarkPage = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isExportingExcel, setIsExportingExcel] = useState(false);
 
-  const hasMore = page + 1 < totalPages;
+  const hasMore = page + 1 < totalPage;
 
-  const fetchBookmarks = useCallback(async (): Promise<void> => {
+  const fetchAllStationBookmark = useCallback(async (): Promise<void> => {
     setIsLoading(true);
+
     try {
       if (keyword) {
         const response = await getBookmarkByStationName({ stationName: keyword });
-        setBookmarks(response ? [response] : []);
+        setAllStationBookmark(response ? [response] : []);
         setPage(0);
-        setTotalPages(1);
+        setTotalPage(1);
       } else {
         const response = await getAllBookmarkPaginated({
           page: 0,
-          size: BOOKMARK_PAGE_SIZE,
+          size: STATION_BOOKMARK_PAGE_SIZE,
         });
-        setBookmarks(response.content);
+        setAllStationBookmark(response.content);
         setPage(0);
-        setTotalPages(response.totalPages);
+        setTotalPage(response.totalPages);
       }
     } catch (error) {
       if (keyword) {
-        setBookmarks([]);
+        setAllStationBookmark([]);
         setPage(0);
-        setTotalPages(0);
+        setTotalPage(0);
       } else {
         enqueueSnackbar((error as string) || "取得車站書籤失敗", {
           variant: "error",
@@ -79,8 +80,8 @@ const StationBookmarkPage = () => {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchBookmarks();
-  }, [fetchBookmarks]);
+    fetchAllStationBookmark();
+  }, [fetchAllStationBookmark]);
 
   const debouncedSetKeyword = useMemo(
     () =>
@@ -97,20 +98,20 @@ const StationBookmarkPage = () => {
     debouncedSetKeyword(value);
   };
 
-  const handleLoadMore = async (): Promise<void> => {
+  const handleLoadMore = async () => {
     if (isLoadingMore) return;
 
     const nextPage = page + 1;
-
     setIsLoadingMore(true);
+
     try {
       const response = await getAllBookmarkPaginated({
         page: nextPage,
-        size: BOOKMARK_PAGE_SIZE,
+        size: STATION_BOOKMARK_PAGE_SIZE,
       });
-      setBookmarks((prev) => [...prev, ...response.content]);
+      setAllStationBookmark((prev) => [...prev, ...response.content]);
       setPage(nextPage);
-      setTotalPages(response.totalPages);
+      setTotalPage(response.totalPages);
     } catch (error) {
       enqueueSnackbar((error as string) || "載入更多車站書籤失敗", {
         variant: "error",
@@ -120,19 +121,20 @@ const StationBookmarkPage = () => {
     }
   };
 
-  const handleConfirmDelete = async (): Promise<void> => {
+  const handleConfirmDelete = async () => {
     if (!deletingBookmark) return;
 
     setIsDeleting(true);
+
     try {
-      const { message } = await deleteBookmark({
+      const response = await deleteBookmark({
         bookmarkId: deletingBookmark.id.toString(),
       });
-      enqueueSnackbar(message || "書籤刪除成功", { variant: "success" });
+      enqueueSnackbar(response.message || "車站書籤刪除成功", { variant: "success" });
       setDeletingBookmark(null);
-      await fetchBookmarks();
+      await fetchAllStationBookmark();
     } catch (error) {
-      enqueueSnackbar((error as string) || "書籤刪除失敗", {
+      enqueueSnackbar((error as string) || "車站書籤刪除失敗", {
         variant: "error",
       });
     } finally {
@@ -144,8 +146,9 @@ const StationBookmarkPage = () => {
     window.print();
   };
 
-  const handleDownload = async (): Promise<void> => {
+  const handleDownload = async () => {
     setIsExportingExcel(true);
+
     try {
       const blob = await getBookmarkExcel();
       const url = window.URL.createObjectURL(blob);
@@ -160,10 +163,9 @@ const StationBookmarkPage = () => {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-
-      enqueueSnackbar("匯出成功", { variant: "success" });
+      enqueueSnackbar("匯出車站書籤成功", { variant: "success" });
     } catch (error) {
-      enqueueSnackbar((error as string) || "匯出失敗", { variant: "error" });
+      enqueueSnackbar((error as string) || "匯出車站書籤失敗", { variant: "error" });
     } finally {
       setIsExportingExcel(false);
     }
@@ -187,14 +189,13 @@ const StationBookmarkPage = () => {
           justifyContent: "space-between",
         }}
       >
-        {/* Search */}
+        {/* 搜尋欄 */}
         <SearchInput
           searchTerm={inputValue}
           onChange={handleSearch}
           placeholder='請輸入車站中文名稱搜尋'
         />
-
-        {/* Button: Print & Download all */}
+        {/* 按鈕: 列印與下載全部 */}
         <Stack direction='row' sx={{ gap: "1rem", alignItems: "center" }}>
           <Button variant='outlined' color='neutral' onClick={handlePrint}>
             列印
@@ -214,12 +215,12 @@ const StationBookmarkPage = () => {
           </Button>
         </Stack>
       </Stack>
-
-      {isLoading && bookmarks.length === 0 ? (
+      {/* 資料顯示畫面 */}
+      {isLoading && allStationBookmark.length === 0 ? (
         <Stack sx={{ alignItems: "center", py: 4 }}>
           <CircularProgress size='1.5rem' />
         </Stack>
-      ) : bookmarks.length === 0 ? (
+      ) : allStationBookmark.length === 0 ? (
         <Typography
           variant='body2'
           color='text.secondary'
@@ -236,7 +237,7 @@ const StationBookmarkPage = () => {
               gap: 2,
             }}
           >
-            {bookmarks.map((bookmark) => (
+            {allStationBookmark.map((bookmark) => (
               <BookmarkStationCard
                 key={bookmark.id}
                 bookmark={bookmark}
@@ -244,7 +245,7 @@ const StationBookmarkPage = () => {
               />
             ))}
           </Box>
-
+          {/* 載入更多車站書籤按鈕 */}
           {hasMore && (
             <Stack
               sx={{
@@ -279,7 +280,7 @@ const StationBookmarkPage = () => {
           )}
         </Stack>
       )}
-
+      {/* 刪除確認對話框 */}
       <DeleteDialog
         title={deletingBookmark?.stationNameZhTw ?? ""}
         isOpen={!!deletingBookmark}

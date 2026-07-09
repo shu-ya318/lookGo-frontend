@@ -35,10 +35,10 @@ interface BookmarkStationCardProps {
   onDelete: (bookmark: StationBookmark) => void;
 }
 
-export function BookmarkStationCard({
+export const BookmarkStationCard = ({
   bookmark,
   onDelete,
-}: BookmarkStationCardProps): React.ReactElement {
+}: BookmarkStationCardProps) => {
   const [isFacilityDialogOpen, setIsFacilityDialogOpen] = useState(false);
   const [facilityStation, setFacilityStation] = useState<Station | null>(
     null
@@ -73,6 +73,7 @@ export function BookmarkStationCard({
     if (facilityStation) return;
 
     setIsFacilityLoading(true);
+
     try {
       const result = await getStationById({
         id: bookmark.stationId.toString(),
@@ -99,10 +100,12 @@ export function BookmarkStationCard({
       }}
     >
       <CardContent sx={{ height: "100%" }}>
+        {/* 車站名稱與刪除按鈕 */}
         <Stack
           direction='row'
           sx={{ justifyContent: "space-between", alignItems: "flex-start" }}
         >
+          {/* 車站名稱 */}
           <Stack sx={{ minWidth: 0 }}>
             <Typography
               variant='body1'
@@ -123,6 +126,7 @@ export function BookmarkStationCard({
             <BookmarkIcon fontSize='small' color='primary' />
           </IconButton>
         </Stack>
+        {/* 車站所屬路線 */}
         <Stack
           direction='row'
           sx={{ flexWrap: "wrap", gap: 0.75, minHeight: "1.5rem", mt: 2 }}
@@ -142,6 +146,7 @@ export function BookmarkStationCard({
           ))}
         </Stack>
         <Divider sx={{ my: 1 }} />
+        {/* 查看車站的站內設備連結 */}
         <Link
           component='button'
           type='button'
@@ -151,6 +156,7 @@ export function BookmarkStationCard({
         >
           查看站內設備
         </Link>
+        {/* 收藏時間 */}
         <Typography
           variant='caption'
           color='text.disabled'
@@ -159,11 +165,11 @@ export function BookmarkStationCard({
           收藏時間：{formatDateTime(bookmark.createdAt)}
         </Typography>
       </CardContent>
-
+      {/* 顯示車站設備資訊對話框 */}
       <Dialog
         isOpen={isFacilityDialogOpen}
         onClose={() => setIsFacilityDialogOpen(false)}
-        title={`${bookmark.stationNameZhTw} 設備資訊`}
+        title={`${bookmark.stationNameZhTw} 站內設備資訊`}
         width='24rem'
       >
         {isFacilityLoading ? (
