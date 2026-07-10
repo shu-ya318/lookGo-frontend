@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { enqueueSnackbar } from 'notistack';
 import dayjs from 'dayjs';
@@ -26,7 +26,11 @@ import { useUserStore } from '@/stores/userStore';
 
 import { getCurrentUser } from '@/services/user';
 import { signup } from '@/services/auth';
-import { isValidDateFormat, isValidBirthDate } from '@/utils/validation';
+import {
+  isValidDateFormat,
+  isValidBirthDate,
+  isValidCellphone,
+} from '@/utils/validation';
 
 import type { SignupRequest } from '@/services/auth/interface';
 
@@ -41,9 +45,7 @@ const formSchema = z.object({
   cellphone: z
     .string()
     .min(1, '請輸入手機號碼!')
-    .refine((value) => {
-      return /^0\d{9}$/.test(value);
-    }, '請輸入 0 開頭的 10 碼手機號碼!'),
+    .refine(isValidCellphone, '請輸入 09 開頭的 10 碼手機號碼!'),
   birthDate: z
     .string()
     .refine(isValidDateFormat, '出生日期格式必須為 yyyy-MM-dd!')
@@ -81,11 +83,8 @@ const SignupPage = () => {
       email: data.email,
       username: data.username,
       password: data.password,
+      cellphone: data.cellphone,
     };
-
-    if (data.cellphone) {
-      submitData.cellphone = data.cellphone;
-    }
 
     if (data.birthDate) {
       submitData.birthDate = data.birthDate;
@@ -104,7 +103,6 @@ const SignupPage = () => {
 
       const response = await getCurrentUser();
       useUserStore.setState({ userInfo: response });
-
       navigate('/');
       enqueueSnackbar('註冊成功，歡迎加入會員', { variant: 'success' });
     } catch (error) {
@@ -243,7 +241,7 @@ const SignupPage = () => {
                   value={field.value ? dayjs(field.value) : null}
                   onChange={(newValue) =>
                     field.onChange(
-                      newValue?.isValid() ? newValue.format('YYYY-MM-DD') : ''
+                      newValue?.isValid() ? newValue.format('YYYY-MM-DD') : '',
                     )
                   }
                   format='YYYY-MM-DD'
@@ -324,7 +322,7 @@ const SignupPage = () => {
       >
         註冊
       </Button>
-      {/* 登入連結 */}
+      {/* 登入的跳轉連結 */}
       <Link
         component='button'
         type='button'

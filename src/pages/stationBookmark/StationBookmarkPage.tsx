@@ -37,8 +37,8 @@ const StationBookmarkPage = () => {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isBookmarksLoading, setIsBookmarksLoading] = useState(false);
+  const [isMoreBookmarksLoading, setIsMoreBookmarksLoading] = useState(false);
 
   const [deletingBookmark, setDeletingBookmark] =
     useState<StationBookmark | null>(null);
@@ -49,7 +49,7 @@ const StationBookmarkPage = () => {
   const hasMore = page + 1 < totalPages;
 
   const fetchAllStationBookmark = useCallback(async () => {
-    setIsLoading(true);
+    setIsBookmarksLoading(true);
 
     try {
       if (keyword) {
@@ -79,7 +79,7 @@ const StationBookmarkPage = () => {
         });
       }
     } finally {
-      setIsLoading(false);
+      setIsBookmarksLoading(false);
     }
   }, [keyword]);
 
@@ -104,10 +104,10 @@ const StationBookmarkPage = () => {
   };
 
   const handleLoadMore = async () => {
-    if (isLoadingMore) return;
+    if (isMoreBookmarksLoading) return;
 
     const nextPage = page + 1;
-    setIsLoadingMore(true);
+    setIsMoreBookmarksLoading(true);
 
     try {
       const response = await getAllStationBookmarkPaginated({
@@ -122,7 +122,7 @@ const StationBookmarkPage = () => {
         variant: 'error',
       });
     } finally {
-      setIsLoadingMore(false);
+      setIsMoreBookmarksLoading(false);
     }
   };
 
@@ -221,7 +221,7 @@ const StationBookmarkPage = () => {
         </Stack>
       </Stack>
       {/* 資料顯示畫面 */}
-      {isLoading && allStationBookmark.length === 0 ? (
+      {isBookmarksLoading && allStationBookmark.length === 0 ? (
         <Stack sx={{ alignItems: 'center', py: 4 }}>
           <CircularProgress size='1.5rem' />
         </Stack>
@@ -263,9 +263,9 @@ const StationBookmarkPage = () => {
               <Button
                 size='small'
                 onClick={handleLoadMore}
-                disabled={isLoadingMore}
+                disabled={isMoreBookmarksLoading}
                 startIcon={
-                  isLoadingMore ? (
+                  isMoreBookmarksLoading ? (
                     <CircularProgress size='0.875rem' />
                   ) : undefined
                 }

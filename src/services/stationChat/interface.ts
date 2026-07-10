@@ -1,7 +1,5 @@
 import type { PaginatedResponse } from '../common/interface';
-
-export type ChatType = 'TEXT' | 'TRIP_PLAN';
-export type ChatEventType = 'NEW' | 'DELETE';
+import type { ChatType, ChatEventType } from './types';
 
 export interface MessageResponse {
     message: string;

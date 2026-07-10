@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { z } from 'zod';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { enqueueSnackbar } from 'notistack';
 import dayjs from 'dayjs';
@@ -27,6 +27,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+const defaultValues: FormData = { birthDate: '' };
+
 interface UpdateBirthDateDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -46,7 +48,7 @@ export const UpdateBirthDateDialog = ({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    defaultValues: { birthDate: '' },
+    defaultValues,
     resolver: zodResolver(formSchema),
     mode: 'onChange',
   });
@@ -59,7 +61,7 @@ export const UpdateBirthDateDialog = ({
 
   const handleClose = (): void => {
     onClose();
-    reset({ birthDate: '' });
+    reset(defaultValues);
   };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
@@ -125,7 +127,7 @@ export const UpdateBirthDateDialog = ({
                   value={field.value ? dayjs(field.value) : null}
                   onChange={(newValue) =>
                     field.onChange(
-                      newValue?.isValid() ? newValue.format('YYYY-MM-DD') : ''
+                      newValue?.isValid() ? newValue.format('YYYY-MM-DD') : '',
                     )
                   }
                   format='YYYY-MM-DD'

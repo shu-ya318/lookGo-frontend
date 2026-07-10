@@ -8,6 +8,13 @@ export const isValidDateFormat = (value: string): boolean => {
 };
 
 /**
+ * 驗證是否為 09 開頭的 10 碼手機號碼
+ */
+export const isValidCellphone = (value: string): boolean => {
+  return /^09\d{8}$/.test(value);
+};
+
+/**
  * 驗證出生日期是否為合理範圍內的真實日期，且不大於今日
  */
 export const isValidBirthDate = (value: string): boolean => {

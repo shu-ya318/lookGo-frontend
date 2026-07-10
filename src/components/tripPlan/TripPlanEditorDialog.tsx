@@ -46,63 +46,59 @@ export const TripPlanEditorDialog = ({
 }: TripPlanEditorDialogProps) => {
   const stationOptions = useMetroMapStore((state) => state.stationOptions);
   const fetchAllStationOption = useMetroMapStore(
-    (state) => state.fetchAllStationOption
+    (state) => state.fetchAllStationOption,
   );
+
+  const [tripTitle, setTripTitle] = useState(tripPlan?.name ?? '');
+
+  const [fromStation, setFromStation] = useState<StationOption | null>(null);
+  const [toStation, setToStation] = useState<StationOption | null>(null);
+  const [tripQueryFilters, setTripQueryFilters] = useState<TripRouteFilters>(
+    tripPlan
+      ? {
+          fare: tripPlan.fareType as FareType,
+          routingStrategy: tripPlan.routingStrategy as RoutingStrategy,
+        }
+      : defaultTripQueryFilters,
+  );
+  const { tripResult, isSearching } = useTripRouteQuery(
+    fromStation,
+    toStation,
+    tripQueryFilters.fare,
+    tripQueryFilters.routingStrategy,
+  );
+
+  const [note, setNote] = useState(tripPlan?.notes ?? '');
+
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     fetchAllStationOption();
   }, [fetchAllStationOption]);
 
-  const [tripTitle, setTripTitle] = useState(tripPlan?.name ?? '');
-  const [startStation, setStartStation] = useState<StationOption | null>(
-    null
-  );
-  const [endStation, setEndStation] = useState<StationOption | null>(null);
-
-  const [tripQueryFilters, setTripQueryFilters] = useState<TripRouteFilters>(
-    tripPlan
-      ? {
-        fare: tripPlan.fareType as FareType,
-        routingStrategy: tripPlan.routingStrategy as RoutingStrategy,
-      }
-      : defaultTripQueryFilters
-  );
-  const [note, setNote] = useState(tripPlan?.notes ?? '');
-
-  const [isSaving, setIsSaving] = useState(false);
-
-  const { tripResult, isSearching } = useTripRouteQuery(
-    startStation,
-    endStation,
-    tripQueryFilters.fare,
-    tripQueryFilters.routingStrategy
-  );
-
   // 如果是編輯模式，依旅程紀錄的車站中文名稱比對出對應的車站選項
   useEffect(() => {
     if (!tripPlan || stationOptions.length === 0) return;
 
-    const startStationOption =
+    const fromStationOption =
       stationOptions.find(
-        (station) => station.nameZhTw === tripPlan.fromStationNameZhTw
+        (station) => station.nameZhTw === tripPlan.fromStationNameZhTw,
       ) ?? null;
-    const endStationOption =
+    const toStationOption =
       stationOptions.find(
-        (station) => station.nameZhTw === tripPlan.toStationNameZhTw
+        (station) => station.nameZhTw === tripPlan.toStationNameZhTw,
       ) ?? null;
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setStartStation(startStationOption);
-    setEndStation(endStationOption);
+    setFromStation(fromStationOption);
+    setToStation(toStationOption);
   }, [tripPlan, stationOptions]);
 
-  const handleFareChange = (value: FareType | null): void => {
+  const handleFareChange = (value: FareType | null) => {
     setTripQueryFilters((prev) => ({ ...prev, fare: value }));
   };
 
-  const handleRoutingStrategyChange = (
-    value: RoutingStrategy | null
-  ): void => {
+  const handleRoutingStrategyChange = (value: RoutingStrategy | null) => {
     setTripQueryFilters((prev) => ({ ...prev, routingStrategy: value }));
   };
 
@@ -157,7 +153,7 @@ export const TripPlanEditorDialog = ({
   };
 
   const isEditMode = tripPlan !== null;
-  const hasEndStation = endStation !== null;
+  const hasToStation = toStation !== null;
 
   return (
     <Dialog
@@ -193,8 +189,8 @@ export const TripPlanEditorDialog = ({
           <Stack sx={{ gap: 0.5 }}>
             <RequiredFieldLabel label='起始車站' disabled={isEditMode} />
             <StationAutocomplete
-              value={startStation}
-              onChange={setStartStation}
+              value={fromStation}
+              onChange={setFromStation}
               disabled={isEditMode}
               sx={{ width: 200 }}
             />
@@ -202,8 +198,8 @@ export const TripPlanEditorDialog = ({
           <Stack sx={{ gap: 0.5 }}>
             <RequiredFieldLabel label='終點車站' disabled={isEditMode} />
             <StationAutocomplete
-              value={endStation}
-              onChange={setEndStation}
+              value={toStation}
+              onChange={setToStation}
               disabled={isEditMode}
               sx={{ width: 200 }}
             />
@@ -212,7 +208,7 @@ export const TripPlanEditorDialog = ({
         {/* 查詢票價與車程時間 */}
         <TripRouteFilterSection
           filters={tripQueryFilters}
-          disabled={!hasEndStation}
+          disabled={!hasToStation}
           isSearching={isSearching}
           tripResult={tripResult}
           onFareChange={handleFareChange}
@@ -240,4 +236,4 @@ export const TripPlanEditorDialog = ({
       </Stack>
     </Dialog>
   );
-}
+};

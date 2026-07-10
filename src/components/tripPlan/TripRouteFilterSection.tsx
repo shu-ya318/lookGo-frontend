@@ -29,7 +29,7 @@ interface ToggleFieldProps<T extends number> {
   onChange: (value: T | null) => void;
 }
 
-// 票價種類與車程時間共用的單選欄位
+// 票價種類與車程時間共用的單選欄位，搭配泛型
 const ToggleField = <T extends number>({
   label,
   value,

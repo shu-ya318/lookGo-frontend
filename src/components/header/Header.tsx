@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import type { ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { enqueueSnackbar } from 'notistack';
 
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -21,7 +21,6 @@ import { useAuthStore } from '@/stores/authStore';
 import { logout } from '@/services/auth';
 
 import logo from '@/assets/logo_transparent.png';
-import { enqueueSnackbar } from 'notistack';
 
 export interface NavItem {
   label: string;
@@ -39,54 +38,54 @@ export const Header = ({ onToggle, navItems }: HeaderProps) => {
 
   const { userInfo } = useUserStore();
 
-  const userProfileMenuItem = useMemo(
-    () => {
-      if (!userInfo) {
-        return [
-          {
-            icon: (
-              <LoginOutlinedIcon fontSize='small' sx={{ color: 'primary.dark' }} />
-            ),
-            text: '登入',
-            props: {
-              component: NavLink,
-              to: '/auth/login',
-            },
-          },
-        ];
-      }
-
+  const userProfileMenuItem = useMemo(() => {
+    if (!userInfo) {
       return [
         {
           icon: (
-            <PersonOutlinedIcon fontSize='small' sx={{ color: 'primary.dark' }} />
+            <LoginOutlinedIcon
+              fontSize='small'
+              sx={{ color: 'primary.dark' }}
+            />
           ),
-          text: '設定',
+          text: '登入',
           props: {
             component: NavLink,
-            to: '/user-setting', // /${userInfo?.id}
-          },
-        },
-        {
-          icon: (
-            <LogoutOutlinedIcon fontSize='small' sx={{ color: 'primary.dark' }} />
-          ),
-          text: '登出',
-          action: async () => {
-            try {
-              await logout();
-              useAuthStore.getState().clearAuth();
-              navigate('/auth/login');
-              enqueueSnackbar('登出成功!', { variant: 'success' });
-            } catch (error) {
-              enqueueSnackbar(error as string, { variant: 'error' });
-            }
+            to: '/auth/login',
           },
         },
       ];
-    },
-    [userInfo, navigate]
-  );
+    }
+
+    return [
+      {
+        icon: (
+          <PersonOutlinedIcon fontSize='small' sx={{ color: 'primary.dark' }} />
+        ),
+        text: '設定',
+        props: {
+          component: NavLink,
+          to: '/user-setting',
+        },
+      },
+      {
+        icon: (
+          <LogoutOutlinedIcon fontSize='small' sx={{ color: 'primary.dark' }} />
+        ),
+        text: '登出',
+        action: async () => {
+          try {
+            await logout();
+            useAuthStore.getState().clearAuth();
+            navigate('/auth/login');
+            enqueueSnackbar('登出成功!', { variant: 'success' });
+          } catch (error) {
+            enqueueSnackbar(error as string, { variant: 'error' });
+          }
+        },
+      },
+    ];
+  }, [userInfo, navigate]);
 
   return (
     <AppBar
@@ -109,7 +108,7 @@ export const Header = ({ onToggle, navItems }: HeaderProps) => {
           margin: '0 auto',
         }}
       >
-        {/* Menu */}
+        {/* 選單 */}
         <Box
           sx={{
             display: 'flex',
@@ -119,9 +118,9 @@ export const Header = ({ onToggle, navItems }: HeaderProps) => {
             justifyContent: 'space-between',
           }}
         >
-          {/* LeftMenu */}
+          {/* 左側選單 */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
-            {/* MenuButton */}
+            {/* 漢堡選單 */}
             <IconButton
               edge='start'
               aria-label='open sidebar'
@@ -134,7 +133,7 @@ export const Header = ({ onToggle, navItems }: HeaderProps) => {
             >
               <MenuIcon fontSize='small' />
             </IconButton>
-            {/* Logo */}
+            {/* logo */}
             <NavLink
               to={'/'}
               style={{ textDecoration: 'none', marginRight: '.25rem' }}
@@ -147,7 +146,7 @@ export const Header = ({ onToggle, navItems }: HeaderProps) => {
                 objectFit='cover'
               />
             </NavLink>
-            {/* Navigation Buttons */}
+            {/* 導覽列按鈕 */}
             <Box
               sx={{
                 display: { xs: 'none', md: 'flex' },
@@ -156,7 +155,11 @@ export const Header = ({ onToggle, navItems }: HeaderProps) => {
               }}
             >
               {navItems.map(({ path, icon, label }) => (
-                <NavLink key={path} to={path} style={{ textDecoration: 'none' }}>
+                <NavLink
+                  key={path}
+                  to={path}
+                  style={{ textDecoration: 'none' }}
+                >
                   {() => (
                     <Button
                       startIcon={icon}
@@ -179,8 +182,8 @@ export const Header = ({ onToggle, navItems }: HeaderProps) => {
               ))}
             </Box>
           </Box>
-          {/* RightMenu */}
-          {/* User Profile Menu */}
+          {/* 右側選單 */}
+          {/* 使用者個人檔案選單 */}
           <UserProfileMenu items={userProfileMenuItem} />
         </Box>
       </Toolbar>

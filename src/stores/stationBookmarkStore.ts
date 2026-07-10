@@ -17,7 +17,7 @@ const getAccessToken = () => useAuthStore.getState().accessToken;
 
 interface StationBookmarkState {
   bookmarks: StationBookmark[];
-  isLoading: boolean;
+  isBookmarksLoading: boolean;
   hasFetched: boolean;
   fetchAllBookmark: () => Promise<void>;
   toggleBookmark: (stationId: number) => Promise<void>;
@@ -26,13 +26,13 @@ interface StationBookmarkState {
 export const useStationBookmarkStore = create<StationBookmarkState>(
   (set, get) => ({
     bookmarks: [],
-    isLoading: false,
+    isBookmarksLoading: false,
     hasFetched: false,
 
     fetchAllBookmark: async () => {
       if (get().hasFetched || !getAccessToken()) return;
 
-      set({ isLoading: true });
+      set({ isBookmarksLoading: true });
 
       try {
         const response = await getAllStationBookmarkPaginated({
@@ -45,7 +45,7 @@ export const useStationBookmarkStore = create<StationBookmarkState>(
           variant: 'error',
         });
       } finally {
-        set({ isLoading: false });
+        set({ isBookmarksLoading: false });
       }
     },
 

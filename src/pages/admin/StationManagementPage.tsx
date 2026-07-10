@@ -11,48 +11,62 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { DataGrid } from '@mui/x-data-grid';
 import { enqueueSnackbar } from 'notistack';
 
-import { Dialog } from '@/components/Dialog';
 import { StationAutocomplete } from '@/components/StationAutocomplete';
 import { MetroSyncSection } from '@/components/admin/MetroSyncSection';
+import { StationFacilityDialog } from '@/components/admin/StationFacilityDialog';
 import { UpdateStationDialog } from '@/components/admin/UpdateStationDialog';
-import { getAllStationPaginated, getStationById } from '@/services/metro';
-import { FACILITY_DETAIL_LABELS } from '@/services/metro/types';
+import { getAllStationPaginated } from '@/services/metro';
 import { formatDateTime } from '@/utils/date';
 
 import type {
-  GridColDef,
   GridRenderCellParams,
   GridRowSelectionModel,
 } from '@mui/x-data-grid';
-import type {
-  Station,
-  StationOption,
-  StationSummary,
-} from '@/services/metro/interface';
+import type { StationOption, StationSummary } from '@/services/metro/interface';
 
-const exportColumnMap: Record<string, string> = {
-  id: 'ID',
+const exportColumnMap = {
+  id: 'id',
   nameZhTw: '中文站名',
   nameEn: '英文站名',
   updatedAt: '更新時間',
 };
 
+const exportStationsToExcel = (rows: StationSummary[]) => {
+  if (rows.length === 0) return;
+
+  const exportData = rows.map((row) => {
+    const mapped: Record<string, unknown> = {};
+
+    for (const [key, header] of Object.entries(exportColumnMap)) {
+      mapped[header] = row[key as keyof StationSummary] ?? '-';
+    }
+
+    return mapped;
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, '車站資訊');
+  XLSX.writeFile(workbook, '臺北捷運車站資訊.xlsx');
+};
+
 const StationManagementPage = () => {
   const [rows, setRows] = useState<StationSummary[]>([]);
   const [rowCount, setRowCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState<StationOption | null>(null);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
   });
-  const [searchValue, setSearchValue] = useState<StationOption | null>(null);
   const [rowSelectionModel, setRowSelectionModel] =
     useState<GridRowSelectionModel>({ type: 'include', ids: new Set() });
+  const [isStationsLoading, setIsStationsLoading] = useState(false);
+
   const [facilityDialogOpen, setFacilityDialogOpen] = useState(false);
-  const [facilityStation, setFacilityStation] = useState<Station | null>(
-    null
+  const [facilityStationId, setFacilityStationId] = useState<number | null>(
+    null,
   );
-  const [isFacilityLoading, setIsFacilityLoading] = useState(false);
+
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editStationId, setEditStationId] = useState<number | null>(null);
 
@@ -72,49 +86,21 @@ const StationManagementPage = () => {
     setEditStationId(null);
   };
 
-  const handleOpenFacilityDialog = useCallback(async (id: number) => {
+  const handleOpenFacilityDialog = useCallback((id: number) => {
+    setFacilityStationId(id);
     setFacilityDialogOpen(true);
-    setIsFacilityLoading(true);
-    try {
-      const station = await getStationById({ id });
-      setFacilityStation(station);
-    } catch (error) {
-      enqueueSnackbar((error as string) || '取得設備資訊失敗', {
-        variant: 'error',
-      });
-      setFacilityDialogOpen(false);
-    } finally {
-      setIsFacilityLoading(false);
-    }
   }, []);
 
   const handleCloseFacilityDialog = () => {
     setFacilityDialogOpen(false);
-    setFacilityStation(null);
+    setFacilityStationId(null);
   };
 
-  const handleExportExcel = () => {
-    if (selectedRows.length === 0) return;
-
-    const exportData = selectedRows.map((row) => {
-      const mapped: Record<string, unknown> = {};
-      for (const [key, header] of Object.entries(exportColumnMap)) {
-        mapped[header] = row[key as keyof StationSummary] ?? '-';
-      }
-      return mapped;
-    });
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, '車站資訊');
-    XLSX.writeFile(workbook, '車站資訊.xlsx');
-  };
-
-  const columns: GridColDef[] = useMemo(
+  const columns = useMemo(
     () => [
       {
         field: 'id',
-        headerName: 'ID',
+        headerName: 'id',
       },
       {
         field: 'nameZhTw',
@@ -165,11 +151,11 @@ const StationManagementPage = () => {
         ),
       },
     ],
-    [handleOpenFacilityDialog]
+    [handleOpenFacilityDialog],
   );
 
   const fetchAllStation = useCallback(async () => {
-    setIsLoading(true);
+    setIsStationsLoading(true);
 
     try {
       const response = await getAllStationPaginated({
@@ -184,7 +170,7 @@ const StationManagementPage = () => {
         variant: 'error',
       });
     } finally {
-      setIsLoading(false);
+      setIsStationsLoading(false);
     }
   }, [paginationModel.page, paginationModel.pageSize, searchValue]);
 
@@ -231,7 +217,11 @@ const StationManagementPage = () => {
           {selectedCount === 0 && (
             <Stack
               direction='row'
-              sx={{ alignItems: 'center', gap: '0.25rem', color: 'text.secondary' }}
+              sx={{
+                alignItems: 'center',
+                gap: '0.25rem',
+                color: 'text.secondary',
+              }}
             >
               <InfoOutlinedIcon fontSize='small' />
               <Typography variant='body2'>請先勾選要匯出的車站</Typography>
@@ -240,7 +230,7 @@ const StationManagementPage = () => {
           <Button
             variant='contained'
             startIcon={<FileDownloadOutlinedIcon />}
-            onClick={handleExportExcel}
+            onClick={() => exportStationsToExcel(selectedRows)}
             disabled={selectedCount === 0}
           >
             匯出 Excel（{selectedCount}）
@@ -251,7 +241,7 @@ const StationManagementPage = () => {
       <DataGrid
         rows={rows}
         columns={columns}
-        loading={isLoading}
+        loading={isStationsLoading}
         paginationMode='server'
         rowCount={rowCount}
         paginationModel={paginationModel}
@@ -285,33 +275,11 @@ const StationManagementPage = () => {
         }}
       />
       {/* 設備資訊對話框 */}
-      <Dialog
+      <StationFacilityDialog
         isOpen={facilityDialogOpen}
         onClose={handleCloseFacilityDialog}
-        title={
-          facilityStation ? `${facilityStation.nameZhTw} 設備資訊` : '設備資訊'
-        }
-        width='24rem'
-      >
-        {isFacilityLoading || !facilityStation ? (
-          <Typography>載入中...</Typography>
-        ) : (
-          <Stack sx={{ gap: '0.75rem' }}>
-            {FACILITY_DETAIL_LABELS.map(({ key, label }) => (
-              <Stack
-                key={key}
-                direction='row'
-                sx={{ justifyContent: 'space-between' }}
-              >
-                <Typography sx={{ color: 'text.secondary' }}>
-                  {label}
-                </Typography>
-                <Typography>{facilityStation[key] || '-'}</Typography>
-              </Stack>
-            ))}
-          </Stack>
-        )}
-      </Dialog>
+        stationId={facilityStationId}
+      />
       {/* 更新車站資訊對話框 */}
       <UpdateStationDialog
         isOpen={editDialogOpen}

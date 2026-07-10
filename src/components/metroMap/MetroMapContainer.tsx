@@ -12,20 +12,31 @@ import { RouteResultCard } from './RouteResultCard';
 import { StationInfoCard } from './StationInfoCard';
 
 export const MetroMapContainer = () => {
-  const { lines, isMetroMapLoading, error, fetchMetroMap, routeResult, clearRoute } = useMetroMapStore();
-  const currentStationCode = useStationStore((state) => state.currentStationCode);
+  const {
+    lines,
+    isMetroMapLoading,
+    error,
+    fetchMetroMap,
+    routeResult,
+    clearRoute,
+  } = useMetroMapStore();
+  const currentStationCode = useStationStore(
+    (state) => state.currentStationCode,
+  );
   const clearSelection = useStationStore((state) => state.clearSelection);
 
   useEffect(() => {
     fetchMetroMap();
   }, [fetchMetroMap]);
 
-  // 遍歷方式，透過車站代碼找到對應的路線與車站資料，找到就停止搜尋，不用找其他路線
+  // 以遍歷方式，透過車站代碼找到對應的路線與車站資料，找到就停止搜尋，不用找其他路線
   let selectedStation = null;
   let selectedLine = null;
   if (currentStationCode) {
     for (const line of lines) {
-      const station = line.stations.find((station) => station.stationCode === currentStationCode);
+      const station = line.stations.find(
+        (station) => station.stationCode === currentStationCode,
+      );
       if (station) {
         selectedStation = station;
         selectedLine = line;
@@ -34,7 +45,7 @@ export const MetroMapContainer = () => {
     }
   }
 
-  {/* 資料載入中的提示畫面 */ }
+  // 資料載入中的提示畫面
   if (isMetroMapLoading) {
     return (
       <Box
@@ -55,7 +66,7 @@ export const MetroMapContainer = () => {
     );
   }
 
-  {/* 資料載入失敗的提示畫面 */ }
+  // 資料載入失敗的提示畫面
   if (error) {
     return (
       <Box
@@ -73,7 +84,7 @@ export const MetroMapContainer = () => {
     );
   }
 
-  {/* 資料載入成功的顯示畫面 */ }
+  // 資料載入成功的顯示畫面
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
       {/* 顯示路網圖與可點擊區域 */}
@@ -93,4 +104,4 @@ export const MetroMapContainer = () => {
       )}
     </Box>
   );
-}
+};

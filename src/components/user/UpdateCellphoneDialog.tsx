@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { z } from 'zod';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { enqueueSnackbar } from 'notistack';
 
@@ -12,15 +12,18 @@ import TextField from '@mui/material/TextField';
 
 import { Dialog } from '@/components/Dialog';
 import { updateCellphone } from '@/services/user';
+import { isValidCellphone } from '@/utils/validation';
 
 const formSchema = z.object({
   cellphone: z
     .string()
     .min(1, '請輸入手機號碼!')
-    .regex(/^0\d{9}$/, '請輸入 0 開頭的 10 碼手機號碼!'),
+    .refine(isValidCellphone, '請輸入 09 開頭的 10 碼手機號碼!'),
 });
 
 type FormData = z.infer<typeof formSchema>;
+
+const defaultValues: FormData = { cellphone: '' };
 
 interface UpdateCellphoneDialogProps {
   isOpen: boolean;
@@ -41,7 +44,7 @@ export const UpdateCellphoneDialog = ({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    defaultValues: { cellphone: '' },
+    defaultValues,
     resolver: zodResolver(formSchema),
     mode: 'onChange',
   });
@@ -54,15 +57,15 @@ export const UpdateCellphoneDialog = ({
 
   const handleClose = (): void => {
     onClose();
-    reset({ cellphone: '' });
+    reset(defaultValues);
   };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const { successMessage } = await updateCellphone({
+      const response = await updateCellphone({
         cellphone: data.cellphone,
       });
-      enqueueSnackbar(successMessage || '手機號碼修改成功！', {
+      enqueueSnackbar(response.successMessage || '手機號碼修改成功！', {
         variant: 'success',
       });
       onClose();

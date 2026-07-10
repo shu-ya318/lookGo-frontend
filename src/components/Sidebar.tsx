@@ -16,7 +16,7 @@ interface SidebarProps {
   isOpen: boolean;
   items: NavItem[];
   onClose: () => void;
-};
+}
 
 export const Sidebar = ({ isOpen, items, onClose }: SidebarProps) => {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export const Sidebar = ({ isOpen, items, onClose }: SidebarProps) => {
         display: { xs: 'block', md: 'none' },
         '& .MuiDrawer-paper': {
           display: { xs: 'block', md: 'none' },
-        }
+        },
       }}
     >
       <Stack
@@ -45,7 +45,7 @@ export const Sidebar = ({ isOpen, items, onClose }: SidebarProps) => {
           margin: '0 auto',
         }}
       >
-        {/*Logo and Close button*/}
+        {/*Logo 和 關閉按鈕 */}
         <Stack
           direction='row'
           sx={{
@@ -68,7 +68,7 @@ export const Sidebar = ({ isOpen, items, onClose }: SidebarProps) => {
             </IconButton>
           </Stack>
         </Stack>
-        {/* Navigation */}
+        {/* 頁面的導航連結 */}
         <List>
           {items.map(({ label, path, icon }) => (
             <ListItem key={path} disablePadding>
@@ -84,7 +84,13 @@ export const Sidebar = ({ isOpen, items, onClose }: SidebarProps) => {
                   },
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 36, color: 'primary.dark', transition: 'color 0.2s' }}>
+                <ListItemIcon
+                  sx={{
+                    minWidth: 36,
+                    color: 'primary.dark',
+                    transition: 'color 0.2s',
+                  }}
+                >
                   {icon}
                 </ListItemIcon>
                 <ListItemText

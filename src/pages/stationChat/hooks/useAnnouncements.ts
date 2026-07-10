@@ -13,7 +13,7 @@ interface UseAnnouncementsResult {
     isAnnouncementExpanded: boolean;
     announcementPage: number;
     announcementTotalPages: number;
-    isLoadingMoreAnnouncements: boolean;
+    isMoreAnnouncementsLoading: boolean;
     toggleAnnouncementExpanded: () => void;
     refetchAnnouncements: () => Promise<void>;
     handleLoadMoreAnnouncements: () => Promise<void>;
@@ -31,7 +31,7 @@ export const useAnnouncements = (
     const [isAnnouncementExpanded, setIsAnnouncementExpanded] = useState(false);
     const [announcementPage, setAnnouncementPage] = useState(0);
     const [announcementTotalPages, setAnnouncementTotalPages] = useState(0);
-    const [isLoadingMoreAnnouncements, setIsLoadingMoreAnnouncements] =
+    const [isMoreAnnouncementsLoading, setIsMoreAnnouncementsLoading] =
         useState(false);
 
     useEffect(() => {
@@ -102,11 +102,11 @@ export const useAnnouncements = (
     }, [selectedStation]);
 
     const handleLoadMoreAnnouncements = async () => {
-        if (!selectedStation || isLoadingMoreAnnouncements) return;
+        if (!selectedStation || isMoreAnnouncementsLoading) return;
 
         const nextPage = announcementPage + 1;
 
-        setIsLoadingMoreAnnouncements(true);
+        setIsMoreAnnouncementsLoading(true);
 
         try {
             const response = await getAnnouncementByStationId({
@@ -126,7 +126,7 @@ export const useAnnouncements = (
                 variant: 'error',
             });
         } finally {
-            setIsLoadingMoreAnnouncements(false);
+            setIsMoreAnnouncementsLoading(false);
         }
     };
 
@@ -139,7 +139,7 @@ export const useAnnouncements = (
         isAnnouncementExpanded,
         announcementPage,
         announcementTotalPages,
-        isLoadingMoreAnnouncements,
+        isMoreAnnouncementsLoading,
         toggleAnnouncementExpanded,
         refetchAnnouncements,
         handleLoadMoreAnnouncements,

@@ -36,8 +36,8 @@ export const StationInfoCard = ({
   allLines,
   onClose,
 }: StationInfoCardProps) => {
-  const stationDetails = useStationStore((state) => state.stationDetails);
-  const isLoading = useStationStore((state) => state.isLoading);
+  const stationDetail = useStationStore((state) => state.stationDetail);
+  const isStationLoading = useStationStore((state) => state.isStationLoading);
   const bookmarks = useStationBookmarkStore((state) => state.bookmarks);
 
   const fetchAllBookmark = useStationBookmarkStore(
@@ -164,12 +164,12 @@ export const StationInfoCard = ({
         )}
         <Divider sx={{ my: 1 }} />
         {/* 車站設備 */}
-        {isLoading ? (
+        {isStationLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
             <CircularProgress size={20} />
           </Box>
         ) : (
-          stationDetails && <StationFacilityList facilities={stationDetails} />
+          stationDetail && <StationFacilityList facilities={stationDetail} />
         )}
       </CardContent>
     </Card>

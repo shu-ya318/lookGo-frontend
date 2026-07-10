@@ -21,7 +21,7 @@ interface AnnouncementSectionProps {
     isAnnouncementExpanded: boolean;
     announcementPage: number;
     announcementTotalPages: number;
-    isLoadingMoreAnnouncements: boolean;
+    isMoreAnnouncementsLoading: boolean;
     onToggleExpand: () => void;
     onAdd: () => void;
     onEdit: (announcement: StationChatAnnouncement) => void;
@@ -35,7 +35,7 @@ export const AnnouncementSection = ({
     isAnnouncementExpanded,
     announcementPage,
     announcementTotalPages,
-    isLoadingMoreAnnouncements,
+    isMoreAnnouncementsLoading,
     onToggleExpand,
     onAdd,
     onEdit,
@@ -195,9 +195,9 @@ export const AnnouncementSection = ({
                                 <Button
                                     size='small'
                                     onClick={onLoadMore}
-                                    disabled={isLoadingMoreAnnouncements}
+                                    disabled={isMoreAnnouncementsLoading}
                                     startIcon={
-                                        isLoadingMoreAnnouncements ? (
+                                        isMoreAnnouncementsLoading ? (
                                             <CircularProgress size='0.875rem' />
                                         ) : undefined
                                     }

@@ -6,6 +6,7 @@ import Menu from '@mui/material/Menu';
 import Typography from '@mui/material/Typography';
 
 import { UserProfileMenuList } from './UserProfileMenuList';
+
 import { useUserStore } from '@/stores/userStore';
 
 import type { ComponentType, MouseEvent, ReactNode } from 'react';
@@ -16,11 +17,11 @@ interface UserProfileMenuItem {
   props?: Record<string, unknown>;
   action?: () => void;
   Component?: ComponentType;
-};
+}
 
 interface UserProfileMenuListProps {
   items: UserProfileMenuItem[];
-};
+}
 
 export const UserProfileMenu = ({ items }: UserProfileMenuListProps) => {
   const { userInfo } = useUserStore();
@@ -47,7 +48,7 @@ export const UserProfileMenu = ({ items }: UserProfileMenuListProps) => {
         component='label'
         tabIndex={-1}
         startIcon={<AccountCircle fontSize='small' />}
-        onClick={event => handleUserMenuToggle(event)}
+        onClick={(event) => handleUserMenuToggle(event)}
         sx={{
           color: 'primary.main',
           '&:hover': {

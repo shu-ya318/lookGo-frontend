@@ -78,7 +78,6 @@ const ResetPasswordPage = () => {
         resetPasswordToken,
         newPassword,
       });
-
       enqueueSnackbar(response.successMessage || '密碼重設成功！', {
         variant: 'success',
       });
@@ -229,7 +228,7 @@ const ResetPasswordPage = () => {
           重設密碼
         </Button>
       </Stack>
-      {/* 返回登入連結 */}
+      {/* 返回登入的導航連結 */}
       <Link
         component='button'
         type='button'

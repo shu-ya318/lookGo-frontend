@@ -13,19 +13,17 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { useUserStore } from '@/stores/userStore';
 import { getCurrentUser } from '@/services/user';
+import {
+  MembershipTier,
+  MEMBERSHIP_TIER_LABELS,
+} from '@/services/user/types';
 
 import { UpdatePasswordDialog } from '@/components/user/UpdatePasswordDialog';
 import { UpdateUsernameDialog } from '@/components/user/UpdateUsernameDialog';
 import { UpdateCellphoneDialog } from '@/components/user/UpdateCellphoneDialog';
 import { UpdateBirthDateDialog } from '@/components/user/UpdateBirthDateDialog';
 
-import type { MembershipTier } from '@/services/user/interface';
 import { formatDateTime } from '@/utils/date';
-
-const membershipTierLabel: Record<MembershipTier, string> = {
-  BASIC: '基本',
-  PREMIUM: '進階',
-};
 
 interface FieldConfig {
   label: string;
@@ -77,7 +75,8 @@ const SettingPage = () => {
 
     if (key === 'membershipTier') {
       return (
-        membershipTierLabel[userInfo.membershipTier] || userInfo.membershipTier
+        MEMBERSHIP_TIER_LABELS[userInfo.membershipTier] ||
+        userInfo.membershipTier
       );
     }
 
@@ -201,7 +200,7 @@ const SettingPage = () => {
               )}
             </Stack>
             {field.key === 'membershipTier' &&
-              userInfo?.membershipTier === 'BASIC' && (
+              userInfo?.membershipTier === MembershipTier.BASIC && (
                 <Stack
                   direction='row'
                   spacing={0.5}

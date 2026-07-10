@@ -13,19 +13,23 @@ interface StationFacilityListProps {
   emptyFallback?: ReactNode;
 }
 
-export function StationFacilityList({
+export const StationFacilityList = ({
   facilities,
   emptyFallback = null,
-}: StationFacilityListProps): React.ReactElement | null {
+}: StationFacilityListProps) => {
   const availableFacilities = FACILITY_DETAIL_LABELS.filter(({ key }) => {
     const value = facilities[key];
+
     return value != null && value !== '';
   });
 
-  if (availableFacilities.length === 0) return <>{emptyFallback}</>;
+  if (availableFacilities.length === 0) {
+    return <>{emptyFallback}</>;
+  }
 
   return (
     <>
+      {/* 站內設施標題 */}
       <Typography
         variant='caption'
         color='text.secondary'
@@ -33,9 +37,11 @@ export function StationFacilityList({
       >
         站內設施
       </Typography>
+      {/* 站內設施列表 */}
       <Stack spacing={0.5}>
         {availableFacilities.map(({ key, label }) => {
           const note = facilities[key] as string;
+
           return (
             <Stack
               key={key}
@@ -71,4 +77,4 @@ export function StationFacilityList({
       </Stack>
     </>
   );
-}
+};

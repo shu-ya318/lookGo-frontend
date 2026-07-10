@@ -174,7 +174,7 @@ const LoginPage = () => {
             )}
           />
         </FormControl>
-        {/* 忘記密碼連結 */}
+        {/* 忘記密碼的導航連結 */}
         <Link
           component='button'
           type='button'
@@ -207,7 +207,7 @@ const LoginPage = () => {
       >
         登入
       </Button>
-      {/* 登入連結 */}
+      {/* 登入的導航連結 */}
       <Link
         component='button'
         type='button'

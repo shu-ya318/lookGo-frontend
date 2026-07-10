@@ -39,7 +39,7 @@ export const AuthLayout = () => {
           },
         })}
       >
-        {/* Left Panel */}
+        {/* 左區塊 */}
         <Box
           sx={(theme) => ({
             display: 'none',
@@ -59,7 +59,7 @@ export const AuthLayout = () => {
         >
           <ImageBox src={logo} alt='logo' width='15rem' height='6.5rem' />
           <Typography
-            variant="h5"
+            variant='h5'
             sx={{
               maxWidth: '20rem',
               textAlign: 'left',
@@ -70,10 +70,10 @@ export const AuthLayout = () => {
               textShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
             }}
           >
-            一個快速搜尋臺北捷運資訊和客製化規劃旅程的平台
+            一個快速搜尋臺北捷運資訊並規劃旅程的整合平台
           </Typography>
           <Typography
-            variant="caption"
+            variant='caption'
             sx={{
               maxWidth: '20rem',
               textAlign: 'left',
@@ -81,10 +81,10 @@ export const AuthLayout = () => {
               textShadow: '0 2px 6px rgba(0, 0, 0, 0.25)',
             }}
           >
-            立即成為會員，蒐藏更多你最愛的車站、規劃專屬的旅程，並參與即時的車站聊天室共享資訊!
+            立即成為會員，蒐藏更多車站、規劃專屬旅程，並加入車站聊天室即時共享資訊!
           </Typography>
         </Box>
-        {/* Right Panel */}
+        {/* 右區塊 */}
         <Box
           sx={(theme) => ({
             width: '100%',
@@ -117,5 +117,3 @@ export const AuthLayout = () => {
     </Box>
   );
 };
-
-

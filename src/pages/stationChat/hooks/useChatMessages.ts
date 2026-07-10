@@ -3,6 +3,7 @@ import { enqueueSnackbar } from 'notistack';
 
 import { getMessageByStationId } from '@/services/stationChat';
 import { connectStationChatSocket } from '@/services/stationChat/socket';
+import { ChatType, ChatEventType } from '@/services/stationChat/types';
 
 import type { KeyboardEvent, RefObject } from 'react';
 import type { StationDetail } from '@/services/metro/interface';
@@ -13,9 +14,9 @@ const MESSAGE_PAGE_SIZE = 16;
 
 interface UseChatMessagesResult {
     messages: StationChatMessage[];
-    isLoadingMessages: boolean;
+    isMessagesLoading: boolean;
     hasMore: boolean;
-    isLoadingMore: boolean;
+    isMoreMessagesLoading: boolean;
     isConnected: boolean;
     inputMessage: string;
     setInputMessage: (value: string) => void;
@@ -37,8 +38,8 @@ export const useChatMessages = (
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(false);
 
-    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+    const [isMoreMessagesLoading, setIsMoreMessagesLoading] = useState(false);
 
     const [isConnected, setIsConnected] = useState(false);
 
@@ -72,7 +73,7 @@ export const useChatMessages = (
         let isCancelled = false;
 
         const init = async () => {
-            setIsLoadingMessages(true);
+            setIsMessagesLoading(true);
 
             try {
                 const response = await getMessageByStationId({
@@ -97,7 +98,7 @@ export const useChatMessages = (
                 }
             } finally {
                 if (!isCancelled) {
-                    setIsLoadingMessages(false);
+                    setIsMessagesLoading(false);
                 }
             }
         };
@@ -106,12 +107,12 @@ export const useChatMessages = (
 
         socketRef.current = connectStationChatSocket(selectedStation.id, {
             onEvent: event => {
-                if (event.eventType === 'NEW' && event.message) {
+                if (event.eventType === ChatEventType.NEW && event.message) {
                     const newMessage = event.message;
                     setMessages(prev => [...prev, newMessage]);
                     scrollToBottom();
                 } else if (
-                    event.eventType === 'DELETE' &&
+                    event.eventType === ChatEventType.DELETE &&
                     event.deletedMessageId !== undefined
                 ) {
                     const deletedMessageId = event.deletedMessageId;
@@ -134,13 +135,13 @@ export const useChatMessages = (
     }, [selectedStation, scrollToBottom]);
 
     const handleLoadMoreMessages = async () => {
-        if (!selectedStation || isLoadingMore) return;
+        if (!selectedStation || isMoreMessagesLoading) return;
 
         const container = messageListRef.current;
         const prevScrollHeight = container?.scrollHeight ?? 0;
         const nextPage = page + 1;
 
-        setIsLoadingMore(true);
+        setIsMoreMessagesLoading(true);
 
         try {
             const response = await getMessageByStationId({
@@ -165,7 +166,7 @@ export const useChatMessages = (
                 variant: 'error',
             });
         } finally {
-            setIsLoadingMore(false);
+            setIsMoreMessagesLoading(false);
         }
     };
 
@@ -173,7 +174,7 @@ export const useChatMessages = (
         if (!inputMessage.trim() || !socketRef.current) return;
 
         socketRef.current.sendMessage({
-            chatType: 'TEXT',
+            chatType: ChatType.TEXT,
             content: inputMessage.trim(),
             tripPlanId: null,
         });
@@ -195,7 +196,7 @@ export const useChatMessages = (
         if (!socketRef.current) return;
 
         socketRef.current.sendMessage({
-            chatType: 'TRIP_PLAN',
+            chatType: ChatType.TRIP_PLAN,
             content: null,
             tripPlanId,
         });
@@ -203,9 +204,9 @@ export const useChatMessages = (
 
     return {
         messages,
-        isLoadingMessages,
+        isMessagesLoading,
         hasMore,
-        isLoadingMore,
+        isMoreMessagesLoading,
         isConnected,
         inputMessage,
         setInputMessage,

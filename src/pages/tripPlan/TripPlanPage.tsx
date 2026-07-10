@@ -36,8 +36,8 @@ const TripPlanPage = () => {
     const [allTripPlan, setAllTripPlan] = useState<TripPlan[]>([]);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [isTripPlansLoading, setIsTripPlansLoading] = useState(false);
+    const [isMoreTripPlansLoading, setIsMoreTripPlansLoading] = useState(false);
     const [deletingTripPlan, setDeletingTripPlan] = useState<TripPlan | null>(
         null
     );
@@ -52,7 +52,7 @@ const TripPlanPage = () => {
     const hasMore = page + 1 < totalPages;
 
     const fetchAllTripPlan = useCallback(async () => {
-        setIsLoading(true);
+        setIsTripPlansLoading(true);
 
         try {
             if (keyword) {
@@ -80,7 +80,7 @@ const TripPlanPage = () => {
                 });
             }
         } finally {
-            setIsLoading(false);
+            setIsTripPlansLoading(false);
         }
     }, [keyword]);
 
@@ -105,10 +105,10 @@ const TripPlanPage = () => {
     };
 
     const handleLoadMore = async () => {
-        if (isLoadingMore) return;
+        if (isMoreTripPlansLoading) return;
 
         const nextPage = page + 1;
-        setIsLoadingMore(true);
+        setIsMoreTripPlansLoading(true);
         try {
             const response = await getAllTripPlanPaginated({
                 page: nextPage,
@@ -122,7 +122,7 @@ const TripPlanPage = () => {
                 variant: 'error',
             });
         } finally {
-            setIsLoadingMore(false);
+            setIsMoreTripPlansLoading(false);
         }
     };
 
@@ -213,7 +213,7 @@ const TripPlanPage = () => {
                 </Button>
             </Stack>
             {/* 顯示旅程結果畫面 */}
-            {isLoading && allTripPlan.length === 0 ? (
+            {isTripPlansLoading && allTripPlan.length === 0 ? (
                 <Stack sx={{ alignItems: 'center', py: 4 }}>
                     <CircularProgress size='1.5rem' />
                 </Stack>
@@ -257,9 +257,9 @@ const TripPlanPage = () => {
                             <Button
                                 size='small'
                                 onClick={handleLoadMore}
-                                disabled={isLoadingMore}
+                                disabled={isMoreTripPlansLoading}
                                 startIcon={
-                                    isLoadingMore ? (
+                                    isMoreTripPlansLoading ? (
                                         <CircularProgress size='0.875rem' />
                                     ) : undefined
                                 }

@@ -12,7 +12,7 @@ interface DeleteDialogProps {
   onClose: () => void;
   onDeleteItems?: () => void;
   onDeleteItem?: () => void;
-};
+}
 
 export const DeleteDialog = ({
   title,
@@ -24,8 +24,10 @@ export const DeleteDialog = ({
   onDeleteItem,
 }: DeleteDialogProps) => {
   const handleDeleteClick = () => {
+    // 多選項目刪除
     if (onDeleteItems) {
       onDeleteItems();
+      // 單選項目刪除
     } else if (onDeleteItem) {
       onDeleteItem();
     }
