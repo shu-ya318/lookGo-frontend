@@ -2,7 +2,7 @@ export interface SignupRequest {
     email: string;
     username: string;
     password: string;
-    cellphone?: string;
+    cellphone: string;
     birthDate?: string;
 }
 

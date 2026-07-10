@@ -11,67 +11,71 @@ import {
 
 import type { StationBookmark } from '@/services/stationBookmark/interface';
 
-// 用來一次取得目前使用者所有書籤，供各頁面判斷車站是否已收藏
 const FETCH_ALL_SIZE = 1000;
+
+const getAccessToken = () => useAuthStore.getState().accessToken;
 
 interface StationBookmarkState {
   bookmarks: StationBookmark[];
   isLoading: boolean;
   hasFetched: boolean;
-  fetchBookmarks: () => Promise<void>;
+  fetchAllBookmark: () => Promise<void>;
   toggleBookmark: (stationId: number) => Promise<void>;
 }
 
-export const useStationBookmarkStore = create<StationBookmarkState>((set, get) => ({
-  bookmarks: [],
-  isLoading: false,
-  hasFetched: false,
+export const useStationBookmarkStore = create<StationBookmarkState>(
+  (set, get) => ({
+    bookmarks: [],
+    isLoading: false,
+    hasFetched: false,
 
-  fetchBookmarks: async () => {
-    if (get().hasFetched || !useAuthStore.getState().accessToken) return;
+    fetchAllBookmark: async () => {
+      if (get().hasFetched || !getAccessToken()) return;
 
-    set({ isLoading: true });
-    try {
-      const { content } = await getAllStationBookmarkPaginated({
-        page: 0,
-        size: FETCH_ALL_SIZE,
-      });
-      set({ bookmarks: content, hasFetched: true });
-    } catch (error) {
-      enqueueSnackbar((error as string) || '取得車站書籤失敗', {
-        variant: 'error',
-      });
-    } finally {
-      set({ isLoading: false });
-    }
-  },
+      set({ isLoading: true });
 
-  toggleBookmark: async (stationId) => {
-    if (!useAuthStore.getState().accessToken) {
-      enqueueSnackbar('請先登入以使用車站書籤功能', { variant: 'warning' });
-      return;
-    }
-
-    const existing = get().bookmarks.find(
-      bookmark => bookmark.stationId === stationId
-    );
-
-    try {
-      if (existing) {
-        await deleteStationBookmark({ bookmarkId: existing.id });
-        set({
-          bookmarks: get().bookmarks.filter(
-            bookmark => bookmark.id !== existing.id
-          ),
+      try {
+        const response = await getAllStationBookmarkPaginated({
+          page: 0,
+          size: FETCH_ALL_SIZE,
         });
-      } else {
-        const bookmark = await createStationBookmark({ stationId });
-        set({ bookmarks: [...get().bookmarks, bookmark] });
+        set({ bookmarks: response.content, hasFetched: true });
+      } catch (error) {
+        enqueueSnackbar((error as string) || '取得車站書籤失敗', {
+          variant: 'error',
+        });
+      } finally {
+        set({ isLoading: false });
       }
-    } catch (error) {
-      enqueueSnackbar((error as string) || '更新車站書籤失敗', {
-        variant: 'error',
-      });
-    }
-  },
-}));
+    },
+
+    toggleBookmark: async (stationId) => {
+      if (!getAccessToken()) {
+        enqueueSnackbar('請先登入以使用車站書籤功能', { variant: 'warning' });
+        return;
+      }
+
+      const existing = get().bookmarks.find(
+        (bookmark) => bookmark.stationId === stationId,
+      );
+
+      try {
+        if (existing) {
+          await deleteStationBookmark({ bookmarkId: existing.id });
+          set({
+            bookmarks: get().bookmarks.filter(
+              (bookmark) => bookmark.id !== existing.id,
+            ),
+          });
+        } else {
+          const response = await createStationBookmark({ stationId });
+          set({ bookmarks: [...get().bookmarks, response] });
+        }
+      } catch (error) {
+        enqueueSnackbar((error as string) || '更新車站書籤失敗', {
+          variant: 'error',
+        });
+      }
+    },
+  }),
+);

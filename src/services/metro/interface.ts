@@ -1,5 +1,4 @@
-import type { PageResponse } from '../common/interface';
-
+import type { PaginatedResponse } from '../common/interface';
 import type { StationFacility } from './types';
 
 // Metro Map
@@ -32,7 +31,7 @@ export interface GetStationByCodeRequest {
 
 // All Station
 
-export interface StationDetails {
+export interface StationDetail {
     id: number;
     nameZhTw: string;
     nameEn: string;
@@ -48,7 +47,7 @@ export interface StationDetails {
     updatedAt: string;
 }
 
-export type GetAllStationResponse = StationDetails[];
+export type GetAllStationResponse = StationDetail[];
 
 // All Station Option
 
@@ -149,7 +148,7 @@ export interface StationSummary {  // 僅摘要資訊
     updatedAt: string;
 }
 
-export type GetAllStationPaginatedResponse = PageResponse<StationSummary>;
+export type GetAllStationPaginatedResponse = PaginatedResponse<StationSummary>;
 
 // All Station Id Option
 

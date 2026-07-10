@@ -5,10 +5,10 @@ import { FACILITY_DETAIL_LABELS } from '@/services/metro/types';
 
 import type { ReactNode } from 'react';
 import type { FacilityDetailKey } from '@/services/metro/types';
-import type { StationDetails } from '@/services/metro/interface';
+import type { StationDetail } from '@/services/metro/interface';
 
 interface StationFacilityListProps {
-  facilities: Pick<StationDetails, FacilityDetailKey>;
+  facilities: Pick<StationDetail, FacilityDetailKey>;
   // 無可用設備時顯示的內容，預設不顯示任何內容（含標題）
   emptyFallback?: ReactNode;
 }

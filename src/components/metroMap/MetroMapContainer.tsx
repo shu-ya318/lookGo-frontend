@@ -12,7 +12,7 @@ import { RouteResultCard } from './RouteResultCard';
 import { StationInfoCard } from './StationInfoCard';
 
 export const MetroMapContainer = () => {
-  const { lines, isLoading, error, fetchMetroMap, routeResult, clearRoute } = useMetroMapStore();
+  const { lines, isMetroMapLoading, error, fetchMetroMap, routeResult, clearRoute } = useMetroMapStore();
   const currentStationCode = useStationStore((state) => state.currentStationCode);
   const clearSelection = useStationStore((state) => state.clearSelection);
 
@@ -35,7 +35,7 @@ export const MetroMapContainer = () => {
   }
 
   {/* 資料載入中的提示畫面 */ }
-  if (isLoading) {
+  if (isMetroMapLoading) {
     return (
       <Box
         sx={{

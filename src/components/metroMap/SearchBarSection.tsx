@@ -29,14 +29,14 @@ const SEARCH_CONTROL_HEIGHT = '2.5rem';
 
 export const SearchBarSection = () => {
   const {
-    allStations,
+    stations,
     fetchRoute,
     isRouteLoading,
     setSelectedFacilities,
     clearRoute,
   } = useMetroMapStore();
   const selectAndFetchStation = useStationStore(
-    (state) => state.selectAndFetchStation
+    (state) => state.selectAndFetchStation,
   );
   const isStationLoading = useStationStore((state) => state.isLoading);
   const clearSelection = useStationStore((state) => state.clearSelection);
@@ -55,15 +55,15 @@ export const SearchBarSection = () => {
 
   useEffect(() => {
     const keyword = searchParams.get('search')?.trim();
-    if (!keyword || hasAppliedSearchParam.current || allStations.length === 0) {
+    if (!keyword || hasAppliedSearchParam.current || stations.length === 0) {
       return;
     }
 
     hasAppliedSearchParam.current = true;
 
-    const matchedStation = allStations.find(
+    const matchedStation = stations.find(
       (station) =>
-        station.stationCode === keyword || station.nameZhTw.includes(keyword)
+        station.stationCode === keyword || station.nameZhTw.includes(keyword),
     );
 
     if (matchedStation) {
@@ -80,7 +80,7 @@ export const SearchBarSection = () => {
     }
 
     setSearchParams({}, { replace: true });
-  }, [allStations, searchParams, setSearchParams, selectAndFetchStation]);
+  }, [stations, searchParams, setSearchParams, selectAndFetchStation]);
 
   // 判斷使用者只選擇單一車站或起訖車站，並設定對應的搜尋行為
   const hasStartStation = startStation !== null;
@@ -137,7 +137,8 @@ export const SearchBarSection = () => {
     // 使用者選取的票價種類（預設全票）
     const fareType = advancedFilters.fare ?? FareType.FULL;
     // 使用者選取的路線策略（預設最少轉乘時間）
-    const routingStrategy = advancedFilters.routingStrategy ?? RoutingStrategy.MIN_TRANSFER;
+    const routingStrategy =
+      advancedFilters.routingStrategy ?? RoutingStrategy.MIN_TRANSFER;
 
     await fetchRoute({
       fromStationCode: startStation.stationCode,

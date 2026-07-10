@@ -1,4 +1,4 @@
-import type { PageResponse } from '../common/interface';
+import type { PaginatedResponse } from '../common/interface';
 
 // All Station Bookmark Paginated
 
@@ -20,7 +20,7 @@ export interface StationBookmark {
 }
 
 export type GetAllStationBookmarkPaginatedResponse =
-    PageResponse<StationBookmark>;
+    PaginatedResponse<StationBookmark>;
 
 // Create Station Bookmark
 

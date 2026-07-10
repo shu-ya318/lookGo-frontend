@@ -3,12 +3,12 @@ import { enqueueSnackbar } from 'notistack';
 
 import { getStationByCode } from '@/services/metro';
 
-import type { StationDetails, StationOption } from '@/services/metro/interface';
+import type { StationDetail, StationOption } from '@/services/metro/interface';
 
 interface UseStationSelectionResult {
     selectedStationOption: StationOption | null;
     setSelectedStationOption: (option: StationOption | null) => void;
-    selectedStation: StationDetails | null;
+    selectedStation: StationDetail | null;
 }
 
 /* 負責處理車站選取邏輯。
@@ -18,7 +18,7 @@ export const useStationSelection = (): UseStationSelectionResult => {
     const [selectedStationOption, setSelectedStationOption] =
         useState<StationOption | null>(null);
     const [selectedStation, setSelectedStation] =
-        useState<StationDetails | null>(null);
+        useState<StationDetail | null>(null);
 
     useEffect(() => {
         if (!selectedStationOption) {

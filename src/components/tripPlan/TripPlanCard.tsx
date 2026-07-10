@@ -23,7 +23,7 @@ import { UpdateTripPlanNameDialog } from "@/components/tripPlan/UpdateTripPlanNa
 import { useStationBookmarkStore } from "@/stores/stationBookmarkStore";
 
 import { FARE_TYPE_LABELS, ROUTING_STRATEGY_LABELS } from "@/services/metro/types";
-import { getTripPlanExcel } from "@/services/tripPlan";
+import { getExcelByTripPlanId } from "@/services/tripPlan";
 import { formatDateTime } from "@/utils/date";
 
 import type { TripPlan } from "@/services/tripPlan/interface";
@@ -77,7 +77,7 @@ export function TripPlanCard({
   const handleExportExcel = async () => {
     setIsExportingExcel(true);
     try {
-      const blob = await getTripPlanExcel({ tripPlanId: tripPlan.id });
+      const blob = await getExcelByTripPlanId({ tripPlanId: tripPlan.id });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
 

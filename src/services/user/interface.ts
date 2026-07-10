@@ -1,6 +1,4 @@
-export type MembershipTier = 'BASIC' | 'PREMIUM';
-export type UserRole = 'USER' | 'ADMIN';
-export type UserStatus = 'DISABLED' | 'ACTIVE';
+import type { MembershipTier, UserRole, UserStatus } from './types';
 
 export interface GetCurrentUserResponse {
     id: number;
@@ -8,12 +6,12 @@ export interface GetCurrentUserResponse {
     username: string;
     membershipTier: MembershipTier;
     role: UserRole;
-    cellphone?: string;
+    cellphone: string;
     birthDate?: string;
     status: UserStatus;
     createdAt: string;
     updatedAt: string;
-    lastLoginAt?: string;
+    lastLoginAt: string;
 }
 
 export interface UpdateCellphoneRequest {

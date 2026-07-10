@@ -18,12 +18,12 @@ import SendIcon from '@mui/icons-material/Send';
 import { FARE_TYPE_LABELS } from '@/services/metro/types';
 import { formatDateTime } from '@/utils/date';
 
-import type { StationDetails } from '@/services/metro/interface';
+import type { StationDetail } from '@/services/metro/interface';
 import type { StationChatMessage } from '@/services/stationChat/interface';
 import type { GetCurrentUserResponse } from '@/services/user/interface';
 
 interface MessageSectionProps {
-    selectedStation: StationDetails | null;
+    selectedStation: StationDetail | null;
     messages: StationChatMessage[];
     isLoadingMessages: boolean;
     hasMore: boolean;

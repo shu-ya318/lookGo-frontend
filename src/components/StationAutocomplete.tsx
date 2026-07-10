@@ -37,18 +37,18 @@ export const StationAutocomplete = ({
     sx,
 }: StationAutocompleteProps) => {
     const stationOptions = useMetroMapStore(state => state.stationOptions);
-    const fetchStationOptions = useMetroMapStore(
-        state => state.fetchStationOptions
+    const fetchAllStationOption = useMetroMapStore(
+        state => state.fetchAllStationOption
     );
     const bookmarks = useStationBookmarkStore(state => state.bookmarks);
-    const fetchBookmarks = useStationBookmarkStore(
-        state => state.fetchBookmarks
+    const fetchAllBookmark = useStationBookmarkStore(
+        state => state.fetchAllBookmark
     );
 
     useEffect(() => {
-        fetchStationOptions();
-        fetchBookmarks();
-    }, [fetchStationOptions, fetchBookmarks]);
+        fetchAllStationOption();
+        fetchAllBookmark();
+    }, [fetchAllStationOption, fetchAllBookmark]);
 
     // StationBookmark 沒有 stationCode，需以車站中文名稱比對車站選項
     const bookmarkedSet = useMemo(

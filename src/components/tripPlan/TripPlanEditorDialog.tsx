@@ -45,13 +45,13 @@ export const TripPlanEditorDialog = ({
   onSaved,
 }: TripPlanEditorDialogProps) => {
   const stationOptions = useMetroMapStore((state) => state.stationOptions);
-  const fetchStationOptions = useMetroMapStore(
-    (state) => state.fetchStationOptions
+  const fetchAllStationOption = useMetroMapStore(
+    (state) => state.fetchAllStationOption
   );
 
   useEffect(() => {
-    fetchStationOptions();
-  }, [fetchStationOptions]);
+    fetchAllStationOption();
+  }, [fetchAllStationOption]);
 
   const [tripTitle, setTripTitle] = useState(tripPlan?.name ?? '');
   const [startStation, setStartStation] = useState<StationOption | null>(

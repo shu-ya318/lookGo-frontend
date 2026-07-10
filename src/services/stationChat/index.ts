@@ -12,6 +12,15 @@ import type {
     UpdateAnnouncementRequest,
 } from './interface';
 
+export const createAnnouncement = async (
+    request: CreateAnnouncementRequest
+): Promise<MessageResponse> => {
+    return await postRequest<MessageResponse>(
+        '/station-chat/create-announcement',
+        request
+    );
+};
+
 export const getMessageByStationId = async (
     request: GetMessageByStationIdRequest
 ): Promise<GetMessageByStationIdResponse> => {
@@ -32,12 +41,13 @@ export const getAnnouncementByStationId = async (
     );
 };
 
-export const createAnnouncement = async (
-    request: CreateAnnouncementRequest
-): Promise<MessageResponse> => {
-    return await postRequest<MessageResponse>(
-        '/station-chat/create-announcement',
-        request
+export const getExcelByStationId = async (
+    request: GetExcelByStationIdRequest
+): Promise<Blob> => {
+    return await postRequest<Blob>(
+        '/station-chat/get-excel-by-station-id',
+        request,
+        { responseType: 'blob' }
     );
 };
 
@@ -56,15 +66,5 @@ export const deleteAnnouncement = async (
     return await postRequest<MessageResponse>(
         '/station-chat/delete-announcement',
         request
-    );
-};
-
-export const getExcelByStationId = async (
-    request: GetExcelByStationIdRequest
-): Promise<Blob> => {
-    return await postRequest<Blob>(
-        '/station-chat/get-excel-by-station-id',
-        request,
-        { responseType: 'blob' }
     );
 };

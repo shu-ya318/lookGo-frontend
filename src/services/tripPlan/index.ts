@@ -7,7 +7,7 @@ import type {
     GetAllTripPlanNameResponse,
     GetAllTripPlanPaginatedRequest,
     GetAllTripPlanPaginatedResponse,
-    GetTripPlanExcelRequest,
+    GetExcelByTripPlanIdRequest,
     GetTripPlanParams,
     TripPlan,
     UpdateTripPlanNameRequest,
@@ -71,10 +71,14 @@ export const updateTripPlan = async (
     return await postRequest<TripPlan>('/trip-plan/update-plan', request);
 };
 
-export const getTripPlanExcel = async (
-    request: GetTripPlanExcelRequest
+export const getExcelByTripPlanId = async (
+    request: GetExcelByTripPlanIdRequest
 ): Promise<Blob> => {
-    return await postRequest<Blob>('/trip-plan/get-excel', request, {
-        responseType: 'blob',
-    });
+    return await postRequest<Blob>(
+        '/trip-plan/get-excel-by-trip-plan-id',
+        request,
+        {
+            responseType: 'blob',
+        }
+    );
 };

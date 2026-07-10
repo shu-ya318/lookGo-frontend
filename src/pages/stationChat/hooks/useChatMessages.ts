@@ -5,7 +5,7 @@ import { getMessageByStationId } from '@/services/stationChat';
 import { connectStationChatSocket } from '@/services/stationChat/socket';
 
 import type { KeyboardEvent, RefObject } from 'react';
-import type { StationDetails } from '@/services/metro/interface';
+import type { StationDetail } from '@/services/metro/interface';
 import type { StationChatMessage } from '@/services/stationChat/interface';
 import type { StationChatSocket } from '@/services/stationChat/socket';
 
@@ -31,7 +31,7 @@ interface UseChatMessagesResult {
  * 包含訊息載入、分頁、即時事件、發送與刪除訊息
 */
 export const useChatMessages = (
-    selectedStation: StationDetails | null
+    selectedStation: StationDetail | null
 ): UseChatMessagesResult => {
     const [messages, setMessages] = useState<StationChatMessage[]>([]);
     const [page, setPage] = useState(0);

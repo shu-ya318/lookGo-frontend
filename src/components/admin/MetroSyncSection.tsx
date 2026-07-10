@@ -15,7 +15,7 @@ import {
   syncAllStationFare,
 } from '@/services/metroSync';
 
-import type { MessageVO } from '@/services/metroSync/interface';
+import type { ApiResponse } from '@/services/common/interface';
 
 type MetroSyncKey =
   | 'line'
@@ -29,7 +29,7 @@ const metroSyncItems: {
   key: MetroSyncKey;
   label: string;
   note?: string;
-  sync: () => Promise<MessageVO>;
+  sync: () => Promise<ApiResponse>;
 }[] = [
   { key: 'line', label: '路線', sync: syncAllLine },
   { key: 'lineTransfer', label: '路線換乘', sync: syncAllLineTransfer },
@@ -58,8 +58,8 @@ export const MetroSyncSection = () => {
   const handleSync = async (item: (typeof metroSyncItems)[number]) => {
     setSyncingKey(item.key);
     try {
-      const { message } = await item.sync();
-      enqueueSnackbar(message || `${item.label}同步成功！`, {
+      const { successMessage } = await item.sync();
+      enqueueSnackbar(successMessage || `${item.label}同步成功！`, {
         variant: 'success',
       });
     } catch (error) {

@@ -4,7 +4,7 @@ import { enqueueSnackbar } from 'notistack';
 
 import { getExcelByStationId } from '@/services/stationChat';
 
-import type { StationDetails } from '@/services/metro/interface';
+import type { StationDetail } from '@/services/metro/interface';
 
 interface UseExportChatExcelResult {
     isExportingExcel: boolean;
@@ -15,7 +15,7 @@ interface UseExportChatExcelResult {
 *下載 blob 並觸發瀏覽器存檔
 */
 export const useExportChatExcel = (
-    selectedStation: StationDetails | null
+    selectedStation: StationDetail | null
 ): UseExportChatExcelResult => {
     const [isExportingExcel, setIsExportingExcel] = useState(false);
 

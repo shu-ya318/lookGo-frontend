@@ -40,16 +40,16 @@ export const StationInfoCard = ({
   const isLoading = useStationStore((state) => state.isLoading);
   const bookmarks = useStationBookmarkStore((state) => state.bookmarks);
 
-  const fetchBookmarks = useStationBookmarkStore(
-    (state) => state.fetchBookmarks
+  const fetchAllBookmark = useStationBookmarkStore(
+    (state) => state.fetchAllBookmark
   );
   const toggleBookmark = useStationBookmarkStore(
     (state) => state.toggleBookmark
   );
 
   useEffect(() => {
-    fetchBookmarks();
-  }, [fetchBookmarks]);
+    fetchAllBookmark();
+  }, [fetchAllBookmark]);
 
   const isBookmarked = bookmarks.some(
     (bookmark) => bookmark.stationId === station.stationId

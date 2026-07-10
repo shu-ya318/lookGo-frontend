@@ -3,7 +3,7 @@ import { enqueueSnackbar } from 'notistack';
 
 import { getAnnouncementByStationId } from '@/services/stationChat';
 
-import type { StationDetails } from '@/services/metro/interface';
+import type { StationDetail } from '@/services/metro/interface';
 import type { StationChatAnnouncement } from '@/services/stationChat/interface';
 
 const ANNOUNCEMENT_PAGE_SIZE = 5;
@@ -23,7 +23,7 @@ interface UseAnnouncementsResult {
 * 處理載入／分頁／展開狀態，並提供公告異動後的自動重新載入。
 */
 export const useAnnouncements = (
-    selectedStation: StationDetails | null
+    selectedStation: StationDetail | null
 ): UseAnnouncementsResult => {
     const [announcements, setAnnouncements] = useState<
         StationChatAnnouncement[]

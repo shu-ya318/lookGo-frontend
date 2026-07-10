@@ -1,7 +1,6 @@
-import type { PageResponse } from '../common/interface';
+import type { PaginatedResponse } from '../common/interface';
 
 // Create Trip Plan
-
 export interface CreateTripPlanRequest {
     name: string;
     fromStationId: number;
@@ -46,7 +45,7 @@ export interface GetAllTripPlanPaginatedRequest {
     size?: number;
 }
 
-export type GetAllTripPlanPaginatedResponse = PageResponse<TripPlan>;
+export type GetAllTripPlanPaginatedResponse = PaginatedResponse<TripPlan>;
 
 // Delete Trip Plan
 export interface DeleteTripPlanRequest {
@@ -73,7 +72,7 @@ export interface UpdateTripPlanRequest {
     notes?: string;
 }
 
-// Get Excel
-export interface GetTripPlanExcelRequest {
+// Get Excel By Trip Plan Id
+export interface GetExcelByTripPlanIdRequest {
     tripPlanId: number;
 }
