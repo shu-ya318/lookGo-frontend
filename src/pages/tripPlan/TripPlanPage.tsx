@@ -151,19 +151,19 @@ const TripPlanPage = () => {
         }
     };
 
-    const handleOpenCreateDialog = (): void => {
+    const handleOpenCreateDialog = () => {
         setEditingTripPlan(null);
         setFormDialogSessionId((prev) => prev + 1);
         setIsFormDialogOpen(true);
     };
 
-    const handleOpenEditDialog = (tripPlan: TripPlan): void => {
+    const handleOpenEditDialog = (tripPlan: TripPlan) => {
         setEditingTripPlan(tripPlan);
         setFormDialogSessionId((prev) => prev + 1);
         setIsFormDialogOpen(true);
     };
 
-    const handleTripPlanSaved = (tripPlan: TripPlan, isNew: boolean): void => {
+    const handleTripPlanSaved = (tripPlan: TripPlan, isNew: boolean) => {
         setAllTripPlan((prev) =>
             isNew
                 ? [tripPlan, ...prev]
@@ -172,7 +172,7 @@ const TripPlanPage = () => {
         setIsFormDialogOpen(false);
     };
 
-    const handleTripPlanUpdated = (tripPlan: TripPlan): void => {
+    const handleTripPlanUpdated = (tripPlan: TripPlan) => {
         setAllTripPlan((prev) =>
             prev.map((plan) => (plan.id === tripPlan.id ? tripPlan : plan))
         );

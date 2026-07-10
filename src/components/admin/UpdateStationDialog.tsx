@@ -110,7 +110,7 @@ export const UpdateStationDialog = ({
     fetchStation();
   }, [isOpen, stationId]);
 
-  const handleClose = (): void => {
+  const handleClose = () => {
     onClose();
     reset(defaultValues);
   };

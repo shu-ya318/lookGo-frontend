@@ -55,7 +55,7 @@ export const UpdateCellphoneDialog = ({
     }
   }, [isOpen]);
 
-  const handleClose = (): void => {
+  const handleClose = () => {
     onClose();
     reset(defaultValues);
   };

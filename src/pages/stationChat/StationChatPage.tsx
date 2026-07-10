@@ -81,12 +81,12 @@ const StationChatPage = () => {
     const [shareTripPlanSessionId, setShareTripPlanSessionId] = useState(0);
     const [isShareTripPlanOpen, setIsShareTripPlanOpen] = useState(false);
 
-    const handleOpenShareTripPlan = (): void => {
+    const handleOpenShareTripPlan = () => {
         setShareTripPlanSessionId(prev => prev + 1);
         setIsShareTripPlanOpen(true);
     };
 
-    const handleShareTripPlan = (tripPlan: TripPlan): void => {
+    const handleShareTripPlan = (tripPlan: TripPlan) => {
         sendTripPlanMessage(tripPlan.id);
         setIsShareTripPlanOpen(false);
     };

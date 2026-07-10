@@ -170,7 +170,7 @@ export const useChatMessages = (
         }
     };
 
-    const handleSend = (): void => {
+    const handleSend = () => {
         if (!inputMessage.trim() || !socketRef.current) return;
 
         socketRef.current.sendMessage({
@@ -181,18 +181,18 @@ export const useChatMessages = (
         setInputMessage('');
     };
 
-    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             handleSend();
         }
     };
 
-    const handleDeleteMessage = (messageId: number): void => {
+    const handleDeleteMessage = (messageId: number) => {
         socketRef.current?.deleteMessage(messageId);
     };
 
-    const sendTripPlanMessage = (tripPlanId: number): void => {
+    const sendTripPlanMessage = (tripPlanId: number) => {
         if (!socketRef.current) return;
 
         socketRef.current.sendMessage({

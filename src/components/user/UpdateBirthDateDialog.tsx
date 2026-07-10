@@ -59,7 +59,7 @@ export const UpdateBirthDateDialog = ({
     }
   }, [isOpen]);
 
-  const handleClose = (): void => {
+  const handleClose = () => {
     onClose();
     reset(defaultValues);
   };

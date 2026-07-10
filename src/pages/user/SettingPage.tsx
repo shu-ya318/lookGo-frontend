@@ -90,7 +90,7 @@ const SettingPage = () => {
     return String(value);
   };
 
-  const handleEdit = (field: string): void => {
+  const handleEdit = (field: string) => {
     if (field === 'password') {
       setIsPasswordDialogOpen(true);
     } else if (field === 'username') {

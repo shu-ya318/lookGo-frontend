@@ -60,7 +60,7 @@ const HomePage = () => {
 
   const [selectedStation, setSelectedStation] = useState<StationOption | null>(null);
 
-  const handleSearch = (): void => {
+  const handleSearch = () => {
     if (selectedStation) {
       navigate(`/network-map?search=${encodeURIComponent(selectedStation.nameZhTw)}`);
     } else {

@@ -130,7 +130,7 @@ export const useAnnouncements = (
         }
     };
 
-    const toggleAnnouncementExpanded = (): void => {
+    const toggleAnnouncementExpanded = () => {
         setIsAnnouncementExpanded(expanded => !expanded);
     };
 

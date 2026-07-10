@@ -54,7 +54,7 @@ export const UpdateTripPlanNameDialog = ({
     }
   }, [isOpen]);
 
-  const handleClose = (): void => {
+  const handleClose = () => {
     onClose();
     reset(defaultValues);
   };

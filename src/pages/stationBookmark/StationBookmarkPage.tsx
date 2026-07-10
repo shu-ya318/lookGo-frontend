@@ -147,7 +147,7 @@ const StationBookmarkPage = () => {
     }
   };
 
-  const handlePrint = (): void => {
+  const handlePrint = () => {
     window.print();
   };
 

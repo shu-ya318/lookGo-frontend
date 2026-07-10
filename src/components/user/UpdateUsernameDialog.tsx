@@ -51,7 +51,7 @@ export const UpdateUsernameDialog = ({
     }
   }, [isOpen]);
 
-  const handleClose = (): void => {
+  const handleClose = () => {
     onClose();
     reset(defaultValues);
   };

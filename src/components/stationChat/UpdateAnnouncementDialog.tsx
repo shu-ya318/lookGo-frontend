@@ -53,7 +53,7 @@ export const UpdateAnnouncementDialog = ({
         }
     }, [isOpen]);
 
-    const handleClose = (): void => {
+    const handleClose = () => {
         onClose();
         reset(defaultValues);
     };
