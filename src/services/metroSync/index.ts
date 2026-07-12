@@ -1,9 +1,7 @@
 import postRequest from '../api';
 
 import type { ApiResponse } from '../common/interface';
-
-// TDX 票價 API 有速率限制，同步時間可能長達數分鐘，覆寫預設 10 秒逾時設定
-const SYNC_ALL_STATION_FARE_TIMEOUT_MS = 15 * 60 * 1000;
+import type { StationFareSyncStatus } from './interface';
 
 export const syncAllLine = async (): Promise<ApiResponse> => {
     return await postRequest<ApiResponse>('/metro/sync/sync-all-line');
@@ -28,10 +26,24 @@ export const syncAllLineStationCumulativeTime =
         );
     };
 
-export const syncAllStationFare = async (): Promise<ApiResponse> => {
+// 觸發背景同步票價資料，立即回 202；不再需要 15 分鐘逾時。支援 AbortSignal 以便斷線/登出時中止。
+export const syncAllStationFare = async (
+    signal?: AbortSignal
+): Promise<ApiResponse> => {
     return await postRequest<ApiResponse>(
         '/metro/sync/sync-all-station-fare',
         {},
-        { timeout: SYNC_ALL_STATION_FARE_TIMEOUT_MS }
+        { signal }
+    );
+};
+
+// 查詢票價背景同步的當前狀態與進度，供前端輪詢。支援 AbortSignal。
+export const getStationFareSyncStatus = async (
+    signal?: AbortSignal
+): Promise<StationFareSyncStatus> => {
+    return await postRequest<StationFareSyncStatus>(
+        '/metro/sync/sync-all-station-fare/status',
+        {},
+        { signal }
     );
 };

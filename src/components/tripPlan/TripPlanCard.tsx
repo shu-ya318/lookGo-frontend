@@ -21,6 +21,7 @@ import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import { UpdateTripPlanNameDialog } from '@/components/tripPlan/UpdateTripPlanNameDialog';
 
 import { useStationBookmarkStore } from '@/stores/stationBookmarkStore';
+import { useUserStore } from '@/stores/userStore';
 
 import {
   FARE_TYPE_LABELS,
@@ -47,6 +48,8 @@ export const TripPlanCard = ({
   onDelete,
   onUpdated,
 }: TripPlanCardProps) => {
+  const username = useUserStore((state) => state.userInfo?.username);
+
   const [isExportingExcel, setIsExportingExcel] = useState(false);
   const [nameDialogSessionId, setNameDialogSessionId] = useState(0);
   const [isNameDialogOpen, setIsNameDialogOpen] = useState(false);
@@ -89,7 +92,7 @@ export const TripPlanCard = ({
       link.href = url;
       link.setAttribute(
         'download',
-        `${tripPlan.name}_${dayjs().format('YYYYMMDD')}.xlsx`,
+        `${username}_${tripPlan.name}_${dayjs().format('YYYYMMDD')}.xlsx`,
       );
       document.body.appendChild(link);
       link.click();

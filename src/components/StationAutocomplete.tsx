@@ -2,11 +2,15 @@ import { useEffect, useMemo } from 'react';
 
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
 
 import { useMetroMapStore } from '@/stores/metroMapStore';
 import { useStationBookmarkStore } from '@/stores/stationBookmarkStore';
 
 import { formatStationLabel } from '@/utils/station';
+import { normalizeHexColor } from '@/utils/route';
 
 import type { SxProps } from '@mui/material/styles';
 import type { StationOption } from '@/services/metro/interface';
@@ -15,11 +19,12 @@ const BOOKMARK_GROUP = '車站書籤';
 const ALL_STATION_GROUP = '所有車站';
 
 /* 沒任何書籤時寫入的假選項，讓「車站書籤」組標題仍顯示。
- * stationCode 僅作為 React key 與型別佔位，雙底線是為了避免與真實車站代碼撞名
+ * stationCode 僅作為 React key 與型別佔位，定義雙底線避免與真實車站代碼發生同名衝突
  */
-const EMPTY_BOOKMARK_OPTION: StationOption = {
+const EMPTY_BOOKMARK_OPTION = {
   stationCode: '__EMPTY_BOOKMARK__',
   nameZhTw: '尚無書籤車站',
+  lineColor: '',
 };
 
 // 佔位選項是模組層級常數，直接以參考相等（===）來區別
@@ -31,6 +36,7 @@ interface StationAutocompleteProps {
   onChange: (station: StationOption | null) => void;
   placeholder?: string;
   disabled?: boolean;
+  disableClearable?: boolean;
   size?: 'small' | 'medium';
   sx?: SxProps;
 }
@@ -40,6 +46,7 @@ export const StationAutocomplete = ({
   onChange,
   placeholder = '請輸入或選擇車站',
   disabled = false,
+  disableClearable = false,
   size = 'small',
   sx,
 }: StationAutocompleteProps) => {
@@ -87,6 +94,7 @@ export const StationAutocomplete = ({
     <Autocomplete
       value={value}
       onChange={(_event, newValue) => onChange(newValue)}
+      disableClearable={disableClearable}
       options={options}
       groupBy={(option) =>
         isEmptyBookmarkOption(option) || bookmarkedSet.has(option.nameZhTw)
@@ -95,20 +103,28 @@ export const StationAutocomplete = ({
       }
       getOptionLabel={getOptionLabel}
       getOptionDisabled={isEmptyBookmarkOption}
-      isOptionEqualToValue={(option, val) =>
-        option.stationCode === val.stationCode
+      isOptionEqualToValue={(option, value) =>
+        option.stationCode === value.stationCode
       }
       renderOption={(props, option) => (
-        <li
-          {...props}
-          key={option.stationCode}
-          style={
-            isEmptyBookmarkOption(option)
-              ? { pointerEvents: 'none', opacity: 0.5 }
-              : undefined
-          }
-        >
-          {getOptionLabel(option)}
+        <li {...props} key={option.stationCode}>
+          <Stack direction='row' sx={{ alignItems: 'center', gap: 1 }}>
+            {/*車站中文名稱*/}
+            <Typography variant='body2'>{option.nameZhTw}</Typography>
+            {/*車站代碼 */}
+            {!isEmptyBookmarkOption(option) && (
+              <Chip
+                label={option.stationCode}
+                size='small'
+                sx={{
+                  fontWeight: 700,
+                  fontSize: 11,
+                  bgcolor: normalizeHexColor(option.lineColor),
+                  color: '#fff',
+                }}
+              />
+            )}
+          </Stack>
         </li>
       )}
       disabled={disabled}

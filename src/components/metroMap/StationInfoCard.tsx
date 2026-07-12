@@ -19,8 +19,6 @@ import { StationFacilityList } from '@/components/StationFacilityList';
 import { useStationStore } from '@/stores/stationStore';
 import { useStationBookmarkStore } from '@/stores/stationBookmarkStore';
 
-import { normalizeHexColor } from '@/utils/route';
-
 import type { MetroMapLine, MetroMapStation } from '@/services/metro/interface';
 
 interface StationInfoCardProps {
@@ -41,10 +39,10 @@ export const StationInfoCard = ({
   const bookmarks = useStationBookmarkStore((state) => state.bookmarks);
 
   const fetchAllBookmark = useStationBookmarkStore(
-    (state) => state.fetchAllBookmark
+    (state) => state.fetchAllBookmark,
   );
   const toggleBookmark = useStationBookmarkStore(
-    (state) => state.toggleBookmark
+    (state) => state.toggleBookmark,
   );
 
   useEffect(() => {
@@ -52,13 +50,13 @@ export const StationInfoCard = ({
   }, [fetchAllBookmark]);
 
   const isBookmarked = bookmarks.some(
-    (bookmark) => bookmark.stationId === station.stationId
+    (bookmark) => bookmark.stationId === station.stationId,
   );
 
   const transferLines = allLines.filter(
     (lines) =>
       lines.letter !== line.letter &&
-      lines.stations.some((station) => station.nameZhTw === station.nameZhTw)
+      lines.stations.some((s) => s.nameZhTw === station.nameZhTw),
   );
 
   return (
@@ -120,7 +118,7 @@ export const StationInfoCard = ({
             label={`${station.stationCode} ${line.nameZhTw}`}
             size='small'
             sx={{
-              backgroundColor: normalizeHexColor(line.color),
+              backgroundColor: line.color,
               color: '#fff',
               fontWeight: 700,
               fontSize: 11,
@@ -128,7 +126,7 @@ export const StationInfoCard = ({
           />
           {transferLines.map((transferLine) => {
             const transferStation = transferLine.stations.find(
-              (station) => station.nameZhTw === station.nameZhTw
+              (station) => station.nameZhTw === station.nameZhTw,
             );
             return (
               <Chip
@@ -136,7 +134,7 @@ export const StationInfoCard = ({
                 label={`${transferStation?.stationCode ?? transferLine.letter} ${transferLine.nameZhTw}`}
                 size='small'
                 sx={{
-                  backgroundColor: normalizeHexColor(transferLine.color),
+                  backgroundColor: transferLine.color,
                   color: '#fff',
                   fontWeight: 700,
                   fontSize: 11,

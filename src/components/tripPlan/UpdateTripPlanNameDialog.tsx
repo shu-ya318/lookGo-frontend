@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { z } from 'zod';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,18 +9,19 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 import { Dialog } from '@/components/Dialog';
 
-import { updateTripPlanName } from '@/services/tripPlan';
+import { getAllTripPlanName, updateTripPlanName } from '@/services/tripPlan';
 
 import type { TripPlan } from '@/services/tripPlan/interface';
 
-const formSchema = z.object({
+const baseFormSchema = z.object({
   name: z.string().trim().min(1, '請輸入旅程名稱!'),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof baseFormSchema>;
 
 const defaultValues: FormData = { name: '' };
 
@@ -37,6 +38,22 @@ export const UpdateTripPlanNameDialog = ({
   tripPlan,
   onSaved,
 }: UpdateTripPlanNameDialogProps) => {
+  const [existingNames, setExistingNames] = useState<string[]>([]);
+
+  // 即時預檢名稱是否與既有旅程重複（排除原名，存回原名視為合法，與後端邏輯一致）
+  const formSchema = useMemo(
+    () =>
+      baseFormSchema.refine(
+        (data) =>
+          data.name.toLowerCase() === tripPlan.name.trim().toLowerCase() ||
+          !existingNames.some(
+            (name) => name.trim().toLowerCase() === data.name.toLowerCase(),
+          ),
+        { message: '此名稱已存在', path: ['name'] },
+      ),
+    [existingNames, tripPlan.name],
+  );
+
   const {
     control,
     handleSubmit,
@@ -51,6 +68,17 @@ export const UpdateTripPlanNameDialog = ({
   useEffect(() => {
     if (isOpen) {
       reset({ name: tripPlan.name });
+
+      const fetchNames = async () => {
+        try {
+          const response = await getAllTripPlanName();
+          setExistingNames(response);
+        } catch {
+          setExistingNames([]);
+        }
+      };
+
+      void fetchNames();
     }
   }, [isOpen]);
 
@@ -107,6 +135,9 @@ export const UpdateTripPlanNameDialog = ({
           >
             旅程名稱
           </FormLabel>
+          <Typography variant='caption' sx={{ color: 'info.main', mb: 0.5 }}>
+            名稱不能與既有的旅程規劃重複
+          </Typography>
           <Controller
             name='name'
             control={control}

@@ -15,14 +15,19 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import { Dialog } from '@/components/Dialog';
 import { updateBirthDate } from '@/services/user';
-import { isValidDateFormat, isValidBirthDate } from '@/utils/validation';
+import {
+  isValidDateFormat,
+  isValidBirthDate,
+  isValidBirthDateRange,
+} from '@/utils/validation';
 
 const formSchema = z.object({
   birthDate: z
     .string()
     .min(1, '請選擇出生日期!')
     .refine(isValidDateFormat, '出生日期格式必須為 yyyy-MM-dd!')
-    .refine(isValidBirthDate, '出生日期必須有效且不得大於今日!'),
+    .refine(isValidBirthDate, '出生日期必須有效且不得大於今日!')
+    .refine(isValidBirthDateRange, '出生日期年齡必須介於 6 歲至 150 歲之間!'),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -131,7 +136,8 @@ export const UpdateBirthDateDialog = ({
                     )
                   }
                   format='YYYY-MM-DD'
-                  disableFuture
+                  minDate={dayjs().subtract(150, 'year')}
+                  maxDate={dayjs().subtract(6, 'year')}
                   slotProps={{
                     textField: {
                       id: 'BirthDate',

@@ -29,6 +29,7 @@ import { signup } from '@/services/auth';
 import {
   isValidDateFormat,
   isValidBirthDate,
+  isValidBirthDateRange,
   isValidCellphone,
 } from '@/utils/validation';
 
@@ -50,6 +51,7 @@ const formSchema = z.object({
     .string()
     .refine(isValidDateFormat, '出生日期格式必須為 yyyy-MM-dd!')
     .refine(isValidBirthDate, '出生日期必須有效且不得大於今日!')
+    .refine(isValidBirthDateRange, '出生日期年齡必須介於 6 歲至 150 歲之間!')
     .optional(),
 });
 
@@ -245,7 +247,8 @@ const SignupPage = () => {
                     )
                   }
                   format='YYYY-MM-DD'
-                  disableFuture
+                  minDate={dayjs().subtract(150, 'year')}
+                  maxDate={dayjs().subtract(6, 'year')}
                   slotProps={{
                     textField: {
                       id: 'BirthDate',

@@ -4,6 +4,7 @@ import { enqueueSnackbar } from 'notistack';
 import { getMessageByStationId } from '@/services/stationChat';
 import { connectStationChatSocket } from '@/services/stationChat/socket';
 import { ChatType, ChatEventType } from '@/services/stationChat/types';
+import { isPlainTextChatContent } from '@/utils/validation';
 
 import type { KeyboardEvent, RefObject } from 'react';
 import type { StationDetail } from '@/services/metro/interface';
@@ -173,9 +174,19 @@ export const useChatMessages = (
     const handleSend = () => {
         if (!inputMessage.trim() || !socketRef.current) return;
 
+        const trimmedMessage = inputMessage.trim();
+
+        // 送出前先做與後端相同的純文字檢查，命中直接提示、不打 STOMP（後端驗證仍是最終防線）
+        if (!isPlainTextChatContent(trimmedMessage)) {
+            enqueueSnackbar('聊天室僅接受文字訊息，請勿傳送圖片或編碼內容!', {
+                variant: 'error',
+            });
+            return;
+        }
+
         socketRef.current.sendMessage({
             chatType: ChatType.TEXT,
-            content: inputMessage.trim(),
+            content: trimmedMessage,
             tripPlanId: null,
         });
         setInputMessage('');

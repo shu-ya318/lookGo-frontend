@@ -31,25 +31,6 @@ const exportColumnMap = {
   updatedAt: '更新時間',
 };
 
-const exportStationsToExcel = (rows: StationSummary[]) => {
-  if (rows.length === 0) return;
-
-  const exportData = rows.map((row) => {
-    const mapped: Record<string, unknown> = {};
-
-    for (const [key, header] of Object.entries(exportColumnMap)) {
-      mapped[header] = row[key as keyof StationSummary] ?? '-';
-    }
-
-    return mapped;
-  });
-
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, '車站資訊');
-  XLSX.writeFile(workbook, '臺北捷運車站資訊.xlsx');
-};
-
 const StationManagementPage = () => {
   const [rows, setRows] = useState<StationSummary[]>([]);
   const [rowCount, setRowCount] = useState(0);
@@ -75,6 +56,25 @@ const StationManagementPage = () => {
       ? rows.filter((row) => rowSelectionModel.ids.has(row.id))
       : rows.filter((row) => !rowSelectionModel.ids.has(row.id));
   const selectedCount = selectedRows.length;
+
+  const exportStationsToExcel = (rows: StationSummary[]) => {
+    if (rows.length === 0) return;
+
+    const exportData = rows.map((row) => {
+      const mapped: Record<string, unknown> = {};
+
+      for (const [key, header] of Object.entries(exportColumnMap)) {
+        mapped[header] = row[key as keyof StationSummary] ?? '-';
+      }
+
+      return mapped;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, '車站資訊');
+    XLSX.writeFile(workbook, '臺北捷運車站資訊.xlsx');
+  };
 
   const handleEdit = (id: number) => {
     setEditStationId(id);

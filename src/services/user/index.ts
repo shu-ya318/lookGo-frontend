@@ -4,6 +4,7 @@ import type { ApiResponse, PaginatedResponse } from '../common/interface';
 import type {
     GetAllUserRequest,
     GetCurrentUserResponse,
+    UpdateAvatarRequest,
     UpdateBirthDateRequest,
     UpdateCellphoneRequest,
     UpdatePasswordRequest,
@@ -47,4 +48,14 @@ export const updateStatus = async (
     request: UpdateStatusRequest
 ): Promise<ApiResponse> => {
     return await postRequest<ApiResponse>('/user/update-status', request);
+};
+
+export const updateAvatar = async (
+    request: UpdateAvatarRequest
+): Promise<GetCurrentUserResponse> => {
+    return await postRequest<GetCurrentUserResponse>('/user/update-avatar', request);
+};
+
+export const removeAvatar = async (): Promise<GetCurrentUserResponse> => {
+    return await postRequest<GetCurrentUserResponse>('/user/remove-avatar');
 };

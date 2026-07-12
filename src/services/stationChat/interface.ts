@@ -9,6 +9,7 @@ export interface MessageResponse {
 export interface StationChatMessage {
     id: number;
     username: string;
+    avatar: string | null;
     chatType: ChatType;
     content: string | null;
     tripPlanId: number | null;

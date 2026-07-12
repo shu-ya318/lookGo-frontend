@@ -1,12 +1,14 @@
 import { useState } from 'react';
 
-import AccountCircle from '@mui/icons-material/AccountCircle';
+import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import Typography from '@mui/material/Typography';
+import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 
 import { UserProfileMenuList } from './UserProfileMenuList';
 
+import { DEFAULT_AVATAR_URL } from '@/constants/user';
 import { useUserStore } from '@/stores/userStore';
 
 import type { ComponentType, MouseEvent, ReactNode } from 'react';
@@ -47,7 +49,14 @@ export const UserProfileMenu = ({ items }: UserProfileMenuListProps) => {
         id='user-menu-button'
         component='label'
         tabIndex={-1}
-        startIcon={<AccountCircle fontSize='small' />}
+        startIcon={
+          <Avatar
+            src={userInfo?.avatar ?? DEFAULT_AVATAR_URL}
+            sx={{ width: 32, height: 32 }}
+          >
+            <PersonOutlinedIcon fontSize='small' />
+          </Avatar>
+        }
         onClick={(event) => handleUserMenuToggle(event)}
         sx={{
           color: 'primary.main',

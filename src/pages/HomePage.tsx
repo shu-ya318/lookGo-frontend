@@ -3,74 +3,69 @@ import { useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
-import SearchIcon from '@mui/icons-material/Search';
 import MapOutlinedIcon from '@mui/icons-material/MapOutlined';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import RouteOutlinedIcon from '@mui/icons-material/RouteOutlined';
 import ChatBubbleOutlineOutlined from '@mui/icons-material/ChatBubbleOutlineOutlined';
 
 import { StationAutocomplete } from '@/components/StationAutocomplete';
+
 import type { StationOption } from '@/services/metro/interface';
 
 import trtcBanner from '@/assets/trtc_banner.jpg';
 
-const featureSections: {
-  title: string;
-  subtitle: string;
-  description: string;
-  path: string;
-  icon: React.ReactNode;
-}[] = [
-    {
-      title: '路網圖查詢',
-      subtitle: '互動式路網圖',
-      description:
-        '透過動態路網圖，輕鬆瀏覽臺北捷運各站資訊，快速掌握路線與轉乘方式。',
-      path: '/network-map',
-      icon: <MapOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
-    },
-    {
-      title: '車站書籤',
-      subtitle: '收藏常用車站',
-      description: '將常用或感興趣的車站加入書籤，隨時快速查看車站資訊。',
-      path: '/station-bookmark',
-      icon: <BookmarkBorderIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
-    },
-    {
-      title: '旅程規劃',
-      subtitle: '專屬旅程規劃',
-      description: '依據您的需求客製化規劃捷運旅程，打造最適合您的出行路線。',
-      path: '/trip-planner',
-      icon: <RouteOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
-    },
-    {
-      title: '車站聊天室',
-      subtitle: '即時交流平台',
-      description:
-        '在車站專屬聊天室中與其他旅客即時交流，分享搭乘心得與周邊資訊。',
-      path: '/station-chat-room',
-      icon: <ChatBubbleOutlineOutlined sx={{ fontSize: { xs: 40, md: 56 } }} />,
-    },
-  ];
+const featureSections = [
+  {
+    title: '路網圖查詢',
+    subtitle: '互動式路網圖',
+    description:
+      '透過動態路網圖，輕鬆瀏覽臺北捷運各站資訊，快速掌握路線與轉乘方式。',
+    path: '/network-map',
+    icon: <MapOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
+  },
+  {
+    title: '車站書籤',
+    subtitle: '收藏常用車站',
+    description: '將常用或感興趣的車站加入書籤，隨時快速查看車站資訊。',
+    path: '/station-bookmark',
+    icon: <BookmarkBorderIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
+  },
+  {
+    title: '旅程規劃',
+    subtitle: '專屬旅程規劃',
+    description: '依據您的需求客製化規劃捷運旅程，打造最適合您的出行路線。',
+    path: '/trip-planner',
+    icon: <RouteOutlinedIcon sx={{ fontSize: { xs: 40, md: 56 } }} />,
+  },
+  {
+    title: '車站聊天室',
+    subtitle: '即時交流平台',
+    description:
+      '在車站專屬聊天室中與其他旅客即時交流，分享搭乘心得與周邊資訊。',
+    path: '/station-chat-room',
+    icon: <ChatBubbleOutlineOutlined sx={{ fontSize: { xs: 40, md: 56 } }} />,
+  },
+];
 
 const HomePage = () => {
   const navigate = useNavigate();
 
-  const [selectedStation, setSelectedStation] = useState<StationOption | null>(null);
+  const [selectedStation, setSelectedStation] = useState<StationOption | null>(
+    null,
+  );
 
-  const handleSearch = () => {
-    if (selectedStation) {
-      navigate(`/network-map?search=${encodeURIComponent(selectedStation.nameZhTw)}`);
-    } else {
-      navigate('/network-map');
+  const handleSearch = (station: StationOption | null) => {
+    setSelectedStation(station);
+
+    if (station) {
+      navigate(`/network-map?search=${encodeURIComponent(station.nameZhTw)}`);
     }
   };
 
   return (
     <Box>
-      {/* Banner Section */}
+      {/* 橫幅區塊 */}
       <Box
         sx={{
           position: 'relative',
@@ -150,7 +145,8 @@ const HomePage = () => {
           >
             <StationAutocomplete
               value={selectedStation}
-              onChange={(station) => setSelectedStation(station)}
+              onChange={handleSearch}
+              disableClearable
               placeholder='您想找哪個臺北捷運車站?'
               sx={{
                 flex: 1,
@@ -167,20 +163,11 @@ const HomePage = () => {
                 },
               }}
             />
-            <IconButton
-              onClick={handleSearch}
-              disabled={!selectedStation}
-              sx={{
-                color: selectedStation ? 'primary.main' : 'neutral.main',
-                ml: 1
-              }}
-            >
-              <SearchIcon />
-            </IconButton>
+
           </Box>
         </Box>
       </Box>
-      {/* Feature Section */}
+      {/* 功能介紹區塊 */}
       {featureSections.map((section) => {
         // const isOdd = index % 2 === 0;
 

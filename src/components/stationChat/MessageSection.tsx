@@ -221,7 +221,9 @@ export const MessageSection = ({
             value={inputMessage}
             onChange={(event) => onInputMessageChange(event.target.value)}
             onKeyDown={onKeyDown}
-            placeholder={selectedStation ? '請輸入訊息...' : '請先選擇車站'}
+            placeholder={
+              selectedStation ? '請輸入內容（僅接受文字訊息）' : '請先選擇車站'
+            }
             size='small'
             fullWidth
             variant='standard'

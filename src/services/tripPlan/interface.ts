@@ -43,6 +43,7 @@ export interface GetAllTripPlanPaginatedRequest {
     keyword?: string;
     page?: number;
     size?: number;
+    sortDirection?: 'ASC' | 'DESC';
 }
 
 export type GetAllTripPlanPaginatedResponse = PaginatedResponse<TripPlan>;

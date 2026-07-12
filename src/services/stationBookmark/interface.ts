@@ -6,6 +6,7 @@ export interface GetAllStationBookmarkPaginatedRequest {
     keyword?: string;
     page?: number;
     size?: number;
+    sortDirection?: 'ASC' | 'DESC';
 }
 
 export interface StationBookmark {

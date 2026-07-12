@@ -15,6 +15,7 @@ import { useMetroMapStore } from '@/stores/metroMapStore';
 
 import {
   createTripPlan,
+  getAllTripPlanName,
   updateTripPlan,
   updateTripPlanName,
 } from '@/services/tripPlan';
@@ -50,6 +51,7 @@ export const TripPlanEditorDialog = ({
   );
 
   const [tripTitle, setTripTitle] = useState(tripPlan?.name ?? '');
+  const [existingNames, setExistingNames] = useState<string[]>([]);
 
   const [fromStation, setFromStation] = useState<StationOption | null>(null);
   const [toStation, setToStation] = useState<StationOption | null>(null);
@@ -75,6 +77,21 @@ export const TripPlanEditorDialog = ({
   useEffect(() => {
     fetchAllStationOption();
   }, [fetchAllStationOption]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchNames = async () => {
+      try {
+        const response = await getAllTripPlanName();
+        setExistingNames(response);
+      } catch {
+        setExistingNames([]);
+      }
+    };
+
+    void fetchNames();
+  }, [isOpen]);
 
   // 如果是編輯模式，依旅程紀錄的車站中文名稱比對出對應的車站選項
   useEffect(() => {
@@ -155,6 +172,16 @@ export const TripPlanEditorDialog = ({
   const isEditMode = tripPlan !== null;
   const hasToStation = toStation !== null;
 
+  // 名稱是否與既有旅程重複（排除原名，存回原名視為合法；先 trim、不分大小寫，與後端邏輯一致）
+  const trimmedTitle = tripTitle.trim();
+  const isDuplicateName =
+    trimmedTitle !== '' &&
+    (!tripPlan ||
+      trimmedTitle.toLowerCase() !== tripPlan.name.trim().toLowerCase()) &&
+    existingNames.some(
+      (name) => name.trim().toLowerCase() === trimmedTitle.toLowerCase(),
+    );
+
   return (
     <Dialog
       isOpen={isOpen}
@@ -165,7 +192,7 @@ export const TripPlanEditorDialog = ({
         <Button
           variant='contained'
           loading={isSaving}
-          disabled={!tripResult || !tripTitle.trim()}
+          disabled={!tripResult || !tripTitle.trim() || isDuplicateName}
           onClick={handleSave}
         >
           {isEditMode ? '更新旅程' : '儲存旅程'}
@@ -176,12 +203,17 @@ export const TripPlanEditorDialog = ({
         {/* 旅程名稱 */}
         <Stack sx={{ gap: 0.5 }}>
           <RequiredFieldLabel label='旅程名稱' />
+          <Typography variant='caption' sx={{ color: 'info.main', mb: 0.5 }}>
+            名稱不能與既有的旅程規劃重複
+          </Typography>
           <TextField
             value={tripTitle}
             onChange={(event) => setTripTitle(event.target.value)}
             size='small'
             fullWidth
             placeholder='請輸入旅程名稱'
+            error={isDuplicateName}
+            helperText={isDuplicateName ? '此名稱已存在' : undefined}
           />
         </Stack>
         {/* 起始車站 / 終點車站 */}

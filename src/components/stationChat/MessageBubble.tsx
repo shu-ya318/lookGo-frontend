@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 
+import { DEFAULT_AVATAR_URL } from '@/constants/user';
 import { FARE_TYPE_LABELS } from '@/services/metro/types';
 import { ChatType } from '@/services/stationChat/types';
 
@@ -59,9 +60,10 @@ export const MessageBubble = ({
       {/* 其他使用者頭像 */}
       {!isSelf && (
         <Avatar
+          src={message.avatar ?? DEFAULT_AVATAR_URL}
           sx={{
-            width: 36,
-            height: 36,
+            width: 44,
+            height: 44,
             background: 'primary.light',
             flexShrink: 0,
             boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
@@ -184,9 +186,10 @@ export const MessageBubble = ({
       {/* 自己的頭像 */}
       {isSelf && (
         <Avatar
+          src={message.avatar ?? DEFAULT_AVATAR_URL}
           sx={{
-            width: 36,
-            height: 36,
+            width: 44,
+            height: 44,
             backgroundColor: 'primary.main',
             flexShrink: 0,
             boxShadow: '0 2px 8px rgba(95, 166, 240, 0.3)',

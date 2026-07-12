@@ -13,6 +13,9 @@
     "skipLibCheck": true,
     /* Path Aliases */
     "paths": {
+      "@/constants/*": [
+        "./src/constants/*"
+      ],
       "@/services/*": [
         "./src/services/*"
       ],

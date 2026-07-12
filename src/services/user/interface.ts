@@ -8,6 +8,7 @@ export interface GetCurrentUserResponse {
     role: UserRole;
     cellphone: string;
     birthDate?: string;
+    avatar: string | null;
     status: UserStatus;
     createdAt: string;
     updatedAt: string;
@@ -29,6 +30,10 @@ export interface UpdatePasswordRequest {
 
 export interface UpdateBirthDateRequest {
     birthDate: string;
+}
+
+export interface UpdateAvatarRequest {
+    avatar: string;
 }
 
 export interface GetAllUserRequest {
