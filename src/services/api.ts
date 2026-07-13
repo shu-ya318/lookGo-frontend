@@ -2,48 +2,45 @@ import axios, {
   AxiosError,
   type AxiosRequestConfig,
   type AxiosResponse,
-} from "axios";
-import { jwtDecode } from "jwt-decode";
+} from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
-import { useAuthStore } from "@/stores/authStore";
+import { useAuthStore } from '@/stores/authStore';
 
-import { refreshTokens } from "./auth";
-
-import { handleApiError } from "./error";
+import { refreshTokens } from './auth';
+import { handleApiError } from './error';
 
 const service = axios.create({
-  baseURL: "/api/v1",
+  baseURL: '/api/v1',
   timeout: 10000,
 });
 
 service.interceptors.request.use(
   async (config) => {
-    if (config.url?.includes("/auth/refresh-tokens")) {
+    if (config.url?.includes('/auth/refresh-tokens')) {
       return config;
     }
 
     const accessToken = useAuthStore.getState().accessToken;
+
     if (accessToken) {
       const decoded = jwtDecode(accessToken);
       const expiresAt = (decoded.exp as number) * 1000;
-      const now = new Date().getTime();
-      const isExpired = expiresAt && expiresAt < now;
+      const currentTime = new Date().getTime();
+      const isExpired = expiresAt && expiresAt < currentTime;
 
       if (isExpired) {
         try {
           const response = await refreshTokens();
-
           useAuthStore.setState({
             accessToken: response.accessToken,
             refreshToken: response.refreshToken,
           });
-
           config.headers.Authorization = `Bearer ${response.accessToken}`;
         } catch (error) {
-          console.error("[API Request] Refresh failed", error);
-
+          console.error('[API Request] Refresh failed', error);
           useAuthStore.getState().clearAuth();
-          window.location.href = "/auth/login";
+          window.location.href = '/auth/login';
 
           return Promise.reject(error);
         }
@@ -58,7 +55,7 @@ service.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 service.interceptors.response.use(
@@ -70,20 +67,20 @@ service.interceptors.response.use(
       message?: string;
       error?: { message: string };
       files?: string[];
-    }>
+    }>,
   ) => {
     if (error.response?.status === 401) {
       useAuthStore.getState().clearAuth();
-      if (!window.location.pathname.includes("/auth/login")) {
-        window.location.href = "/auth/login";
+      if (!window.location.pathname.includes('/auth/login')) {
+        window.location.href = '/auth/login';
       }
     }
 
     if (error.response?.status === 403) {
-      window.location.href = "/unauthorized";
+      window.location.href = '/unauthorized';
     }
 
-    console.error("[API Error]", {
+    console.error('[API Error]', {
       url: error.config?.url,
       status: error.response?.status,
       data: error.response?.data,
@@ -98,14 +95,14 @@ service.interceptors.response.use(
       handleApiError(error);
 
     return Promise.reject(errorMessage);
-  }
+  },
 );
 
 // 一律用 POST 請求
 const postRequest = <T>(
   url: string,
-  data?: object, // request body 參數，若無需傳入則使用空物件
-  config?: AxiosRequestConfig // axios 設定，如 query parameter
+  data?: object,
+  config?: AxiosRequestConfig,
 ): Promise<T> => {
   return service.post(url, data, config) as unknown as Promise<T>;
 };

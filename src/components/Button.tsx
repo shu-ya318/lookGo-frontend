@@ -4,6 +4,7 @@ import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 
 import type { CSSProperties, ReactNode } from 'react';
 
+// 建立按鈕
 interface CreateButtonProps {
   onCreate: () => void;
   text?: string;
@@ -31,6 +32,7 @@ export const CreateButton = ({
   );
 };
 
+// 更新按鈕
 interface UpdateButtonProps {
   onUpdate: () => void;
   disabled?: boolean;
@@ -69,6 +71,7 @@ export const UpdateButton = ({
   );
 };
 
+// 刪除按鈕
 interface DeleteButtonProps {
   width: string;
   height: string;

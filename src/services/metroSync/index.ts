@@ -1,38 +1,49 @@
 import postRequest from '../api';
 
-import type { MessageVO } from './interface';
+import type { ApiResponse } from '../common/interface';
+import type { StationFareSyncStatus } from './interface';
 
-// TDX 票價 API 有速率限制（需等待 60 秒才可請求，且分頁請求每分鐘最多 4 次），
-// 同步時間可能長達數分鐘，故覆寫預設的 10 秒逾時設定
-const SYNC_ALL_STATION_FARE_TIMEOUT_MS = 15 * 60 * 1000;
-
-export const syncAllLine = async (): Promise<MessageVO> => {
-    return await postRequest<MessageVO>('/metro/sync/sync-all-line');
+export const syncAllLine = async (): Promise<ApiResponse> => {
+    return await postRequest<ApiResponse>('/metro/sync/sync-all-line');
 };
 
-export const syncAllLineTransfer = async (): Promise<MessageVO> => {
-    return await postRequest<MessageVO>('/metro/sync/sync-all-line-transfer');
+export const syncAllLineTransfer = async (): Promise<ApiResponse> => {
+    return await postRequest<ApiResponse>('/metro/sync/sync-all-line-transfer');
 };
 
-export const syncAllStation = async (): Promise<MessageVO> => {
-    return await postRequest<MessageVO>('/metro/sync/sync-all-station');
+export const syncAllStation = async (): Promise<ApiResponse> => {
+    return await postRequest<ApiResponse>('/metro/sync/sync-all-station');
 };
 
-export const syncAllLineStation = async (): Promise<MessageVO> => {
-    return await postRequest<MessageVO>('/metro/sync/sync-all-line-station');
+export const syncAllLineStation = async (): Promise<ApiResponse> => {
+    return await postRequest<ApiResponse>('/metro/sync/sync-all-line-station');
 };
 
 export const syncAllLineStationCumulativeTime =
-    async (): Promise<MessageVO> => {
-        return await postRequest<MessageVO>(
+    async (): Promise<ApiResponse> => {
+        return await postRequest<ApiResponse>(
             '/metro/sync/sync-all-line-station-cumulative-time'
         );
     };
 
-export const syncAllStationFare = async (): Promise<MessageVO> => {
-    return await postRequest<MessageVO>(
+// 觸發背景同步票價資料，立即回 202；不再需要 15 分鐘逾時。支援 AbortSignal 以便斷線/登出時中止。
+export const syncAllStationFare = async (
+    signal?: AbortSignal
+): Promise<ApiResponse> => {
+    return await postRequest<ApiResponse>(
         '/metro/sync/sync-all-station-fare',
-        undefined,
-        { timeout: SYNC_ALL_STATION_FARE_TIMEOUT_MS }
+        {},
+        { signal }
+    );
+};
+
+// 查詢票價背景同步的當前狀態與進度，供前端輪詢。支援 AbortSignal。
+export const getStationFareSyncStatus = async (
+    signal?: AbortSignal
+): Promise<StationFareSyncStatus> => {
+    return await postRequest<StationFareSyncStatus>(
+        '/metro/sync/sync-all-station-fare/status',
+        {},
+        { signal }
     );
 };

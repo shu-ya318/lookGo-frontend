@@ -10,22 +10,25 @@ import Typography from '@mui/material/Typography';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
 
+import { DEFAULT_AVATAR_URL } from '@/constants/user';
 import { useUserStore } from '@/stores/userStore';
 import { getCurrentUser } from '@/services/user';
+import {
+  MembershipTier,
+  MEMBERSHIP_TIER_LABELS,
+} from '@/services/user/types';
 
 import { UpdatePasswordDialog } from '@/components/user/UpdatePasswordDialog';
 import { UpdateUsernameDialog } from '@/components/user/UpdateUsernameDialog';
 import { UpdateCellphoneDialog } from '@/components/user/UpdateCellphoneDialog';
 import { UpdateBirthDateDialog } from '@/components/user/UpdateBirthDateDialog';
+import { UpdateAvatarDialog } from '@/components/user/UpdateAvatarDialog';
 
-import type { MembershipTier } from '@/services/user/interface';
+import type { GetCurrentUserResponse } from '@/services/user/interface';
+
 import { formatDateTime } from '@/utils/date';
-
-const membershipTierLabel: Record<MembershipTier, string> = {
-  BASIC: '基本',
-  PREMIUM: '進階',
-};
 
 interface FieldConfig {
   label: string;
@@ -64,9 +67,14 @@ const SettingPage = () => {
   const [isUsernameDialogOpen, setIsUsernameDialogOpen] = useState(false);
   const [isCellphoneDialogOpen, setIsCellphoneDialogOpen] = useState(false);
   const [isBirthDateDialogOpen, setIsBirthDateDialogOpen] = useState(false);
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
 
   const refreshUserInfo = async () => {
     const user = await getCurrentUser();
+    useUserStore.setState({ userInfo: user });
+  };
+
+  const handleAvatarSuccess = (user: GetCurrentUserResponse) => {
     useUserStore.setState({ userInfo: user });
   };
 
@@ -77,7 +85,8 @@ const SettingPage = () => {
 
     if (key === 'membershipTier') {
       return (
-        membershipTierLabel[userInfo.membershipTier] || userInfo.membershipTier
+        MEMBERSHIP_TIER_LABELS[userInfo.membershipTier] ||
+        userInfo.membershipTier
       );
     }
 
@@ -91,7 +100,7 @@ const SettingPage = () => {
     return String(value);
   };
 
-  const handleEdit = (field: string): void => {
+  const handleEdit = (field: string) => {
     if (field === 'password') {
       setIsPasswordDialogOpen(true);
     } else if (field === 'username') {
@@ -134,18 +143,36 @@ const SettingPage = () => {
           mb: 4,
         }}
       >
-        <Avatar
-          sx={{
-            width: 80,
-            height: 80,
-            bgcolor: '#C5CAE9',
-            border: '3px solid white',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-            mt: -5,
-          }}
-        >
-          <PersonOutlinedIcon sx={{ fontSize: 48, color: '#3F51B5' }} />
-        </Avatar>
+        <Box sx={{ position: 'relative', mt: -8 }}>
+          <Avatar
+            src={userInfo?.avatar ?? DEFAULT_AVATAR_URL}
+            sx={{
+              width: 120,
+              height: 120,
+              bgcolor: '#C5CAE9',
+              border: '3px solid white',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+            }}
+          >
+            <PersonOutlinedIcon sx={{ fontSize: 64, color: '#3F51B5' }} />
+          </Avatar>
+          <IconButton
+            aria-label='修改頭像'
+            onClick={() => setIsAvatarDialogOpen(true)}
+            sx={{
+              position: 'absolute',
+              right: 0,
+              bottom: 0,
+              bgcolor: 'primary.main',
+              color: 'white',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+              '&:hover': { bgcolor: 'primary.dark' },
+            }}
+            size='small'
+          >
+            <PhotoCameraOutlinedIcon fontSize='small' />
+          </IconButton>
+        </Box>
         <Box sx={{ flex: 1 }}>
           <Typography variant='h6' sx={{ fontWeight: 700 }}>
             {userInfo?.username || '-'}
@@ -201,7 +228,7 @@ const SettingPage = () => {
               )}
             </Stack>
             {field.key === 'membershipTier' &&
-              userInfo?.membershipTier === 'BASIC' && (
+              userInfo?.membershipTier === MembershipTier.BASIC && (
                 <Stack
                   direction='row'
                   spacing={0.5}
@@ -238,6 +265,12 @@ const SettingPage = () => {
         onClose={() => setIsBirthDateDialogOpen(false)}
         defaultBirthDate={userInfo?.birthDate || ''}
         onSuccess={refreshUserInfo}
+      />
+      <UpdateAvatarDialog
+        isOpen={isAvatarDialogOpen}
+        onClose={() => setIsAvatarDialogOpen(false)}
+        currentAvatar={userInfo?.avatar ?? null}
+        onSuccess={handleAvatarSuccess}
       />
     </Box>
   );

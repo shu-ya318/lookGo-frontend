@@ -9,7 +9,7 @@ import type {
     GetAllLineTransferResponse,
     GetAllLineStationResponse,
     GetStationByCodeRequest,
-    StationDetails,
+    StationDetail,
     GetStationByIdRequest,
     Station,
     GetAllStationPaginatedRequest,
@@ -27,8 +27,8 @@ export const getMetroMap = async (): Promise<GetMetroMapResponse> => {
 
 export const getStationByCode = async (
     request: GetStationByCodeRequest
-): Promise<StationDetails> => {
-    return await postRequest<StationDetails>(
+): Promise<StationDetail> => {
+    return await postRequest<StationDetail>(
         '/metro/get-station-by-code',
         request
     );

@@ -28,7 +28,7 @@ interface UseTripRouteQueryResult {
 
 // StationOption 僅提供 stationCode，新增/更新旅程需要的 stationId 另行查詢
 const resolveStationId = async (
-  station: StationOption
+  station: StationOption,
 ): Promise<number | null> => {
   try {
     const response = await getStationByCode({
@@ -45,18 +45,18 @@ const resolveStationId = async (
 
 // 起訖車站、票價種類與車程時間皆選定後，自動查詢路線
 export const useTripRouteQuery = (
-  startStation: StationOption | null,
-  endStation: StationOption | null,
+  fromStation: StationOption | null,
+  toStation: StationOption | null,
   fare: FareType | null,
-  routingStrategy: RoutingStrategy | null
+  routingStrategy: RoutingStrategy | null,
 ): UseTripRouteQueryResult => {
   const [tripResult, setTripResult] = useState<TripResult | null>(null);
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     if (
-      !startStation ||
-      !endStation ||
+      !fromStation ||
+      !toStation ||
       fare === null ||
       routingStrategy === null
     ) {
@@ -64,50 +64,54 @@ export const useTripRouteQuery = (
     }
 
     let isMounted = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsSearching(true);
-    Promise.all([
-      getOriginDestinationDetails({
-        fromStationCode: startStation.stationCode,
-        toStationCode: endStation.stationCode,
-        fareType: fare,
-        routingStrategy,
-      }),
-      resolveStationId(startStation),
-      resolveStationId(endStation),
-    ])
-      .then(([detail, startStationId, endStationId]) => {
-        if (!isMounted || startStationId === null || endStationId === null) {
+
+    const fetchTripRoute = async () => {
+      setIsSearching(true);
+
+      try {
+        const [detail, fromStationId, toStationId] = await Promise.all([
+          getOriginDestinationDetails({
+            fromStationCode: fromStation.stationCode,
+            toStationCode: toStation.stationCode,
+            fareType: fare,
+            routingStrategy,
+          }),
+          resolveStationId(fromStation),
+          resolveStationId(toStation),
+        ]);
+
+        if (!isMounted || fromStationId === null || toStationId === null) {
           return;
         }
 
         setTripResult({
-          fromStationId: startStationId,
-          toStationId: endStationId,
-          fromStationNameZhTw: startStation.nameZhTw,
-          toStationNameZhTw: endStation.nameZhTw,
+          fromStationId,
+          toStationId,
+          fromStationNameZhTw: fromStation.nameZhTw,
+          toStationNameZhTw: toStation.nameZhTw,
           fareType: detail.fareType,
           routingStrategy: detail.routingStrategy,
           farePrice: detail.farePrice,
           transferCount: detail.transferCount,
           totalTravelTimeSeconds: detail.totalTravelTimeSeconds,
         });
-      })
-      .catch((error) => {
+      } catch (error) {
         if (isMounted) {
-          enqueueSnackbar((error as string) || '路線查詢失敗', {
+          enqueueSnackbar((error as string) || '路徑查詢失敗', {
             variant: 'error',
           });
         }
-      })
-      .finally(() => {
+      } finally {
         if (isMounted) setIsSearching(false);
-      });
+      }
+    };
+
+    fetchTripRoute();
 
     return () => {
       isMounted = false;
     };
-  }, [startStation, endStation, fare, routingStrategy]);
+  }, [fromStation, toStation, fare, routingStrategy]);
 
   return { tripResult, isSearching };
 };

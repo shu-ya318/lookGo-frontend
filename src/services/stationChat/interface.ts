@@ -1,7 +1,5 @@
-import type { PageResponse } from '../common/interface';
-
-export type ChatType = 'TEXT' | 'TRIP_PLAN';
-export type ChatEventType = 'NEW' | 'DELETE';
+import type { PaginatedResponse } from '../common/interface';
+import type { ChatType, ChatEventType } from './types';
 
 export interface MessageResponse {
     message: string;
@@ -11,6 +9,7 @@ export interface MessageResponse {
 export interface StationChatMessage {
     id: number;
     username: string;
+    avatar: string | null;
     chatType: ChatType;
     content: string | null;
     tripPlanId: number | null;
@@ -30,7 +29,7 @@ export interface GetMessageByStationIdRequest {
     size?: number;
 }
 
-export type GetMessageByStationIdResponse = PageResponse<StationChatMessage>;
+export type GetMessageByStationIdResponse = PaginatedResponse<StationChatMessage>;
 
 export interface GetExcelByStationIdRequest {
     stationId: number;
@@ -53,7 +52,7 @@ export interface GetAnnouncementByStationIdRequest {
 }
 
 export type GetAnnouncementByStationIdResponse =
-    PageResponse<StationChatAnnouncement>;
+    PaginatedResponse<StationChatAnnouncement>;
 
 export interface CreateAnnouncementRequest {
     stationId: number;

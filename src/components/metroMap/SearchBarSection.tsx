@@ -29,46 +29,46 @@ const SEARCH_CONTROL_HEIGHT = '2.5rem';
 
 export const SearchBarSection = () => {
   const {
-    allStations,
+    stations,
     fetchRoute,
     isRouteLoading,
     setSelectedFacilities,
     clearRoute,
   } = useMetroMapStore();
   const selectAndFetchStation = useStationStore(
-    (state) => state.selectAndFetchStation
+    (state) => state.selectAndFetchStation,
   );
-  const isStationLoading = useStationStore((state) => state.isLoading);
+  const isStationLoading = useStationStore((state) => state.isStationLoading);
   const clearSelection = useStationStore((state) => state.clearSelection);
 
   const [searchParams, setSearchParams] = useSearchParams();
   // 避免更新時無限觸發 useEffect
   const hasAppliedSearchParam = useRef(false);
 
-  const [startStation, setStartStation] = useState<StationOption | null>(null);
-  const [endStation, setEndStation] = useState<StationOption | null>(null);
+  const [fromStation, setFromStation] = useState<StationOption | null>(null);
+  const [toStation, setToStation] = useState<StationOption | null>(null);
   const [advancedFilters, setAdvancedFilters] = useState<AdvancedFilters>({
-    equipment: [],
+    facilities: [],
     fare: null,
     routingStrategy: null,
   });
 
   useEffect(() => {
     const keyword = searchParams.get('search')?.trim();
-    if (!keyword || hasAppliedSearchParam.current || allStations.length === 0) {
+    if (!keyword || hasAppliedSearchParam.current || stations.length === 0) {
       return;
     }
 
     hasAppliedSearchParam.current = true;
 
-    const matchedStation = allStations.find(
+    const matchedStation = stations.find(
       (station) =>
-        station.stationCode === keyword || station.nameZhTw.includes(keyword)
+        station.stationCode === keyword || station.nameZhTw.includes(keyword),
     );
 
     if (matchedStation) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setStartStation({
+      setFromStation({
         stationCode: matchedStation.stationCode,
         nameZhTw: matchedStation.nameZhTw,
       });
@@ -80,30 +80,29 @@ export const SearchBarSection = () => {
     }
 
     setSearchParams({}, { replace: true });
-  }, [allStations, searchParams, setSearchParams, selectAndFetchStation]);
+  }, [stations, searchParams, setSearchParams, selectAndFetchStation]);
 
   // 判斷使用者只選擇單一車站或起訖車站，並設定對應的搜尋行為
-  const hasStartStation = startStation !== null;
-  const hasEndStation = endStation !== null;
-  const isSingleStationMode = hasStartStation && !hasEndStation;
-  const isRouteMode = hasStartStation && hasEndStation;
-  const canSearch = hasStartStation && !isRouteLoading && !isStationLoading;
+  const hasFromStation = fromStation !== null;
+  const hasToStation = toStation !== null;
+  const isSingleStationMode = hasFromStation && !hasToStation;
+  const isRouteMode = hasFromStation && hasToStation;
+  const canSearch = hasFromStation && !isRouteLoading && !isStationLoading;
 
-  const infoText = !hasStartStation
+  const infoText = !hasFromStation
     ? '可點擊地圖路線(文湖、淡水信義、松山新店、中和新蘆、板南)的任意車站代碼，或選擇起始車站進行查詢'
     : isSingleStationMode
-      ? `已選起始站「${formatStationLabel(startStation)}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
-      : `已選起訖站，可查詢路徑（${formatStationLabel(startStation)} → ${formatStationLabel(endStation!)}）`;
+      ? `已選起始站「${formatStationLabel(fromStation)}」，可直接查詢單站資訊，或再選終點車站查詢路徑`
+      : `已選起訖站，可查詢路徑（${formatStationLabel(fromStation)} → ${formatStationLabel(toStation!)}）`;
 
-  const handleToggleEquipment = (value: StationFacility) => {
+  const handleToggleFacility = (value: StationFacility) => {
     setAdvancedFilters((prev) => {
-      const updated = prev.equipment.includes(value)
-        ? prev.equipment.filter((v) => v !== value)
-        : [...prev.equipment, value];
-
+      const updated = prev.facilities.includes(value)
+        ? prev.facilities.filter((v) => v !== value)
+        : [...prev.facilities, value];
       setSelectedFacilities(updated);
 
-      return { ...prev, equipment: updated };
+      return { ...prev, facilities: updated };
     });
   };
 
@@ -122,26 +121,25 @@ export const SearchBarSection = () => {
   };
 
   const handleSearch = async () => {
-    if (!startStation) return;
+    if (!fromStation) return;
 
     // 單站查詢模式：呼叫單站詳細資訊 API（與點擊地圖車站行為一致）
-    if (!endStation) {
+    if (!toStation) {
       clearRoute();
-      await selectAndFetchStation(startStation.stationCode);
+      await selectAndFetchStation(fromStation.stationCode);
 
       return;
     }
 
     clearSelection();
-
     // 使用者選取的票價種類（預設全票）
     const fareType = advancedFilters.fare ?? FareType.FULL;
     // 使用者選取的路線策略（預設最少轉乘時間）
-    const routingStrategy = advancedFilters.routingStrategy ?? RoutingStrategy.MIN_TRANSFER;
-
+    const routingStrategy =
+      advancedFilters.routingStrategy ?? RoutingStrategy.MIN_TRANSFER;
     await fetchRoute({
-      fromStationCode: startStation.stationCode,
-      toStationCode: endStation.stationCode,
+      fromStationCode: fromStation.stationCode,
+      toStationCode: toStation.stationCode,
       fareType,
       routingStrategy,
     });
@@ -186,19 +184,19 @@ export const SearchBarSection = () => {
         {/* 起始車站 */}
         <LabeledStationField
           label='起始車站'
-          value={startStation}
-          onChange={setStartStation}
+          value={fromStation}
+          onChange={setFromStation}
           width={180}
           controlHeight={SEARCH_CONTROL_HEIGHT}
         />
         {/* 終點車站 */}
         <LabeledStationField
           label='終點車站'
-          value={endStation}
+          value={toStation}
           onChange={(selectedOption) => {
-            setEndStation(selectedOption);
+            setToStation(selectedOption);
             if (selectedOption) {
-              setAdvancedFilters((prev) => ({ ...prev, equipment: [] }));
+              setAdvancedFilters((prev) => ({ ...prev, facilities: [] }));
               setSelectedFacilities([]);
             } else {
               setAdvancedFilters((prev) => ({
@@ -216,9 +214,9 @@ export const SearchBarSection = () => {
           filters={advancedFilters}
           isSingleStationMode={isSingleStationMode}
           isRouteMode={isRouteMode}
-          disabled={!hasStartStation}
+          disabled={!hasFromStation}
           controlHeight={SEARCH_CONTROL_HEIGHT}
-          onToggleEquipment={handleToggleEquipment}
+          onToggleFacility={handleToggleFacility}
           onSelectFare={handleSelectFare}
           onSelectTime={handleSelectTime}
         />

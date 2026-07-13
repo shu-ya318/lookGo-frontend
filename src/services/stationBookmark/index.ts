@@ -11,16 +11,6 @@ import type {
     StationBookmarkResponse,
 } from './interface';
 
-export const getAllStationBookmarkPaginated = async (
-    request: GetAllStationBookmarkPaginatedRequest = {}
-): Promise<GetAllStationBookmarkPaginatedResponse> => {
-    return await postRequest<GetAllStationBookmarkPaginatedResponse>(
-        '/station-bookmark/get-all-bookmark-paginated',
-        {},
-        { params: request }
-    );
-};
-
 export const createStationBookmark = async (
     request: CreateStationBookmarkRequest
 ): Promise<StationBookmark> => {
@@ -30,12 +20,13 @@ export const createStationBookmark = async (
     );
 };
 
-export const deleteStationBookmark = async (
-    request: DeleteStationBookmarkRequest
-): Promise<DeleteStationBookmarkResponse> => {
-    return await postRequest<DeleteStationBookmarkResponse>(
-        '/station-bookmark/delete-bookmark',
-        request
+export const getAllStationBookmarkPaginated = async (
+    request: GetAllStationBookmarkPaginatedRequest = {}
+): Promise<GetAllStationBookmarkPaginatedResponse> => {
+    return await postRequest<GetAllStationBookmarkPaginatedResponse>(
+        '/station-bookmark/get-all-bookmark-paginated',
+        {},
+        { params: request }
     );
 };
 
@@ -54,5 +45,14 @@ export const getStationBookmarkByStationName = async (
         '/station-bookmark/get-bookmark-by-station-name',
         {},
         { params: request }
+    );
+};
+
+export const deleteStationBookmark = async (
+    request: DeleteStationBookmarkRequest
+): Promise<DeleteStationBookmarkResponse> => {
+    return await postRequest<DeleteStationBookmarkResponse>(
+        '/station-bookmark/delete-bookmark',
+        request
     );
 };

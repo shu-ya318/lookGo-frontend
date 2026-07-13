@@ -12,7 +12,9 @@ export const handleApiError = (error: unknown): string => {
 
     const data = error.response.data;
     if (typeof data === 'object' && data !== null) {
-      return data.files || data.message || data.error?.message || 'unknown error';
+      return (
+        data.files || data.message || data.error?.message || 'unknown error'
+      );
     }
   }
 

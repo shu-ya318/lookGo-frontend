@@ -15,6 +15,7 @@ import { useMetroMapStore } from '@/stores/metroMapStore';
 
 import {
   createTripPlan,
+  getAllTripPlanName,
   updateTripPlan,
   updateTripPlanName,
 } from '@/services/tripPlan';
@@ -45,64 +46,76 @@ export const TripPlanEditorDialog = ({
   onSaved,
 }: TripPlanEditorDialogProps) => {
   const stationOptions = useMetroMapStore((state) => state.stationOptions);
-  const fetchStationOptions = useMetroMapStore(
-    (state) => state.fetchStationOptions
+  const fetchAllStationOption = useMetroMapStore(
+    (state) => state.fetchAllStationOption,
   );
-
-  useEffect(() => {
-    fetchStationOptions();
-  }, [fetchStationOptions]);
 
   const [tripTitle, setTripTitle] = useState(tripPlan?.name ?? '');
-  const [startStation, setStartStation] = useState<StationOption | null>(
-    null
-  );
-  const [endStation, setEndStation] = useState<StationOption | null>(null);
+  const [existingNames, setExistingNames] = useState<string[]>([]);
 
+  const [fromStation, setFromStation] = useState<StationOption | null>(null);
+  const [toStation, setToStation] = useState<StationOption | null>(null);
   const [tripQueryFilters, setTripQueryFilters] = useState<TripRouteFilters>(
     tripPlan
       ? {
-        fare: tripPlan.fareType as FareType,
-        routingStrategy: tripPlan.routingStrategy as RoutingStrategy,
-      }
-      : defaultTripQueryFilters
+          fare: tripPlan.fareType as FareType,
+          routingStrategy: tripPlan.routingStrategy as RoutingStrategy,
+        }
+      : defaultTripQueryFilters,
   );
+  const { tripResult, isSearching } = useTripRouteQuery(
+    fromStation,
+    toStation,
+    tripQueryFilters.fare,
+    tripQueryFilters.routingStrategy,
+  );
+
   const [note, setNote] = useState(tripPlan?.notes ?? '');
 
   const [isSaving, setIsSaving] = useState(false);
 
-  const { tripResult, isSearching } = useTripRouteQuery(
-    startStation,
-    endStation,
-    tripQueryFilters.fare,
-    tripQueryFilters.routingStrategy
-  );
+  useEffect(() => {
+    fetchAllStationOption();
+  }, [fetchAllStationOption]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchNames = async () => {
+      try {
+        const response = await getAllTripPlanName();
+        setExistingNames(response);
+      } catch {
+        setExistingNames([]);
+      }
+    };
+
+    void fetchNames();
+  }, [isOpen]);
 
   // 如果是編輯模式，依旅程紀錄的車站中文名稱比對出對應的車站選項
   useEffect(() => {
     if (!tripPlan || stationOptions.length === 0) return;
 
-    const startStationOption =
+    const fromStationOption =
       stationOptions.find(
-        (station) => station.nameZhTw === tripPlan.fromStationNameZhTw
+        (station) => station.nameZhTw === tripPlan.fromStationNameZhTw,
       ) ?? null;
-    const endStationOption =
+    const toStationOption =
       stationOptions.find(
-        (station) => station.nameZhTw === tripPlan.toStationNameZhTw
+        (station) => station.nameZhTw === tripPlan.toStationNameZhTw,
       ) ?? null;
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setStartStation(startStationOption);
-    setEndStation(endStationOption);
+    setFromStation(fromStationOption);
+    setToStation(toStationOption);
   }, [tripPlan, stationOptions]);
 
-  const handleFareChange = (value: FareType | null): void => {
+  const handleFareChange = (value: FareType | null) => {
     setTripQueryFilters((prev) => ({ ...prev, fare: value }));
   };
 
-  const handleRoutingStrategyChange = (
-    value: RoutingStrategy | null
-  ): void => {
+  const handleRoutingStrategyChange = (value: RoutingStrategy | null) => {
     setTripQueryFilters((prev) => ({ ...prev, routingStrategy: value }));
   };
 
@@ -157,7 +170,17 @@ export const TripPlanEditorDialog = ({
   };
 
   const isEditMode = tripPlan !== null;
-  const hasEndStation = endStation !== null;
+  const hasToStation = toStation !== null;
+
+  // 名稱是否與既有旅程重複（排除原名，存回原名視為合法；先 trim、不分大小寫，與後端邏輯一致）
+  const trimmedTitle = tripTitle.trim();
+  const isDuplicateName =
+    trimmedTitle !== '' &&
+    (!tripPlan ||
+      trimmedTitle.toLowerCase() !== tripPlan.name.trim().toLowerCase()) &&
+    existingNames.some(
+      (name) => name.trim().toLowerCase() === trimmedTitle.toLowerCase(),
+    );
 
   return (
     <Dialog
@@ -169,7 +192,7 @@ export const TripPlanEditorDialog = ({
         <Button
           variant='contained'
           loading={isSaving}
-          disabled={!tripResult || !tripTitle.trim()}
+          disabled={!tripResult || !tripTitle.trim() || isDuplicateName}
           onClick={handleSave}
         >
           {isEditMode ? '更新旅程' : '儲存旅程'}
@@ -180,12 +203,17 @@ export const TripPlanEditorDialog = ({
         {/* 旅程名稱 */}
         <Stack sx={{ gap: 0.5 }}>
           <RequiredFieldLabel label='旅程名稱' />
+          <Typography variant='caption' sx={{ color: 'info.main', mb: 0.5 }}>
+            名稱不能與既有的旅程規劃重複
+          </Typography>
           <TextField
             value={tripTitle}
             onChange={(event) => setTripTitle(event.target.value)}
             size='small'
             fullWidth
             placeholder='請輸入旅程名稱'
+            error={isDuplicateName}
+            helperText={isDuplicateName ? '此名稱已存在' : undefined}
           />
         </Stack>
         {/* 起始車站 / 終點車站 */}
@@ -193,8 +221,8 @@ export const TripPlanEditorDialog = ({
           <Stack sx={{ gap: 0.5 }}>
             <RequiredFieldLabel label='起始車站' disabled={isEditMode} />
             <StationAutocomplete
-              value={startStation}
-              onChange={setStartStation}
+              value={fromStation}
+              onChange={setFromStation}
               disabled={isEditMode}
               sx={{ width: 200 }}
             />
@@ -202,8 +230,8 @@ export const TripPlanEditorDialog = ({
           <Stack sx={{ gap: 0.5 }}>
             <RequiredFieldLabel label='終點車站' disabled={isEditMode} />
             <StationAutocomplete
-              value={endStation}
-              onChange={setEndStation}
+              value={toStation}
+              onChange={setToStation}
               disabled={isEditMode}
               sx={{ width: 200 }}
             />
@@ -212,7 +240,7 @@ export const TripPlanEditorDialog = ({
         {/* 查詢票價與車程時間 */}
         <TripRouteFilterSection
           filters={tripQueryFilters}
-          disabled={!hasEndStation}
+          disabled={!hasToStation}
           isSearching={isSearching}
           tripResult={tripResult}
           onFareChange={handleFareChange}
@@ -240,4 +268,4 @@ export const TripPlanEditorDialog = ({
       </Stack>
     </Dialog>
   );
-}
+};

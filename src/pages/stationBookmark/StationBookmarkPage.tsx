@@ -12,6 +12,8 @@ import { debounce } from 'lodash-es';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -33,12 +35,13 @@ const STATION_BOOKMARK_PAGE_SIZE = 8;
 const StationBookmarkPage = () => {
   const [inputValue, setInputValue] = useState('');
   const [keyword, setKeyword] = useState('');
+  const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC');
   const [allStationBookmark, setAllStationBookmark] = useState<StationBookmark[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isBookmarksLoading, setIsBookmarksLoading] = useState(false);
+  const [isMoreBookmarksLoading, setIsMoreBookmarksLoading] = useState(false);
 
   const [deletingBookmark, setDeletingBookmark] =
     useState<StationBookmark | null>(null);
@@ -49,7 +52,7 @@ const StationBookmarkPage = () => {
   const hasMore = page + 1 < totalPages;
 
   const fetchAllStationBookmark = useCallback(async () => {
-    setIsLoading(true);
+    setIsBookmarksLoading(true);
 
     try {
       if (keyword) {
@@ -63,6 +66,7 @@ const StationBookmarkPage = () => {
         const response = await getAllStationBookmarkPaginated({
           page: 0,
           size: STATION_BOOKMARK_PAGE_SIZE,
+          sortDirection,
         });
         setAllStationBookmark(response.content);
         setPage(0);
@@ -79,9 +83,9 @@ const StationBookmarkPage = () => {
         });
       }
     } finally {
-      setIsLoading(false);
+      setIsBookmarksLoading(false);
     }
-  }, [keyword]);
+  }, [keyword, sortDirection]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -104,15 +108,16 @@ const StationBookmarkPage = () => {
   };
 
   const handleLoadMore = async () => {
-    if (isLoadingMore) return;
+    if (isMoreBookmarksLoading) return;
 
     const nextPage = page + 1;
-    setIsLoadingMore(true);
+    setIsMoreBookmarksLoading(true);
 
     try {
       const response = await getAllStationBookmarkPaginated({
         page: nextPage,
         size: STATION_BOOKMARK_PAGE_SIZE,
+        sortDirection,
       });
       setAllStationBookmark((prev) => [...prev, ...response.content]);
       setPage(nextPage);
@@ -122,7 +127,7 @@ const StationBookmarkPage = () => {
         variant: 'error',
       });
     } finally {
-      setIsLoadingMore(false);
+      setIsMoreBookmarksLoading(false);
     }
   };
 
@@ -147,7 +152,7 @@ const StationBookmarkPage = () => {
     }
   };
 
-  const handlePrint = (): void => {
+  const handlePrint = () => {
     window.print();
   };
 
@@ -192,14 +197,31 @@ const StationBookmarkPage = () => {
         sx={{
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 1,
         }}
       >
-        {/* 搜尋欄 */}
-        <SearchInput
-          searchTerm={inputValue}
-          onChange={handleSearch}
-          placeholder='請輸入車站中文名稱搜尋'
-        />
+        {/* 搜尋欄與排序選單 */}
+        <Stack direction='row' sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+          <SearchInput
+            searchTerm={inputValue}
+            onChange={handleSearch}
+            placeholder='請輸入車站中文名稱搜尋'
+          />
+          {/* 有關鍵字時走單筆查詢 API，排序無意義故 disabled */}
+          <Select
+            size='small'
+            value={sortDirection}
+            disabled={!!keyword}
+            onChange={(event) => {
+              setPage(0);
+              setSortDirection(event.target.value as 'ASC' | 'DESC');
+            }}
+          >
+            <MenuItem value='DESC'>收藏時間：新 → 舊</MenuItem>
+            <MenuItem value='ASC'>收藏時間：舊 → 新</MenuItem>
+          </Select>
+        </Stack>
         {/* 按鈕: 列印與下載全部 */}
         <Stack direction='row' sx={{ gap: '1rem', alignItems: 'center' }}>
           <Button variant='outlined' color='neutral' onClick={handlePrint}>
@@ -221,7 +243,7 @@ const StationBookmarkPage = () => {
         </Stack>
       </Stack>
       {/* 資料顯示畫面 */}
-      {isLoading && allStationBookmark.length === 0 ? (
+      {isBookmarksLoading && allStationBookmark.length === 0 ? (
         <Stack sx={{ alignItems: 'center', py: 4 }}>
           <CircularProgress size='1.5rem' />
         </Stack>
@@ -263,9 +285,9 @@ const StationBookmarkPage = () => {
               <Button
                 size='small'
                 onClick={handleLoadMore}
-                disabled={isLoadingMore}
+                disabled={isMoreBookmarksLoading}
                 startIcon={
-                  isLoadingMore ? (
+                  isMoreBookmarksLoading ? (
                     <CircularProgress size='0.875rem' />
                   ) : undefined
                 }

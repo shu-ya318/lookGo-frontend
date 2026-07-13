@@ -20,7 +20,7 @@ import {
 } from '@/services/metro/types';
 
 export interface AdvancedFilters {
-  equipment: StationFacility[];
+  facilities: StationFacility[];
   fare: FareType | null;
   routingStrategy: RoutingStrategy | null;
 }
@@ -31,7 +31,7 @@ interface AdvancedFilterMenuProps {
   isRouteMode: boolean;
   disabled: boolean;
   controlHeight: string;
-  onToggleEquipment: (value: StationFacility) => void;
+  onToggleFacility: (value: StationFacility) => void;
   onSelectFare: (value: FareType) => void;
   onSelectTime: (value: RoutingStrategy) => void;
 }
@@ -42,7 +42,7 @@ export const AdvancedFilterMenu = ({
   isRouteMode,
   disabled,
   controlHeight,
-  onToggleEquipment,
+  onToggleFacility,
   onSelectFare,
   onSelectTime,
 }: AdvancedFilterMenuProps) => {
@@ -50,7 +50,9 @@ export const AdvancedFilterMenu = ({
 
   const isMenuOpen = Boolean(menuAnchorEl);
   const totalFilterCount =
-    filters.equipment.length + (filters.fare ? 1 : 0) + (filters.routingStrategy ? 1 : 0);
+    filters.facilities.length +
+    (filters.fare ? 1 : 0) +
+    (filters.routingStrategy ? 1 : 0);
 
   return (
     <>
@@ -80,13 +82,14 @@ export const AdvancedFilterMenu = ({
         open={isMenuOpen}
         onClose={() => setMenuAnchorEl(null)}
       >
+        {/* 單一車站模式 */}
         {isSingleStationMode && (
           <>
             <ListSubheader sx={{ fontWeight: 700 }}>設備</ListSubheader>
             {STATION_FACILITY_OPTIONS.map(({ value, label }) => (
-              <MenuItem key={value} onClick={() => onToggleEquipment(value)}>
+              <MenuItem key={value} onClick={() => onToggleFacility(value)}>
                 <Checkbox
-                  checked={filters.equipment.includes(value)}
+                  checked={filters.facilities.includes(value)}
                   size='small'
                 />
                 <ListItemText primary={label} />
@@ -94,7 +97,7 @@ export const AdvancedFilterMenu = ({
             ))}
           </>
         )}
-
+        {/* 路徑查詢模式 */}
         {isRouteMode && (
           <>
             <ListSubheader sx={{ fontWeight: 700 }}>票價種類</ListSubheader>
@@ -108,7 +111,10 @@ export const AdvancedFilterMenu = ({
             <ListSubheader sx={{ fontWeight: 700 }}>乘車時間</ListSubheader>
             {ROUTING_STRATEGY_OPTIONS.map(({ value, label }) => (
               <MenuItem key={value} onClick={() => onSelectTime(value)}>
-                <Radio checked={filters.routingStrategy === value} size='small' />
+                <Radio
+                  checked={filters.routingStrategy === value}
+                  size='small'
+                />
                 <ListItemText primary={label} />
               </MenuItem>
             ))}

@@ -21,6 +21,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+const defaultValues: FormData = { content: '' };
+
 interface UpdateAnnouncementDialogProps {
     isOpen: boolean;
     onClose: () => void;
@@ -40,7 +42,7 @@ export const UpdateAnnouncementDialog = ({
         reset,
         formState: { errors, isSubmitting },
     } = useForm<FormData>({
-        defaultValues: { content: '' },
+        defaultValues,
         resolver: zodResolver(formSchema),
         mode: 'onChange',
     });
@@ -51,9 +53,9 @@ export const UpdateAnnouncementDialog = ({
         }
     }, [isOpen]);
 
-    const handleClose = (): void => {
+    const handleClose = () => {
         onClose();
-        reset({ content: '' });
+        reset(defaultValues);
     };
 
     const onSubmit: SubmitHandler<FormData> = async data => {

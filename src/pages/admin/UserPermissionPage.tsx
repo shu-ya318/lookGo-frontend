@@ -19,28 +19,25 @@ import { getAllUser, updateStatus } from '@/services/user';
 
 import { formatDateTime } from '@/utils/date';
 
+import { MembershipTier, UserRole, UserStatus } from '@/services/user/types';
+
 import type { ChipProps } from '@mui/material/Chip';
 import type { GridRenderCellParams } from '@mui/x-data-grid';
-import type {
-  GetCurrentUserResponse,
-  MembershipTier,
-  UserRole,
-  UserStatus,
-} from '@/services/user/interface';
+import type { GetCurrentUserResponse } from '@/services/user/interface';
 
 const roleColorMap: Record<UserRole, ChipProps['color']> = {
-  ADMIN: 'primary',
-  USER: 'default',
+  [UserRole.ADMIN]: 'primary',
+  [UserRole.USER]: 'default',
 };
 
 const membershipTierColorMap: Record<MembershipTier, ChipProps['color']> = {
-  PREMIUM: 'warning',
-  BASIC: 'default',
+  [MembershipTier.PREMIUM]: 'warning',
+  [MembershipTier.BASIC]: 'default',
 };
 
 const statusColorMap: Record<UserStatus, ChipProps['color']> = {
-  ACTIVE: 'success',
-  DISABLED: 'default',
+  [UserStatus.ACTIVE]: 'success',
+  [UserStatus.DISABLED]: 'default',
 };
 
 const UserPermissionPage = () => {
@@ -48,14 +45,14 @@ const UserPermissionPage = () => {
   const [keyword, setKeyword] = useState('');
   const [rows, setRows] = useState<GetCurrentUserResponse[]>([]);
   const [rowCount, setRowCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isUsersLoading, setIsUsersLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: 10,
   });
 
   const fetchAllUser = useCallback(async () => {
-    setIsLoading(true);
+    setIsUsersLoading(true);
 
     try {
       const response = await getAllUser({
@@ -70,7 +67,7 @@ const UserPermissionPage = () => {
         variant: 'error',
       });
     } finally {
-      setIsLoading(false);
+      setIsUsersLoading(false);
     }
   }, [keyword, paginationModel.page, paginationModel.pageSize]);
 
@@ -85,7 +82,7 @@ const UserPermissionPage = () => {
         setPaginationModel((prev) => ({ ...prev, page: 0 }));
         setKeyword(value);
       }, 500),
-    []
+    [],
   );
 
   const handleUserListSearch = (event: ChangeEvent<HTMLInputElement>) => {
@@ -95,8 +92,11 @@ const UserPermissionPage = () => {
   };
 
   const handleToggleStatus = useCallback(
-    async (userId: number, currentStatus: UserStatus): Promise<void> => {
-      const newStatus = currentStatus === 'ACTIVE' ? 'DISABLED' : 'ACTIVE';
+    async (userId: number, currentStatus: UserStatus) => {
+      const newStatus =
+        currentStatus === UserStatus.ACTIVE
+          ? UserStatus.DISABLED
+          : UserStatus.ACTIVE;
 
       try {
         await updateStatus({ userId, status: newStatus });
@@ -108,7 +108,7 @@ const UserPermissionPage = () => {
         });
       }
     },
-    [fetchAllUser]
+    [fetchAllUser],
   );
 
   const columns = useMemo(
@@ -196,8 +196,8 @@ const UserPermissionPage = () => {
         sortable: false,
         filterable: false,
         renderCell: (params: GridRenderCellParams<GetCurrentUserResponse>) => {
-          const isActive = params.row.status === 'ACTIVE';
-          const isAdmin = params.row.role === 'ADMIN';
+          const isActive = params.row.status === UserStatus.ACTIVE;
+          const isAdmin = params.row.role === UserRole.ADMIN;
           return (
             <Button
               variant='contained'
@@ -214,7 +214,7 @@ const UserPermissionPage = () => {
         },
       },
     ],
-    [handleToggleStatus]
+    [handleToggleStatus],
   );
 
   return (
@@ -228,11 +228,17 @@ const UserPermissionPage = () => {
       }}
     >
       <Typography variant='h5'>使用者權限管理</Typography>
-      <SearchInput searchTerm={inputValue} onChange={handleUserListSearch} placeholder='請輸入使用者名稱搜尋' />
+      {/* 搜尋欄 */}
+      <SearchInput
+        searchTerm={inputValue}
+        onChange={handleUserListSearch}
+        placeholder='請輸入使用者名稱搜尋'
+      />
+      {/* 使用者表格 */}
       <DataGrid
         rows={rows}
         columns={columns}
-        loading={isLoading}
+        loading={isUsersLoading}
         rowCount={rowCount}
         paginationMode='server'
         paginationModel={paginationModel}

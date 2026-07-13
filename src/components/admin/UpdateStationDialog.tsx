@@ -31,7 +31,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-const defaultFormValues: FormData = {
+const defaultValues: FormData = {
   nameZhTw: '',
   nameEn: '',
   atm: '',
@@ -72,7 +72,7 @@ export const UpdateStationDialog = ({
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    defaultValues: defaultFormValues,
+    defaultValues,
     resolver: zodResolver(formSchema),
     mode: 'onChange',
   });
@@ -110,20 +110,20 @@ export const UpdateStationDialog = ({
     fetchStation();
   }, [isOpen, stationId]);
 
-  const handleClose = (): void => {
+  const handleClose = () => {
     onClose();
-    reset(defaultFormValues);
+    reset(defaultValues);
   };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     if (!stationId) return;
 
     try {
-      const { message } = await updateStation({
+      const response = await updateStation({
         id: stationId,
         ...data,
       });
-      enqueueSnackbar(message || '車站資訊修改成功！', {
+      enqueueSnackbar(response.message || '車站資訊修改成功！', {
         variant: 'success',
       });
       onClose();

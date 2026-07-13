@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 import { enqueueSnackbar } from 'notistack';
 
-import { getAllStationOption, getMetroMap, getOriginDestinationDetails } from '@/services/metro';
+import {
+  getAllStationOption,
+  getMetroMap,
+  getOriginDestinationDetails,
+} from '@/services/metro';
 
 import type { StationFacility } from '@/services/metro/types';
 import type {
@@ -14,16 +18,16 @@ import type {
 
 interface MetroMapState {
   lines: MetroMapLine[];
-  allStations: MetroMapStation[];
+  stations: MetroMapStation[];
   stationOptions: StationOption[];
   isStationOptionsLoading: boolean;
-  isLoading: boolean;
+  isMetroMapLoading: boolean;
   error: string | null;
   routeResult: GetOriginDestinationDetailsResponse | null;
   isRouteLoading: boolean;
   selectedFacilities: StationFacility[];
   fetchMetroMap: () => Promise<void>;
-  fetchStationOptions: () => Promise<void>;
+  fetchAllStationOption: () => Promise<void>;
   fetchRoute: (request: GetOriginDestinationDetailsRequest) => Promise<void>;
   clearRoute: () => void;
   setSelectedFacilities: (facilities: StationFacility[]) => void;
@@ -31,10 +35,10 @@ interface MetroMapState {
 
 export const useMetroMapStore = create<MetroMapState>((set, get) => ({
   lines: [],
-  allStations: [],
+  stations: [],
   stationOptions: [],
   isStationOptionsLoading: false,
-  isLoading: false,
+  isMetroMapLoading: false,
   error: null,
   routeResult: null,
   isRouteLoading: false,
@@ -43,38 +47,42 @@ export const useMetroMapStore = create<MetroMapState>((set, get) => ({
   fetchMetroMap: async () => {
     if (get().lines.length > 0) return;
 
-    set({ isLoading: true, error: null });
+    set({ isMetroMapLoading: true, error: null });
 
     try {
       const response = await getMetroMap();
-      const seen = new Set<string>();
-      const allStations: MetroMapStation[] = [];
+      const seenStationCodes = new Set<string>();
+      const stations: MetroMapStation[] = [];
 
       for (const line of response.lines) {
         for (const station of line.stations) {
-          if (!seen.has(station.stationCode)) {
-            seen.add(station.stationCode);
-            allStations.push(station);
+          if (!seenStationCodes.has(station.stationCode)) {
+            seenStationCodes.add(station.stationCode);
+            stations.push(station);
           }
         }
       }
-      set({ lines: response.lines, allStations });
+
+      set({ lines: response.lines, stations });
     } catch (error) {
       set({ error: error as string });
     } finally {
-      set({ isLoading: false });
+      set({ isMetroMapLoading: false });
     }
   },
 
-  fetchStationOptions: async () => {
+  fetchAllStationOption: async () => {
     if (get().stationOptions.length > 0) return;
 
     set({ isStationOptionsLoading: true });
+
     try {
       const response = await getAllStationOption();
       set({ stationOptions: response });
     } catch (error) {
-      enqueueSnackbar((error as string) || '取得車站選項失敗', { variant: 'error' });
+      enqueueSnackbar((error as string) || '取得車站選項失敗', {
+        variant: 'error',
+      });
     } finally {
       set({ isStationOptionsLoading: false });
     }
@@ -87,12 +95,15 @@ export const useMetroMapStore = create<MetroMapState>((set, get) => ({
       const response = await getOriginDestinationDetails(request);
       set({ routeResult: response });
     } catch (error) {
-      enqueueSnackbar((error as string) || '路徑查詢失敗', { variant: 'error' });
+      enqueueSnackbar((error as string) || '路徑查詢失敗', {
+        variant: 'error',
+      });
     } finally {
       set({ isRouteLoading: false });
     }
   },
 
   clearRoute: () => set({ routeResult: null }),
-  setSelectedFacilities: (facilities) => set({ selectedFacilities: facilities }),
+  setSelectedFacilities: (facilities) =>
+    set({ selectedFacilities: facilities }),
 }));

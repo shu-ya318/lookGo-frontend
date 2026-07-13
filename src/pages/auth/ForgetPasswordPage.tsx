@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { enqueueSnackbar } from 'notistack';
 
@@ -13,6 +13,7 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 
 import { forgetPassword } from '@/services/auth';
+import { isValidCellphone } from '@/utils/validation';
 
 import type { ForgetPasswordRequest } from '@/services/auth/interface';
 
@@ -21,7 +22,7 @@ const formSchema = z.object({
   cellphone: z
     .string()
     .min(1, '請輸入手機號碼!')
-    .regex(/^0\d{9}$/, '請輸入 0 開頭的 10 碼手機號碼!'),
+    .refine(isValidCellphone, '請輸入 09 開頭的 10 碼手機號碼!'),
 });
 
 export type FormSchemaData = z.infer<typeof formSchema>;
@@ -164,7 +165,7 @@ const ForgetPasswordPage = () => {
           驗證身分
         </Button>
       </Stack>
-      {/* Return to Login Link */}
+      {/* 登入的導航連結 */}
       <Link
         component='button'
         type='button'

@@ -19,8 +19,6 @@ import { StationFacilityList } from '@/components/StationFacilityList';
 import { useStationStore } from '@/stores/stationStore';
 import { useStationBookmarkStore } from '@/stores/stationBookmarkStore';
 
-import { normalizeHexColor } from '@/utils/route';
-
 import type { MetroMapLine, MetroMapStation } from '@/services/metro/interface';
 
 interface StationInfoCardProps {
@@ -41,16 +39,16 @@ export const StationInfoCard = ({
   const isLoading = useStationStore((state) => state.isLoading);
   const bookmarks = useStationBookmarkStore((state) => state.bookmarks);
 
-  const fetchBookmarks = useStationBookmarkStore(
-    (state) => state.fetchBookmarks
+  const fetchAllBookmark = useStationBookmarkStore(
+    (state) => state.fetchAllBookmark
   );
   const toggleBookmark = useStationBookmarkStore(
     (state) => state.toggleBookmark
   );
 
   useEffect(() => {
-    fetchBookmarks();
-  }, [fetchBookmarks]);
+    fetchAllBookmark();
+  }, [fetchAllBookmark]);
 
   const isBookmarked = bookmarks.some(
     (bookmark) => bookmark.stationId === station.stationId
@@ -121,7 +119,7 @@ export const StationInfoCard = ({
             label={`${station.stationCode} ${line.nameZhTw}`}
             size='small'
             sx={{
-              backgroundColor: normalizeHexColor(line.color),
+              backgroundColor: line.color,
               color: '#fff',
               fontWeight: 700,
               fontSize: 11,
@@ -138,7 +136,7 @@ export const StationInfoCard = ({
                 label={`${transferStation?.stationCode ?? transferLine.letter} ${transferLine.nameZhTw}`}
                 size='small'
                 sx={{
-                  backgroundColor: normalizeHexColor(transferLine.color),
+                  backgroundColor: transferLine.color,
                   color: '#fff',
                   fontWeight: 700,
                   fontSize: 11,
@@ -166,12 +164,12 @@ export const StationInfoCard = ({
         )}
         <Divider sx={{ my: 1 }} />
         {/* 車站設備 */}
-        {isLoading ? (
+        {isStationLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 1 }}>
             <CircularProgress size={20} />
           </Box>
         ) : (
-          stationDetails && <StationFacilityList facilities={stationDetails} />
+          stationDetail && <StationFacilityList facilities={stationDetail} />
         )}
       </CardContent>
     </Card>

@@ -10,9 +10,14 @@ interface SearchInputProps {
   searchTerm: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
-};
+}
 
-export const SearchInput = ({ width = '15.5rem', searchTerm, onChange, placeholder = '請輸入搜尋' }: SearchInputProps) => {
+export const SearchInput = ({
+  width = '15.5rem',
+  searchTerm,
+  onChange,
+  placeholder = '請輸入搜尋',
+}: SearchInputProps) => {
   return (
     <FormControl sx={{ width }} variant='filled'>
       <FilledInput
@@ -22,7 +27,9 @@ export const SearchInput = ({ width = '15.5rem', searchTerm, onChange, placehold
         fullWidth
         startAdornment={
           <InputAdornment position='end'>
-            <SearchOutlinedIcon sx={{ fontSize: '.875rem', marginRight: '0.25rem' }} />
+            <SearchOutlinedIcon
+              sx={{ fontSize: '.875rem', marginRight: '0.25rem' }}
+            />
           </InputAdornment>
         }
         sx={{ height: '2.5rem', paddingLeft: 0, fontSize: '.875rem' }}

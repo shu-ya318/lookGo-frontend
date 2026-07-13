@@ -1,4 +1,4 @@
-import type { PageResponse } from '../common/interface';
+import type { PaginatedResponse } from '../common/interface';
 
 // All Station Bookmark Paginated
 
@@ -6,6 +6,7 @@ export interface GetAllStationBookmarkPaginatedRequest {
     keyword?: string;
     page?: number;
     size?: number;
+    sortDirection?: 'ASC' | 'DESC';
 }
 
 export interface StationBookmark {
@@ -20,7 +21,7 @@ export interface StationBookmark {
 }
 
 export type GetAllStationBookmarkPaginatedResponse =
-    PageResponse<StationBookmark>;
+    PaginatedResponse<StationBookmark>;
 
 // Create Station Bookmark
 

@@ -2,7 +2,7 @@ export interface ApiResponse {
   successMessage: string;
 }
 
-export interface PageResponse<T> {
+export interface PaginatedResponse<T> {
   content: T[];
   page: number;
   size: number;

@@ -20,6 +20,7 @@ import { UpdateAnnouncementDialog } from '@/components/stationChat/UpdateAnnounc
 import { useUserStore } from '@/stores/userStore';
 
 import { deleteAnnouncement } from '@/services/stationChat';
+import { UserRole } from '@/services/user/types';
 
 import { useAnnouncements } from './hooks/useAnnouncements';
 import { useChatMessages } from './hooks/useChatMessages';
@@ -31,7 +32,7 @@ import type { TripPlan } from '@/services/tripPlan/interface';
 
 const StationChatPage = () => {
     const currentUser = useUserStore(state => state.userInfo);
-    const isAdmin = currentUser?.role === 'ADMIN';
+    const isAdmin = currentUser?.role === UserRole.ADMIN;
 
     /*
      * 因各功能邏輯較複雜且有獨立狀態，拆出 custom hook 來個別管理
@@ -41,9 +42,9 @@ const StationChatPage = () => {
 
     const {
         messages,
-        isLoadingMessages,
+        isMessagesLoading,
         hasMore,
-        isLoadingMore,
+        isMoreMessagesLoading,
         isConnected,
         inputMessage,
         setInputMessage,
@@ -60,7 +61,7 @@ const StationChatPage = () => {
         isAnnouncementExpanded,
         announcementPage,
         announcementTotalPages,
-        isLoadingMoreAnnouncements,
+        isMoreAnnouncementsLoading,
         toggleAnnouncementExpanded,
         refetchAnnouncements,
         handleLoadMoreAnnouncements,
@@ -80,12 +81,12 @@ const StationChatPage = () => {
     const [shareTripPlanSessionId, setShareTripPlanSessionId] = useState(0);
     const [isShareTripPlanOpen, setIsShareTripPlanOpen] = useState(false);
 
-    const handleOpenShareTripPlan = (): void => {
+    const handleOpenShareTripPlan = () => {
         setShareTripPlanSessionId(prev => prev + 1);
         setIsShareTripPlanOpen(true);
     };
 
-    const handleShareTripPlan = (tripPlan: TripPlan): void => {
+    const handleShareTripPlan = (tripPlan: TripPlan) => {
         sendTripPlanMessage(tripPlan.id);
         setIsShareTripPlanOpen(false);
     };
@@ -196,7 +197,7 @@ const StationChatPage = () => {
                         isAnnouncementExpanded={isAnnouncementExpanded}
                         announcementPage={announcementPage}
                         announcementTotalPages={announcementTotalPages}
-                        isLoadingMoreAnnouncements={isLoadingMoreAnnouncements}
+                        isMoreAnnouncementsLoading={isMoreAnnouncementsLoading}
                         onToggleExpand={toggleAnnouncementExpanded}
                         onAdd={() => setIsCreateAnnouncementOpen(true)}
                         onEdit={setEditingAnnouncement}
@@ -208,9 +209,9 @@ const StationChatPage = () => {
                 <MessageSection
                     selectedStation={selectedStation}
                     messages={messages}
-                    isLoadingMessages={isLoadingMessages}
+                    isMessagesLoading={isMessagesLoading}
                     hasMore={hasMore}
-                    isLoadingMore={isLoadingMore}
+                    isMoreMessagesLoading={isMoreMessagesLoading}
                     onLoadMoreMessages={handleLoadMoreMessages}
                     currentUser={currentUser}
                     onDeleteMessage={handleDeleteMessage}

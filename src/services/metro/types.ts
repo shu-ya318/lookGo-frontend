@@ -1,4 +1,4 @@
-import type { StationDetails } from './interface';
+import type { StationDetail } from './interface';
 
 /*
 處理有固定值的屬性資料時，使用 const 搭配 type 來取代傳統 enum 寫法:
@@ -34,7 +34,7 @@ export const FARE_TYPE_OPTIONS = [
     { value: FareType.LOVE, label: '愛心票' },
 ] as const;
 
-export const FARE_TYPE_LABELS: Record<number, string> = Object.fromEntries(
+export const FARE_TYPE_LABELS = Object.fromEntries(
     FARE_TYPE_OPTIONS.map(({ value, label }) => [value, label])
 );
 
@@ -43,7 +43,7 @@ export const ROUTING_STRATEGY_OPTIONS = [
     { value: RoutingStrategy.MIN_TIME, label: '最短車程時間' },
 ] as const;
 
-export const ROUTING_STRATEGY_LABELS: Record<number, string> = Object.fromEntries(
+export const ROUTING_STRATEGY_LABELS = Object.fromEntries(
     ROUTING_STRATEGY_OPTIONS.map(({ value, label }) => [value, label])
 );
 
@@ -61,7 +61,7 @@ export const StationFacility = {
 export type StationFacility = typeof StationFacility[keyof typeof StationFacility];
 
 export type FacilityDetailKey = Extract<
-    keyof StationDetails,
+    keyof StationDetail,
     | 'atm'
     | 'nursingRoom'
     | 'diaperTable'
@@ -73,7 +73,7 @@ export type FacilityDetailKey = Extract<
     | 'escalator'
 >;
 
-// value 為後端篩選用代碼，key 為 Station/StationDetails 的欄位名稱
+// value 為後端篩選用代碼，key 為 Station/StationDetail 的欄位名稱
 export const STATION_FACILITY_OPTIONS: {
     value: StationFacility;
     key: FacilityDetailKey;

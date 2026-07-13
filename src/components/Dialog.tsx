@@ -19,7 +19,7 @@ interface ExtendedDialogProps {
   action?: ReactNode;
   width?: string;
   onClose?: () => void;
-};
+}
 
 export const Dialog = ({
   isOpen,
@@ -45,21 +45,34 @@ export const Dialog = ({
         },
       }}
     >
-      <Stack direction='row' sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <DialogTitle variant='h5' sx={{ padding: '1.5rem', color: 'text.primary' }}>
+      <Stack
+        direction='row'
+        sx={{ alignItems: 'center', justifyContent: 'space-between' }}
+      >
+        {/* 標題 */}
+        <DialogTitle
+          variant='h5'
+          sx={{ padding: '1.5rem', color: 'text.primary' }}
+        >
           {title}
         </DialogTitle>
+        {/* 關閉按鈕 */}
         {onClose && (
           <IconButton onClick={onClose} sx={{ marginRight: '1rem' }}>
             <CloseIcon />
           </IconButton>
         )}
       </Stack>
+      {/* 內容 */}
       <DialogContent sx={{ ...extraStyles }}>
-        {children ?? (content && <DialogContentText>{content}</DialogContentText>)}
+        {children ??
+          (content && <DialogContentText>{content}</DialogContentText>)}
       </DialogContent>
+      {/* 操作 */}
       {action && (
-        <DialogActions sx={{ padding: '1.5rem', gap: '1rem' }}>{action}</DialogActions>
+        <DialogActions sx={{ padding: '1.5rem', gap: '1rem' }}>
+          {action}
+        </DialogActions>
       )}
     </MuiDialog>
   );

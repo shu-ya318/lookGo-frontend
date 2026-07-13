@@ -15,16 +15,34 @@ import { Footer } from '@/components/Footer';
 
 import { useUserStore } from '@/stores/userStore';
 
+import { UserRole } from '@/services/user/types';
+
 const BASE_NAV_ITEMS = [
   { label: '路網圖查詢', path: '/network-map', icon: <MapOutlinedIcon /> },
-  { label: '車站書籤', path: '/station-bookmark', icon: <BookmarkBorderIcon /> },
+  {
+    label: '車站書籤',
+    path: '/station-bookmark',
+    icon: <BookmarkBorderIcon />,
+  },
   { label: '旅程規劃', path: '/trip-planner', icon: <RouteOutlinedIcon /> },
-  { label: '車站聊天室', path: '/station-chat-room', icon: <ChatBubbleOutlineOutlined /> },
+  {
+    label: '車站聊天室',
+    path: '/station-chat-room',
+    icon: <ChatBubbleOutlineOutlined />,
+  },
 ];
 
 const ADMIN_NAV_ITEMS = [
-  { label: '使用者管理', path: '/admin/user-management', icon: <PeopleOutlinedIcon /> },
-  { label: '車站管理', path: '/admin/station-management', icon: <TrainOutlinedIcon /> },
+  {
+    label: '使用者管理',
+    path: '/admin/user-management',
+    icon: <PeopleOutlinedIcon />,
+  },
+  {
+    label: '車站管理',
+    path: '/admin/station-management',
+    icon: <TrainOutlinedIcon />,
+  },
 ];
 
 export const Layout = () => {
@@ -32,10 +50,11 @@ export const Layout = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const isAdmin = userInfo?.role === UserRole.ADMIN;
 
-  const isAdmin = userInfo?.role === 'ADMIN';
-
-  const navItems = isAdmin ? [...BASE_NAV_ITEMS, ...ADMIN_NAV_ITEMS] : BASE_NAV_ITEMS;
+  const navItems = isAdmin
+    ? [...BASE_NAV_ITEMS, ...ADMIN_NAV_ITEMS]
+    : BASE_NAV_ITEMS;
 
   return (
     <Stack
@@ -46,7 +65,10 @@ export const Layout = () => {
         padding: 0,
       }}
     >
-      <Header onToggle={() => setIsSidebarOpen(!isSidebarOpen)} navItems={navItems} />
+      <Header
+        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        navItems={navItems}
+      />
       <Sidebar
         isOpen={isSidebarOpen}
         items={navItems}
@@ -61,7 +83,6 @@ export const Layout = () => {
           justifyContent: 'flex-start',
           marginTop: '4.375rem',
           backgroundColor: 'background.default',
-          //px: { xs: 2, sm: 4, md: 6 },
           boxSizing: 'border-box',
         }}
       >

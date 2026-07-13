@@ -11,6 +11,8 @@ import { debounce } from 'lodash-es';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import AddIcon from '@mui/icons-material/Add';
@@ -33,11 +35,12 @@ const TRIP_PLAN_PAGE_SIZE = 8;
 const TripPlanPage = () => {
     const [inputValue, setInputValue] = useState('');
     const [keyword, setKeyword] = useState('');
+    const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC');
     const [allTripPlan, setAllTripPlan] = useState<TripPlan[]>([]);
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [isTripPlansLoading, setIsTripPlansLoading] = useState(false);
+    const [isMoreTripPlansLoading, setIsMoreTripPlansLoading] = useState(false);
     const [deletingTripPlan, setDeletingTripPlan] = useState<TripPlan | null>(
         null
     );
@@ -52,7 +55,7 @@ const TripPlanPage = () => {
     const hasMore = page + 1 < totalPages;
 
     const fetchAllTripPlan = useCallback(async () => {
-        setIsLoading(true);
+        setIsTripPlansLoading(true);
 
         try {
             if (keyword) {
@@ -64,6 +67,7 @@ const TripPlanPage = () => {
                 const response = await getAllTripPlanPaginated({
                     page: 0,
                     size: TRIP_PLAN_PAGE_SIZE,
+                    sortDirection,
                 });
                 setAllTripPlan(response.content);
                 setPage(0);
@@ -80,9 +84,9 @@ const TripPlanPage = () => {
                 });
             }
         } finally {
-            setIsLoading(false);
+            setIsTripPlansLoading(false);
         }
-    }, [keyword]);
+    }, [keyword, sortDirection]);
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -105,14 +109,15 @@ const TripPlanPage = () => {
     };
 
     const handleLoadMore = async () => {
-        if (isLoadingMore) return;
+        if (isMoreTripPlansLoading) return;
 
         const nextPage = page + 1;
-        setIsLoadingMore(true);
+        setIsMoreTripPlansLoading(true);
         try {
             const response = await getAllTripPlanPaginated({
                 page: nextPage,
                 size: TRIP_PLAN_PAGE_SIZE,
+                sortDirection,
             });
             setAllTripPlan((prev) => [...prev, ...response.content]);
             setPage(nextPage);
@@ -122,7 +127,7 @@ const TripPlanPage = () => {
                 variant: 'error',
             });
         } finally {
-            setIsLoadingMore(false);
+            setIsMoreTripPlansLoading(false);
         }
     };
 
@@ -151,19 +156,19 @@ const TripPlanPage = () => {
         }
     };
 
-    const handleOpenCreateDialog = (): void => {
+    const handleOpenCreateDialog = () => {
         setEditingTripPlan(null);
         setFormDialogSessionId((prev) => prev + 1);
         setIsFormDialogOpen(true);
     };
 
-    const handleOpenEditDialog = (tripPlan: TripPlan): void => {
+    const handleOpenEditDialog = (tripPlan: TripPlan) => {
         setEditingTripPlan(tripPlan);
         setFormDialogSessionId((prev) => prev + 1);
         setIsFormDialogOpen(true);
     };
 
-    const handleTripPlanSaved = (tripPlan: TripPlan, isNew: boolean): void => {
+    const handleTripPlanSaved = (tripPlan: TripPlan, isNew: boolean) => {
         setAllTripPlan((prev) =>
             isNew
                 ? [tripPlan, ...prev]
@@ -172,7 +177,7 @@ const TripPlanPage = () => {
         setIsFormDialogOpen(false);
     };
 
-    const handleTripPlanUpdated = (tripPlan: TripPlan): void => {
+    const handleTripPlanUpdated = (tripPlan: TripPlan) => {
         setAllTripPlan((prev) =>
             prev.map((plan) => (plan.id === tripPlan.id ? tripPlan : plan))
         );
@@ -194,14 +199,34 @@ const TripPlanPage = () => {
                 sx={{
                     alignItems: 'center',
                     justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 1,
                 }}
             >
-                {/* 搜尋欄 */}
-                <SearchInput
-                    searchTerm={inputValue}
-                    onChange={handleSearch}
-                    placeholder='請輸入旅程名稱搜尋'
-                />
+                {/* 搜尋欄與排序選單 */}
+                <Stack
+                    direction='row'
+                    sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap' }}
+                >
+                    <SearchInput
+                        searchTerm={inputValue}
+                        onChange={handleSearch}
+                        placeholder='請輸入旅程名稱搜尋'
+                    />
+                    {/* 有關鍵字時走單筆查詢 API，排序無意義故 disabled */}
+                    <Select
+                        size='small'
+                        value={sortDirection}
+                        disabled={!!keyword}
+                        onChange={(event) => {
+                            setPage(0);
+                            setSortDirection(event.target.value as 'ASC' | 'DESC');
+                        }}
+                    >
+                        <MenuItem value='DESC'>更新時間：新 → 舊</MenuItem>
+                        <MenuItem value='ASC'>更新時間：舊 → 新</MenuItem>
+                    </Select>
+                </Stack>
 
                 {/* 新增旅程按鈕 */}
                 <Button
@@ -213,7 +238,7 @@ const TripPlanPage = () => {
                 </Button>
             </Stack>
             {/* 顯示旅程結果畫面 */}
-            {isLoading && allTripPlan.length === 0 ? (
+            {isTripPlansLoading && allTripPlan.length === 0 ? (
                 <Stack sx={{ alignItems: 'center', py: 4 }}>
                     <CircularProgress size='1.5rem' />
                 </Stack>
@@ -257,9 +282,9 @@ const TripPlanPage = () => {
                             <Button
                                 size='small'
                                 onClick={handleLoadMore}
-                                disabled={isLoadingMore}
+                                disabled={isMoreTripPlansLoading}
                                 startIcon={
-                                    isLoadingMore ? (
+                                    isMoreTripPlansLoading ? (
                                         <CircularProgress size='0.875rem' />
                                     ) : undefined
                                 }

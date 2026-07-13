@@ -1,9 +1,10 @@
 import postRequest from '../api';
 
-import type { ApiResponse, PageResponse } from '../common/interface';
+import type { ApiResponse, PaginatedResponse } from '../common/interface';
 import type {
     GetAllUserRequest,
     GetCurrentUserResponse,
+    UpdateAvatarRequest,
     UpdateBirthDateRequest,
     UpdateCellphoneRequest,
     UpdatePasswordRequest,
@@ -15,8 +16,8 @@ export const getCurrentUser = async (): Promise<GetCurrentUserResponse> => {
     return await postRequest<GetCurrentUserResponse>('/user/get-current-user');
 };
 
-export const getAllUser = async (request: GetAllUserRequest = {}): Promise<PageResponse<GetCurrentUserResponse>> => {
-    return await postRequest<PageResponse<GetCurrentUserResponse>>('/user/get-all-user', {}, { params: request });
+export const getAllUser = async (request: GetAllUserRequest = {}): Promise<PaginatedResponse<GetCurrentUserResponse>> => {
+    return await postRequest<PaginatedResponse<GetCurrentUserResponse>>('/user/get-all-user', {}, { params: request });
 };
 
 export const updateUsername = async (
@@ -47,4 +48,14 @@ export const updateStatus = async (
     request: UpdateStatusRequest
 ): Promise<ApiResponse> => {
     return await postRequest<ApiResponse>('/user/update-status', request);
+};
+
+export const updateAvatar = async (
+    request: UpdateAvatarRequest
+): Promise<GetCurrentUserResponse> => {
+    return await postRequest<GetCurrentUserResponse>('/user/update-avatar', request);
+};
+
+export const removeAvatar = async (): Promise<GetCurrentUserResponse> => {
+    return await postRequest<GetCurrentUserResponse>('/user/remove-avatar');
 };

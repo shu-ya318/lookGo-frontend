@@ -12,7 +12,7 @@ interface ImageBoxProps {
   style?: CSSProperties;
   children?: ReactNode;
   onClick?: (event: MouseEvent<HTMLDivElement>) => void;
-};
+}
 
 export const ImageBox = ({
   src,
@@ -25,14 +25,19 @@ export const ImageBox = ({
   ...imageProps
 }: ImageBoxProps) => {
   return (
-    <Box sx={{ overflow: 'hidden', width: width, height: height, position: 'relative' }}>
+    <Box
+      sx={{
+        overflow: 'hidden',
+        width: width,
+        height: height,
+        position: 'relative',
+      }}
+    >
       <img
         src={src}
         alt={alt}
         style={{
           position: 'absolute',
-          // top: 0,
-          // left: 0,
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',

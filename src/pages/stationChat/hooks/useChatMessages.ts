@@ -3,9 +3,11 @@ import { enqueueSnackbar } from 'notistack';
 
 import { getMessageByStationId } from '@/services/stationChat';
 import { connectStationChatSocket } from '@/services/stationChat/socket';
+import { ChatType, ChatEventType } from '@/services/stationChat/types';
+import { isPlainTextChatContent } from '@/utils/validation';
 
 import type { KeyboardEvent, RefObject } from 'react';
-import type { StationDetails } from '@/services/metro/interface';
+import type { StationDetail } from '@/services/metro/interface';
 import type { StationChatMessage } from '@/services/stationChat/interface';
 import type { StationChatSocket } from '@/services/stationChat/socket';
 
@@ -13,9 +15,9 @@ const MESSAGE_PAGE_SIZE = 16;
 
 interface UseChatMessagesResult {
     messages: StationChatMessage[];
-    isLoadingMessages: boolean;
+    isMessagesLoading: boolean;
     hasMore: boolean;
-    isLoadingMore: boolean;
+    isMoreMessagesLoading: boolean;
     isConnected: boolean;
     inputMessage: string;
     setInputMessage: (value: string) => void;
@@ -31,14 +33,14 @@ interface UseChatMessagesResult {
  * 包含訊息載入、分頁、即時事件、發送與刪除訊息
 */
 export const useChatMessages = (
-    selectedStation: StationDetails | null
+    selectedStation: StationDetail | null
 ): UseChatMessagesResult => {
     const [messages, setMessages] = useState<StationChatMessage[]>([]);
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(false);
 
-    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+    const [isMoreMessagesLoading, setIsMoreMessagesLoading] = useState(false);
 
     const [isConnected, setIsConnected] = useState(false);
 
@@ -72,7 +74,7 @@ export const useChatMessages = (
         let isCancelled = false;
 
         const init = async () => {
-            setIsLoadingMessages(true);
+            setIsMessagesLoading(true);
 
             try {
                 const response = await getMessageByStationId({
@@ -97,7 +99,7 @@ export const useChatMessages = (
                 }
             } finally {
                 if (!isCancelled) {
-                    setIsLoadingMessages(false);
+                    setIsMessagesLoading(false);
                 }
             }
         };
@@ -106,12 +108,12 @@ export const useChatMessages = (
 
         socketRef.current = connectStationChatSocket(selectedStation.id, {
             onEvent: event => {
-                if (event.eventType === 'NEW' && event.message) {
+                if (event.eventType === ChatEventType.NEW && event.message) {
                     const newMessage = event.message;
                     setMessages(prev => [...prev, newMessage]);
                     scrollToBottom();
                 } else if (
-                    event.eventType === 'DELETE' &&
+                    event.eventType === ChatEventType.DELETE &&
                     event.deletedMessageId !== undefined
                 ) {
                     const deletedMessageId = event.deletedMessageId;
@@ -134,13 +136,13 @@ export const useChatMessages = (
     }, [selectedStation, scrollToBottom]);
 
     const handleLoadMoreMessages = async () => {
-        if (!selectedStation || isLoadingMore) return;
+        if (!selectedStation || isMoreMessagesLoading) return;
 
         const container = messageListRef.current;
         const prevScrollHeight = container?.scrollHeight ?? 0;
         const nextPage = page + 1;
 
-        setIsLoadingMore(true);
+        setIsMoreMessagesLoading(true);
 
         try {
             const response = await getMessageByStationId({
@@ -165,37 +167,47 @@ export const useChatMessages = (
                 variant: 'error',
             });
         } finally {
-            setIsLoadingMore(false);
+            setIsMoreMessagesLoading(false);
         }
     };
 
-    const handleSend = (): void => {
+    const handleSend = () => {
         if (!inputMessage.trim() || !socketRef.current) return;
 
+        const trimmedMessage = inputMessage.trim();
+
+        // 送出前先做與後端相同的純文字檢查，命中直接提示、不打 STOMP（後端驗證仍是最終防線）
+        if (!isPlainTextChatContent(trimmedMessage)) {
+            enqueueSnackbar('聊天室僅接受文字訊息，請勿傳送圖片或編碼內容!', {
+                variant: 'error',
+            });
+            return;
+        }
+
         socketRef.current.sendMessage({
-            chatType: 'TEXT',
-            content: inputMessage.trim(),
+            chatType: ChatType.TEXT,
+            content: trimmedMessage,
             tripPlanId: null,
         });
         setInputMessage('');
     };
 
-    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             handleSend();
         }
     };
 
-    const handleDeleteMessage = (messageId: number): void => {
+    const handleDeleteMessage = (messageId: number) => {
         socketRef.current?.deleteMessage(messageId);
     };
 
-    const sendTripPlanMessage = (tripPlanId: number): void => {
+    const sendTripPlanMessage = (tripPlanId: number) => {
         if (!socketRef.current) return;
 
         socketRef.current.sendMessage({
-            chatType: 'TRIP_PLAN',
+            chatType: ChatType.TRIP_PLAN,
             content: null,
             tripPlanId,
         });
@@ -203,9 +215,9 @@ export const useChatMessages = (
 
     return {
         messages,
-        isLoadingMessages,
+        isMessagesLoading,
         hasMore,
-        isLoadingMore,
+        isMoreMessagesLoading,
         isConnected,
         inputMessage,
         setInputMessage,
