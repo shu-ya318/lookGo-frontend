@@ -35,8 +35,9 @@ export const SearchBarSection = () => {
     setSelectedFacilities,
     clearRoute,
   } = useMetroMapStore();
+  const stationOptions = useMetroMapStore((state) => state.stationOptions);
   const selectAndFetchStation = useStationStore(
-    (state) => state.selectAndFetchStation,
+    (state) => state.selectAndFetchStation
   );
   const isStationLoading = useStationStore((state) => state.isStationLoading);
   const clearSelection = useStationStore((state) => state.clearSelection);
@@ -61,17 +62,14 @@ export const SearchBarSection = () => {
 
     hasAppliedSearchParam.current = true;
 
-    const matchedStation = stations.find(
-      (station) =>
-        station.stationCode === keyword || station.nameZhTw.includes(keyword),
+    const matchedStation = stationOptions.find(
+      (option) =>
+        option.stationCode === keyword || option.nameZhTw.includes(keyword)
     );
 
     if (matchedStation) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFromStation({
-        stationCode: matchedStation.stationCode,
-        nameZhTw: matchedStation.nameZhTw,
-      });
+      setFromStation(matchedStation);
       selectAndFetchStation(matchedStation.stationCode);
     } else {
       enqueueSnackbar(`找不到符合「${keyword}」的車站，請重新查詢`, {
@@ -80,7 +78,13 @@ export const SearchBarSection = () => {
     }
 
     setSearchParams({}, { replace: true });
-  }, [stations, searchParams, setSearchParams, selectAndFetchStation]);
+  }, [
+    stations,
+    searchParams,
+    setSearchParams,
+    selectAndFetchStation,
+    stationOptions,
+  ]);
 
   // 判斷使用者只選擇單一車站或起訖車站，並設定對應的搜尋行為
   const hasFromStation = fromStation !== null;

@@ -17,10 +17,8 @@ RUN npm run build
 # ===== Stage 2: Serve the app with Nginx =====
 FROM nginx:stable-alpine AS production
 
-# Copy built assets from build stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy custom Nginx configuration template
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 EXPOSE 80

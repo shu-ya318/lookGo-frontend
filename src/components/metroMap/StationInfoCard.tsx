@@ -35,8 +35,8 @@ export const StationInfoCard = ({
   onClose,
 }: StationInfoCardProps) => {
   console.log(station, line);
-  const stationDetails = useStationStore((state) => state.stationDetails);
-  const isLoading = useStationStore((state) => state.isLoading);
+  const stationDetail = useStationStore((state) => state.stationDetail);
+  const isStationLoading = useStationStore((state) => state.isStationLoading);
   const bookmarks = useStationBookmarkStore((state) => state.bookmarks);
 
   const fetchAllBookmark = useStationBookmarkStore(
