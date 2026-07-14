@@ -74,11 +74,11 @@ const ResetPasswordPage = () => {
         return;
       }
 
-      const response = await resetPassword({
+      await resetPassword({
         resetPasswordToken,
         newPassword,
       });
-      enqueueSnackbar(response.successMessage || '密碼重設成功！', {
+      enqueueSnackbar('密碼重設成功！', {
         variant: 'success',
       });
       navigate('/auth/login', { replace: true });

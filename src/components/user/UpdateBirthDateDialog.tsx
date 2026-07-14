@@ -71,10 +71,10 @@ export const UpdateBirthDateDialog = ({
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const { successMessage } = await updateBirthDate({
+      await updateBirthDate({
         birthDate: data.birthDate,
       });
-      enqueueSnackbar(successMessage || '出生日期修改成功！', {
+      enqueueSnackbar('出生日期修改成功！', {
         variant: 'success',
       });
       handleClose();

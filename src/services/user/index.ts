@@ -1,15 +1,23 @@
 import postRequest from '../api';
 
-import type { ApiResponse, PaginatedResponse } from '../common/interface';
+import type {
+    PaginatedResponse,
+    UpdatePasswordResponse,
+} from '../common/interface';
 import type {
     GetAllUserRequest,
     GetCurrentUserResponse,
     UpdateAvatarRequest,
+    UpdateAvatarResponse,
     UpdateBirthDateRequest,
+    UpdateBirthDateResponse,
     UpdateCellphoneRequest,
+    UpdateCellphoneResponse,
     UpdatePasswordRequest,
     UpdateStatusRequest,
+    UpdateStatusResponse,
     UpdateUsernameRequest,
+    UpdateUsernameResponse,
 } from './interface';
 
 export const getCurrentUser = async (): Promise<GetCurrentUserResponse> => {
@@ -22,40 +30,40 @@ export const getAllUser = async (request: GetAllUserRequest = {}): Promise<Pagin
 
 export const updateUsername = async (
     request: UpdateUsernameRequest
-): Promise<ApiResponse> => {
-    return await postRequest<ApiResponse>('/user/update-username', request);
+): Promise<UpdateUsernameResponse> => {
+    return await postRequest<UpdateUsernameResponse>('/user/update-username', request);
 };
 
 export const updatePassword = async (
     request: UpdatePasswordRequest
-): Promise<ApiResponse> => {
-    return await postRequest<ApiResponse>('/user/update-password', request);
+): Promise<UpdatePasswordResponse> => {
+    return await postRequest<UpdatePasswordResponse>('/user/update-password', request);
 };
 
 export const updateCellphone = async (
     request: UpdateCellphoneRequest
-): Promise<ApiResponse> => {
-    return await postRequest<ApiResponse>('/user/update-cellphone', request);
+): Promise<UpdateCellphoneResponse> => {
+    return await postRequest<UpdateCellphoneResponse>('/user/update-cellphone', request);
 };
 
 export const updateBirthDate = async (
     request: UpdateBirthDateRequest
-): Promise<ApiResponse> => {
-    return await postRequest<ApiResponse>('/user/update-birth-date', request);
+): Promise<UpdateBirthDateResponse> => {
+    return await postRequest<UpdateBirthDateResponse>('/user/update-birth-date', request);
 };
 
 export const updateStatus = async (
     request: UpdateStatusRequest
-): Promise<ApiResponse> => {
-    return await postRequest<ApiResponse>('/user/update-status', request);
+): Promise<UpdateStatusResponse> => {
+    return await postRequest<UpdateStatusResponse>('/user/update-status', request);
 };
 
 export const updateAvatar = async (
     request: UpdateAvatarRequest
-): Promise<GetCurrentUserResponse> => {
-    return await postRequest<GetCurrentUserResponse>('/user/update-avatar', request);
+): Promise<UpdateAvatarResponse> => {
+    return await postRequest<UpdateAvatarResponse>('/user/update-avatar', request);
 };
 
-export const removeAvatar = async (): Promise<GetCurrentUserResponse> => {
-    return await postRequest<GetCurrentUserResponse>('/user/remove-avatar');
+export const removeAvatar = async (): Promise<UpdateAvatarResponse> => {
+    return await postRequest<UpdateAvatarResponse>('/user/remove-avatar');
 };

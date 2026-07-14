@@ -1,6 +1,6 @@
 import postRequest from '../api';
 
-import type { ApiResponse } from '../common/interface';
+import type { UpdatePasswordResponse } from '../common/interface';
 import type {
   LoginRequest,
   SignupRequest,
@@ -34,6 +34,6 @@ export const forgetPassword = async (
 
 export const resetPassword = async (
   request: ResetPasswordRequest
-): Promise<ApiResponse> => {
-  return await postRequest<ApiResponse>('/auth/reset-password', request);
+): Promise<UpdatePasswordResponse> => {
+  return await postRequest<UpdatePasswordResponse>('/auth/reset-password', request);
 };

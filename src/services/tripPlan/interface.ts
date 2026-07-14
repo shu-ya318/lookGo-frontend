@@ -63,6 +63,12 @@ export interface UpdateTripPlanNameRequest {
     name: string;
 }
 
+export interface UpdateTripPlanNameResponse {
+    id: number;
+    name: string;
+    updatedAt: string; // ⚠ ISO 8601 無時區資訊，值為 UTC（顯示請走 formatDateTime）
+}
+
 // Update Trip Plan Info
 export interface UpdateTripPlanRequest {
     tripPlanId: number;
@@ -71,6 +77,16 @@ export interface UpdateTripPlanRequest {
     transferCount: number;
     routingStrategy: number;
     notes?: string;
+}
+
+export interface UpdateTripPlanInfoResponse {
+    id: number;
+    fareType: number; // 1=全票, 4=學生, 5=兒童, 7=愛心
+    farePrice: number; // 後端 BigDecimal 序列化為 number
+    transferCount: number;
+    routingStrategy: number; // 1=最少轉乘次數, 2=最短車程時間
+    notes: string | null;
+    updatedAt: string; // ⚠ ISO 8601 無時區資訊，值為 UTC（顯示請走 formatDateTime）
 }
 
 // Get Excel By Trip Plan Id

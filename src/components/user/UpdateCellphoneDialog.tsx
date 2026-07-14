@@ -62,10 +62,10 @@ export const UpdateCellphoneDialog = ({
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const response = await updateCellphone({
+      await updateCellphone({
         cellphone: data.cellphone,
       });
-      enqueueSnackbar(response.successMessage || '手機號碼修改成功！', {
+      enqueueSnackbar('手機號碼修改成功！', {
         variant: 'success',
       });
       onClose();

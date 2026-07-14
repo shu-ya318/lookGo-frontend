@@ -62,11 +62,11 @@ export const UpdateAnnouncementDialog = ({
         if (!announcement) return;
 
         try {
-            const response = await updateAnnouncement({
+            await updateAnnouncement({
                 announcementId: announcement.id,
                 content: data.content,
             });
-            enqueueSnackbar(response.message || '公告修改成功！', {
+            enqueueSnackbar('公告修改成功！', {
                 variant: 'success',
             });
             onClose();

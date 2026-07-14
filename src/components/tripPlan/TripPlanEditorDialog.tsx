@@ -127,16 +127,18 @@ export const TripPlanEditorDialog = ({
 
     try {
       if (tripPlan) {
+        // 後端只回傳異動欄位，逐步 merge 回完整 tripPlan
         let updated = tripPlan;
 
         if (tripTitle.trim() && tripTitle !== tripPlan.name) {
-          updated = await updateTripPlanName({
+          const nameVo = await updateTripPlanName({
             tripPlanId: tripPlan.id,
             name: tripTitle,
           });
+          updated = { ...updated, ...nameVo };
         }
 
-        updated = await updateTripPlan({
+        const infoVo = await updateTripPlan({
           tripPlanId: tripPlan.id,
           fareType: tripResult.fareType,
           farePrice: tripResult.farePrice,
@@ -144,6 +146,7 @@ export const TripPlanEditorDialog = ({
           routingStrategy: tripResult.routingStrategy,
           notes: note || undefined,
         });
+        updated = { ...updated, ...infoVo };
         enqueueSnackbar('旅程更新成功！', { variant: 'success' });
         onSaved(updated, false);
       } else {

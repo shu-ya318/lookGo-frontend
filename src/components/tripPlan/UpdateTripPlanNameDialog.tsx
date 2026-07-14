@@ -93,12 +93,13 @@ export const UpdateTripPlanNameDialog = ({
 
   const handleUpdateTripPlanName = async (name: string) => {
     try {
-      const response = await updateTripPlanName({
+      const nameVo = await updateTripPlanName({
         tripPlanId: tripPlan.id,
         name,
       });
       enqueueSnackbar('旅程名稱更新成功！', { variant: 'success' });
-      onSaved(response);
+      // 後端只回傳異動欄位（id、name、updatedAt），merge 回完整 tripPlan
+      onSaved({ ...tripPlan, ...nameVo });
     } catch (error) {
       enqueueSnackbar((error as string) || '旅程名稱更新失敗', {
         variant: 'error',

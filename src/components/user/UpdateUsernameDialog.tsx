@@ -58,10 +58,10 @@ export const UpdateUsernameDialog = ({
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const { successMessage } = await updateUsername({
+      await updateUsername({
         username: data.username,
       });
-      enqueueSnackbar(successMessage || '使用者名稱修改成功！', {
+      enqueueSnackbar('使用者名稱修改成功！', {
         variant: 'success',
       });
       onClose();

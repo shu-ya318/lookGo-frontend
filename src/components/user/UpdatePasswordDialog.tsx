@@ -74,11 +74,11 @@ export const UpdatePasswordDialog = ({
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const response = await updatePassword({
+      await updatePassword({
         oldPassword: data.oldPassword,
         newPassword: data.newPassword,
       });
-      enqueueSnackbar(response.successMessage || '密碼修改成功！', {
+      enqueueSnackbar('密碼修改成功！', {
         variant: 'success',
       });
       handleClose();

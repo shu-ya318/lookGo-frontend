@@ -64,6 +64,12 @@ export interface UpdateAnnouncementRequest {
     content: string;
 }
 
+export interface UpdateAnnouncementResponse {
+    id: number;
+    content: string;
+    updatedAt: string; // ⚠ ISO 8601 無時區資訊，值為 UTC（顯示請走 formatDateTime）
+}
+
 export interface DeleteAnnouncementRequest {
     announcementId: number;
 }

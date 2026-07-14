@@ -10,7 +10,9 @@ import type {
     GetExcelByTripPlanIdRequest,
     GetTripPlanParams,
     TripPlan,
+    UpdateTripPlanInfoResponse,
     UpdateTripPlanNameRequest,
+    UpdateTripPlanNameResponse,
     UpdateTripPlanRequest,
 } from './interface';
 
@@ -58,8 +60,8 @@ export const deleteTripPlan = async (
 
 export const updateTripPlanName = async (
     request: UpdateTripPlanNameRequest
-): Promise<TripPlan> => {
-    return await postRequest<TripPlan>(
+): Promise<UpdateTripPlanNameResponse> => {
+    return await postRequest<UpdateTripPlanNameResponse>(
         '/trip-plan/update-plan-name',
         request
     );
@@ -67,8 +69,8 @@ export const updateTripPlanName = async (
 
 export const updateTripPlan = async (
     request: UpdateTripPlanRequest
-): Promise<TripPlan> => {
-    return await postRequest<TripPlan>('/trip-plan/update-plan', request);
+): Promise<UpdateTripPlanInfoResponse> => {
+    return await postRequest<UpdateTripPlanInfoResponse>('/trip-plan/update-plan', request);
 };
 
 export const getExcelByTripPlanId = async (

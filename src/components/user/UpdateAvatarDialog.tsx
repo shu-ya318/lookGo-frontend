@@ -16,13 +16,13 @@ import {
 } from '@/constants/user';
 import { removeAvatar, updateAvatar } from '@/services/user';
 
-import type { GetCurrentUserResponse } from '@/services/user/interface';
+import type { UpdateAvatarResponse } from '@/services/user/interface';
 
 interface UpdateAvatarDialogProps {
   isOpen: boolean;
   onClose: () => void;
   currentAvatar: string | null;
-  onSuccess: (user: GetCurrentUserResponse) => void;
+  onSuccess: (patch: UpdateAvatarResponse) => void;
 }
 
 export const UpdateAvatarDialog = ({
@@ -55,7 +55,7 @@ export const UpdateAvatarDialog = ({
 
     if (!file) return;
 
-    // 前端先驗：MIME 類型
+    // MIME 類型
     if (
       !ALLOWED_AVATAR_MIME_TYPES.includes(
         file.type as (typeof ALLOWED_AVATAR_MIME_TYPES)[number],
@@ -65,7 +65,7 @@ export const UpdateAvatarDialog = ({
       return;
     }
 
-    // 前端先驗：檔案大小
+    // 檔案大小
     if (file.size > MAX_AVATAR_BYTES) {
       enqueueSnackbar('頭像圖片大小不得超過 1MB!', { variant: 'error' });
       return;
@@ -85,10 +85,11 @@ export const UpdateAvatarDialog = ({
     if (!previewAvatar) return;
 
     setIsSubmitting(true);
+
     try {
-      const user = await updateAvatar({ avatar: previewAvatar });
+      const response = await updateAvatar({ avatar: previewAvatar });
+      onSuccess(response);
       enqueueSnackbar('頭像更新成功！', { variant: 'success' });
-      onSuccess(user);
       handleClose();
     } catch (error) {
       enqueueSnackbar((error as string) || '頭像更新失敗！', {
@@ -101,10 +102,11 @@ export const UpdateAvatarDialog = ({
 
   const handleRemove = async () => {
     setIsSubmitting(true);
+
     try {
-      const user = await removeAvatar();
+      const response = await removeAvatar();
+      onSuccess(response);
       enqueueSnackbar('已恢復為預設頭像！', { variant: 'success' });
-      onSuccess(user);
       handleClose();
     } catch (error) {
       enqueueSnackbar((error as string) || '移除頭像失敗！', {

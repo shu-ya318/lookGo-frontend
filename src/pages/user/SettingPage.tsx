@@ -26,7 +26,7 @@ import { UpdateCellphoneDialog } from '@/components/user/UpdateCellphoneDialog';
 import { UpdateBirthDateDialog } from '@/components/user/UpdateBirthDateDialog';
 import { UpdateAvatarDialog } from '@/components/user/UpdateAvatarDialog';
 
-import type { GetCurrentUserResponse } from '@/services/user/interface';
+import type { UpdateAvatarResponse } from '@/services/user/interface';
 
 import { formatDateTime } from '@/utils/date';
 
@@ -74,8 +74,13 @@ const SettingPage = () => {
     useUserStore.setState({ userInfo: user });
   };
 
-  const handleAvatarSuccess = (user: GetCurrentUserResponse) => {
-    useUserStore.setState({ userInfo: user });
+  // 後端只回傳異動欄位（avatar、updatedAt），local patch 併回既有 userInfo
+  const handleAvatarSuccess = (patch: UpdateAvatarResponse) => {
+    useUserStore.setState((state) =>
+      state.userInfo
+        ? { userInfo: { ...state.userInfo, ...patch } }
+        : state,
+    );
   };
 
   const getFieldValue = (key: string): string => {

@@ -216,6 +216,20 @@ export interface UpdateStationRequest {
   escalator?: string;
 }
 
+// 除 id、updatedAt 外皆選填，只有本次請求有帶值的欄位回非 null，其餘為 null
 export interface UpdateStationResponse {
-  message: string;
+  id: number;
+  nameZhTw: string | null;
+  nameEn: string | null;
+  atm: string | null;
+  nursingRoom: string | null;
+  diaperTable: string | null;
+  chargingStation: string | null;
+  ticketMachine: string | null;
+  locker: string | null;
+  drinkingWater: string | null;
+  restroom: string | null;
+  elevator: string | null;
+  escalator: string | null;
+  updatedAt: string; // ⚠ ISO 8601 無時區資訊，值為 UTC（顯示請走 formatDateTime）
 }

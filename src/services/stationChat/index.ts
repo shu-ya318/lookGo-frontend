@@ -10,6 +10,7 @@ import type {
     GetMessageByStationIdResponse,
     MessageResponse,
     UpdateAnnouncementRequest,
+    UpdateAnnouncementResponse,
 } from './interface';
 
 export const createAnnouncement = async (
@@ -53,8 +54,8 @@ export const getExcelByStationId = async (
 
 export const updateAnnouncement = async (
     request: UpdateAnnouncementRequest
-): Promise<MessageResponse> => {
-    return await postRequest<MessageResponse>(
+): Promise<UpdateAnnouncementResponse> => {
+    return await postRequest<UpdateAnnouncementResponse>(
         '/station-chat/update-announcement',
         request
     );

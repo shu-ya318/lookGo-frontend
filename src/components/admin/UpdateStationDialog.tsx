@@ -82,6 +82,7 @@ export const UpdateStationDialog = ({
 
     const fetchStation = async () => {
       setIsFetching(true);
+
       try {
         const station = await getStationById({ id: stationId });
         reset({
@@ -119,11 +120,11 @@ export const UpdateStationDialog = ({
     if (!stationId) return;
 
     try {
-      const response = await updateStation({
+      await updateStation({
         id: stationId,
         ...data,
       });
-      enqueueSnackbar(response.message || '車站資訊修改成功！', {
+      enqueueSnackbar('車站資訊修改成功！', {
         variant: 'success',
       });
       onClose();

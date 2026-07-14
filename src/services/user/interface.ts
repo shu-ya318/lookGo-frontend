@@ -47,3 +47,32 @@ export interface UpdateStatusRequest {
     status: UserStatus;
 }
 
+// ===== Update Responses（mutation 回傳被異動實體）=====
+
+export interface UpdateUsernameResponse {
+    username: string;
+    updatedAt: string; // ISO 8601 UTC，含 Z
+}
+
+export interface UpdateCellphoneResponse {
+    cellphone: string;
+    updatedAt: string; // ISO 8601 UTC，含 Z
+}
+
+export interface UpdateBirthDateResponse {
+    birthDate: string; // yyyy-MM-dd
+    membershipTier: MembershipTier | null; // 僅本次自動升級 BASIC→PREMIUM 才有值，否則 null
+    updatedAt: string; // ISO 8601 UTC，含 Z
+}
+
+export interface UpdateStatusResponse {
+    userId: number;
+    status: UserStatus;
+    updatedAt: string; // ISO 8601 UTC，含 Z
+}
+
+export interface UpdateAvatarResponse {
+    avatar: string; // base64 data URI 或預設頭像相對路徑
+    updatedAt: string; // ISO 8601 UTC，含 Z
+}
+
