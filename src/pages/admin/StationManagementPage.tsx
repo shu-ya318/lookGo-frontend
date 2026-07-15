@@ -190,6 +190,7 @@ const StationManagementPage = () => {
         width: '100%',
         maxWidth: '1280px',
         margin: '3.75rem auto',
+        px: 2,
         gap: '2rem',
         justifyContent: 'center',
       }}
@@ -202,18 +203,27 @@ const StationManagementPage = () => {
         車站資訊編輯
       </Typography>
       <Stack
-        direction='row'
+        direction={{ xs: 'column', sm: 'row' }}
         sx={{
-          alignItems: 'center',
+          alignItems: { xs: 'stretch', sm: 'center' },
           justifyContent: 'space-between',
+          gap: 2,
         }}
       >
         <StationAutocomplete
           value={searchValue}
           onChange={handleSearchChange}
-          sx={{ width: 300 }}
+          sx={{ width: { xs: '100%', sm: 300 } }}
         />
-        <Stack direction='row' sx={{ gap: '1rem', alignItems: 'center' }}>
+        <Stack
+          direction='row'
+          sx={{
+            gap: '1rem',
+            alignItems: 'center',
+            justifyContent: { xs: 'space-between', sm: 'flex-start' },
+            width: { xs: '100%', sm: 'auto' },
+          }}
+        >
           {selectedCount === 0 && (
             <Stack
               direction='row'

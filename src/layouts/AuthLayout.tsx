@@ -41,12 +41,9 @@ export const AuthLayout = () => {
       >
         {/* 左區塊 */}
         <Box
-          sx={(theme) => ({
-            display: 'none',
-            [theme.breakpoints.up('xs')]: {
-              display: 'flex',
-              width: '45%',
-            },
+          sx={{
+            display: { xs: 'none', sm: 'flex' },
+            width: { sm: '45%' },
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
@@ -55,7 +52,7 @@ export const AuthLayout = () => {
             p: { xs: 4, sm: 6, md: 8 },
             boxSizing: 'border-box',
             textAlign: 'center',
-          })}
+          }}
         >
           <ImageBox src={logo} alt='logo' width='15rem' height='6.5rem' />
           <Typography
@@ -86,18 +83,15 @@ export const AuthLayout = () => {
         </Box>
         {/* 右區塊 */}
         <Box
-          sx={(theme) => ({
-            width: '100%',
-            [theme.breakpoints.up('xs')]: {
-              width: '55%',
-            },
+          sx={{
+            width: { xs: '100%', sm: '55%' },
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             p: { xs: 3, sm: 6, md: 8 },
             boxSizing: 'border-box',
             backgroundColor: '#FFFFFF',
-          })}
+          }}
         >
           <Box
             sx={{

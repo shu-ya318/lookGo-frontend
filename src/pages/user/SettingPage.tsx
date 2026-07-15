@@ -15,10 +15,7 @@ import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
 import { DEFAULT_AVATAR_URL } from '@/constants/user';
 import { useUserStore } from '@/stores/userStore';
 import { getCurrentUser } from '@/services/user';
-import {
-  MembershipTier,
-  MEMBERSHIP_TIER_LABELS,
-} from '@/services/user/types';
+import { MembershipTier, MEMBERSHIP_TIER_LABELS } from '@/services/user/types';
 
 import { UpdatePasswordDialog } from '@/components/user/UpdatePasswordDialog';
 import { UpdateUsernameDialog } from '@/components/user/UpdateUsernameDialog';
@@ -77,9 +74,7 @@ const SettingPage = () => {
   // 後端只回傳異動欄位（avatar、updatedAt），local patch 併回既有 userInfo
   const handleAvatarSuccess = (patch: UpdateAvatarResponse) => {
     useUserStore.setState((state) =>
-      state.userInfo
-        ? { userInfo: { ...state.userInfo, ...patch } }
-        : state,
+      state.userInfo ? { userInfo: { ...state.userInfo, ...patch } } : state,
     );
   };
 
@@ -125,6 +120,7 @@ const SettingPage = () => {
         mx: 'auto',
         mt: '3.75rem',
         mb: '3.75rem',
+        px: 2,
       }}
     >
       {/* Gradient Banner */}
@@ -140,6 +136,7 @@ const SettingPage = () => {
         direction='row'
         sx={{
           alignItems: 'center',
+          flexWrap: { xs: 'wrap', sm: 'nowrap' },
           px: 3,
           py: 3,
           gap: 2,
@@ -189,7 +186,7 @@ const SettingPage = () => {
         <Button
           variant='contained'
           onClick={() => handleEdit('username')}
-          sx={{ px: 3 }}
+          sx={{ px: 3, width: { xs: '100%', sm: 'auto' } }}
         >
           修改使用者名稱
         </Button>

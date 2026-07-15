@@ -36,7 +36,9 @@ const StationBookmarkPage = () => {
   const [inputValue, setInputValue] = useState('');
   const [keyword, setKeyword] = useState('');
   const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC');
-  const [allStationBookmark, setAllStationBookmark] = useState<StationBookmark[]>([]);
+  const [allStationBookmark, setAllStationBookmark] = useState<
+    StationBookmark[]
+  >([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -98,7 +100,7 @@ const StationBookmarkPage = () => {
         setPage(0);
         setKeyword(value);
       }, 500),
-    []
+    [],
   );
 
   const handleSearch = (event: ChangeEvent<HTMLInputElement>) => {
@@ -140,7 +142,9 @@ const StationBookmarkPage = () => {
       const response = await deleteStationBookmark({
         bookmarkId: deletingBookmark.id,
       });
-      enqueueSnackbar(response.message || '車站書籤刪除成功', { variant: 'success' });
+      enqueueSnackbar(response.message || '車站書籤刪除成功', {
+        variant: 'success',
+      });
       setDeletingBookmark(null);
       await fetchAllStationBookmark();
     } catch (error) {
@@ -167,7 +171,7 @@ const StationBookmarkPage = () => {
       link.href = url;
       link.setAttribute(
         'download',
-        `車站書籤_${dayjs().format('YYYYMMDD')}.xlsx`
+        `車站書籤_${dayjs().format('YYYYMMDD')}.xlsx`,
       );
       document.body.appendChild(link);
       link.click();
@@ -175,7 +179,9 @@ const StationBookmarkPage = () => {
       window.URL.revokeObjectURL(url);
       enqueueSnackbar('匯出車站書籤成功', { variant: 'success' });
     } catch (error) {
-      enqueueSnackbar((error as string) || '匯出車站書籤失敗', { variant: 'error' });
+      enqueueSnackbar((error as string) || '匯出車站書籤失敗', {
+        variant: 'error',
+      });
     } finally {
       setIsExportingExcel(false);
     }
@@ -187,27 +193,34 @@ const StationBookmarkPage = () => {
         width: '100%',
         maxWidth: '1280px',
         margin: '3.75rem auto',
+        px: { xs: 2, sm: 3, lg: 0 },
         gap: '2rem',
         justifyContent: 'center',
       }}
     >
       <Typography variant='h5'>車站書籤</Typography>
       <Stack
-        direction='row'
+        direction={{ xs: 'column', sm: 'row' }}
         sx={{
-          alignItems: 'center',
+          alignItems: { xs: 'stretch', sm: 'center' },
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: 1,
         }}
       >
         {/* 搜尋欄與排序選單 */}
-        <Stack direction='row' sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-          <SearchInput
-            searchTerm={inputValue}
-            onChange={handleSearch}
-            placeholder='請輸入車站中文名稱搜尋'
-          />
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          sx={{ alignItems: { xs: 'stretch', sm: 'center' }, gap: 1, flexWrap: 'wrap' }}
+        >
+          <Box sx={{ width: { xs: '100%', sm: '15.5rem' } }}>
+            <SearchInput
+              width='100%'
+              searchTerm={inputValue}
+              onChange={handleSearch}
+              placeholder='請輸入車站中文名稱搜尋'
+            />
+          </Box>
           {/* 有關鍵字時走單筆查詢 API，排序無意義故 disabled */}
           <Select
             size='small'
@@ -217,14 +230,27 @@ const StationBookmarkPage = () => {
               setPage(0);
               setSortDirection(event.target.value as 'ASC' | 'DESC');
             }}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             <MenuItem value='DESC'>收藏時間：新 → 舊</MenuItem>
             <MenuItem value='ASC'>收藏時間：舊 → 新</MenuItem>
           </Select>
         </Stack>
         {/* 按鈕: 列印與下載全部 */}
-        <Stack direction='row' sx={{ gap: '1rem', alignItems: 'center' }}>
-          <Button variant='outlined' color='neutral' onClick={handlePrint}>
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          sx={{
+            gap: '1rem',
+            alignItems: { xs: 'stretch', sm: 'center' },
+            width: { xs: '100%', sm: 'auto' },
+          }}
+        >
+          <Button
+            variant='outlined'
+            color='neutral'
+            onClick={handlePrint}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
+          >
             列印
           </Button>
           <Button
@@ -237,6 +263,7 @@ const StationBookmarkPage = () => {
               ) : undefined
             }
             onClick={handleDownload}
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
             下載全部
           </Button>
@@ -260,7 +287,10 @@ const StationBookmarkPage = () => {
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(auto-fill, minmax(280px, 1fr))',
+              },
               gap: 2,
             }}
           >

@@ -37,7 +37,7 @@ export const SearchBarSection = () => {
   } = useMetroMapStore();
   const stationOptions = useMetroMapStore((state) => state.stationOptions);
   const selectAndFetchStation = useStationStore(
-    (state) => state.selectAndFetchStation
+    (state) => state.selectAndFetchStation,
   );
   const isStationLoading = useStationStore((state) => state.isStationLoading);
   const clearSelection = useStationStore((state) => state.clearSelection);
@@ -64,7 +64,7 @@ export const SearchBarSection = () => {
 
     const matchedStation = stationOptions.find(
       (option) =>
-        option.stationCode === keyword || option.nameZhTw.includes(keyword)
+        option.stationCode === keyword || option.nameZhTw.includes(keyword),
     );
 
     if (matchedStation) {
@@ -158,7 +158,8 @@ export const SearchBarSection = () => {
         px: 3,
         py: 1.5,
         gap: 1,
-        height: SEARCH_BAR_HEIGHT,
+        height: { xs: 'auto', sm: SEARCH_BAR_HEIGHT },
+        minHeight: { sm: SEARCH_BAR_HEIGHT },
         zIndex: 10,
       }}
     >
@@ -183,14 +184,19 @@ export const SearchBarSection = () => {
       </Stack>
       <Stack
         direction='row'
-        sx={{ alignItems: 'center', gap: 2, flexWrap: 'wrap' }}
+        sx={{
+          alignItems: 'center',
+          justifyContent: { xs: 'center', sm: 'flex-start' },
+          gap: 2,
+          flexWrap: 'wrap',
+        }}
       >
         {/* 起始車站 */}
         <LabeledStationField
           label='起始車站'
           value={fromStation}
           onChange={setFromStation}
-          width={180}
+          width={210}
           controlHeight={SEARCH_CONTROL_HEIGHT}
         />
         {/* 終點車站 */}
@@ -210,7 +216,7 @@ export const SearchBarSection = () => {
               }));
             }
           }}
-          width={180}
+          width={210}
           controlHeight={SEARCH_CONTROL_HEIGHT}
         />
         {/* 進階查詢 */}

@@ -208,6 +208,8 @@ const HomePage = () => {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
+              alignItems: { xs: 'center', md: 'flex-start' },
+              textAlign: { xs: 'center', md: 'left' },
               px: { xs: 2, md: 4 },
               py: { xs: 2, md: 0 },
             }}

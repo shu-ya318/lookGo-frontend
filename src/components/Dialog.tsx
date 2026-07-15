@@ -40,8 +40,9 @@ export const Dialog = ({
         border: 1,
         borderColor: 'primary.light',
         '& .MuiDialog-paper': {
-          minWidth: width,
+          width: `min(${width}, calc(100vw - 32px))`,
           maxWidth: 'none',
+          margin: '16px',
         },
       }}
     >

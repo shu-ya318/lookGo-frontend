@@ -189,15 +189,16 @@ const TripPlanPage = () => {
                 width: '100%',
                 maxWidth: '1280px',
                 margin: '3.75rem auto',
+                px: { xs: 2, sm: 3, lg: 0 },
                 gap: '2rem',
                 justifyContent: 'center',
             }}
         >
             <Typography variant='h5'>旅程規劃</Typography>
             <Stack
-                direction='row'
+                direction={{ xs: 'column', sm: 'row' }}
                 sx={{
-                    alignItems: 'center',
+                    alignItems: { xs: 'stretch', sm: 'center' },
                     justifyContent: 'space-between',
                     flexWrap: 'wrap',
                     gap: 1,
@@ -205,14 +206,17 @@ const TripPlanPage = () => {
             >
                 {/* 搜尋欄與排序選單 */}
                 <Stack
-                    direction='row'
-                    sx={{ alignItems: 'center', gap: 1, flexWrap: 'wrap' }}
+                    direction={{ xs: 'column', sm: 'row' }}
+                    sx={{ alignItems: { xs: 'stretch', sm: 'center' }, gap: 1, flexWrap: 'wrap' }}
                 >
-                    <SearchInput
-                        searchTerm={inputValue}
-                        onChange={handleSearch}
-                        placeholder='請輸入旅程名稱搜尋'
-                    />
+                    <Box sx={{ width: { xs: '100%', sm: '15.5rem' } }}>
+                        <SearchInput
+                            width='100%'
+                            searchTerm={inputValue}
+                            onChange={handleSearch}
+                            placeholder='請輸入旅程名稱搜尋'
+                        />
+                    </Box>
                     {/* 有關鍵字時走單筆查詢 API，排序無意義故 disabled */}
                     <Select
                         size='small'
@@ -222,6 +226,7 @@ const TripPlanPage = () => {
                             setPage(0);
                             setSortDirection(event.target.value as 'ASC' | 'DESC');
                         }}
+                        sx={{ width: { xs: '100%', sm: 'auto' } }}
                     >
                         <MenuItem value='DESC'>更新時間：新 → 舊</MenuItem>
                         <MenuItem value='ASC'>更新時間：舊 → 新</MenuItem>
@@ -233,6 +238,7 @@ const TripPlanPage = () => {
                     variant='contained'
                     startIcon={<AddIcon />}
                     onClick={handleOpenCreateDialog}
+                    sx={{ width: { xs: '100%', sm: 'auto' } }}
                 >
                     新增旅程
                 </Button>
@@ -255,7 +261,10 @@ const TripPlanPage = () => {
                     <Box
                         sx={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                            gridTemplateColumns: {
+                                xs: '1fr',
+                                sm: 'repeat(auto-fill, minmax(280px, 1fr))',
+                            },
                             gap: 2,
                         }}
                     >
