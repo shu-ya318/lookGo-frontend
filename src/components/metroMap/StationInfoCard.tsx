@@ -34,16 +34,15 @@ export const StationInfoCard = ({
   allLines,
   onClose,
 }: StationInfoCardProps) => {
-  console.log(station, line);
   const stationDetail = useStationStore((state) => state.stationDetail);
   const isStationLoading = useStationStore((state) => state.isStationLoading);
   const bookmarks = useStationBookmarkStore((state) => state.bookmarks);
 
   const fetchAllBookmark = useStationBookmarkStore(
-    (state) => state.fetchAllBookmark
+    (state) => state.fetchAllBookmark,
   );
   const toggleBookmark = useStationBookmarkStore(
-    (state) => state.toggleBookmark
+    (state) => state.toggleBookmark,
   );
 
   useEffect(() => {
@@ -51,13 +50,13 @@ export const StationInfoCard = ({
   }, [fetchAllBookmark]);
 
   const isBookmarked = bookmarks.some(
-    (bookmark) => bookmark.stationId === station.stationId
+    (bookmark) => bookmark.stationId === station.stationId,
   );
 
   const transferLines = allLines.filter(
     (candidateLine) =>
       candidateLine.letter !== line.letter &&
-      candidateLine.stations.some((s) => s.nameZhTw === station.nameZhTw)
+      candidateLine.stations.some((s) => s.nameZhTw === station.nameZhTw),
   );
 
   return (
@@ -127,7 +126,7 @@ export const StationInfoCard = ({
           />
           {transferLines.map((transferLine) => {
             const transferStation = transferLine.stations.find(
-              (s) => s.nameZhTw === station.nameZhTw
+              (s) => s.nameZhTw === station.nameZhTw,
             );
 
             return (

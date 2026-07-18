@@ -27,7 +27,7 @@ interface MetroMapState {
   isRouteLoading: boolean;
   selectedFacilities: StationFacility[];
   fetchMetroMap: () => Promise<void>;
-  fetchAllStationOption: () => Promise<void>;
+  fetchAllStationOption: (force?: boolean) => Promise<void>;
   fetchRoute: (request: GetOriginDestinationDetailsRequest) => Promise<void>;
   clearRoute: () => void;
   setSelectedFacilities: (facilities: StationFacility[]) => void;
@@ -71,8 +71,8 @@ export const useMetroMapStore = create<MetroMapState>((set, get) => ({
     }
   },
 
-  fetchAllStationOption: async () => {
-    if (get().stationOptions.length > 0) return;
+  fetchAllStationOption: async (force = false) => {
+    if (!force && get().stationOptions.length > 0) return;
 
     set({ isStationOptionsLoading: true });
 

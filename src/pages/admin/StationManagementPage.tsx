@@ -16,6 +16,7 @@ import { MetroSyncSection } from '@/components/admin/MetroSyncSection';
 import { StationFacilityDialog } from '@/components/admin/StationFacilityDialog';
 import { UpdateStationDialog } from '@/components/admin/UpdateStationDialog';
 import { getAllStationPaginated } from '@/services/metro';
+import { useMetroMapStore } from '@/stores/metroMapStore';
 import { formatDateTime } from '@/utils/date';
 
 import type {
@@ -179,6 +180,11 @@ const StationManagementPage = () => {
     fetchAllStation();
   }, [fetchAllStation]);
 
+  const handleUpdateStationSuccess = useCallback(async () => {
+    await fetchAllStation();
+    await useMetroMapStore.getState().fetchAllStationOption(true);
+  }, [fetchAllStation]);
+
   const handleSearchChange = (newValue: StationOption | null) => {
     setSearchValue(newValue);
     setPaginationModel((prev) => ({ ...prev, page: 0 }));
@@ -295,7 +301,7 @@ const StationManagementPage = () => {
         isOpen={editDialogOpen}
         onClose={handleCloseEditDialog}
         stationId={editStationId}
-        onSuccess={fetchAllStation}
+        onSuccess={handleUpdateStationSuccess}
       />
     </Stack>
   );
