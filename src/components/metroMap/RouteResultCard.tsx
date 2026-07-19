@@ -60,7 +60,14 @@ export const RouteResultCard = ({
       label: '車程時間',
       value: formatTravelTime(routeResult.totalTravelTimeSeconds),
     },
-    { label: '票價', value: `NT$${routeResult.farePrice}`, isHighlight: true },
+    {
+      label: '票價',
+      value:
+        routeResult.farePrice !== null && routeResult.farePrice !== undefined
+          ? `NT$${routeResult.farePrice}`
+          : '--',
+      isHighlight: true,
+    },
   ];
 
   return (

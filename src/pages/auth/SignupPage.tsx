@@ -97,11 +97,8 @@ const SignupPage = () => {
 
   const handleSignup = async (request: SignupRequest) => {
     try {
-      const { accessToken, refreshToken } = await signup(request);
-      useAuthStore.setState({
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-      });
+      const { accessToken } = await signup(request);
+      useAuthStore.setState({ accessToken });
 
       const response = await getCurrentUser();
       useUserStore.setState({ userInfo: response });

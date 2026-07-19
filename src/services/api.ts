@@ -32,10 +32,7 @@ service.interceptors.request.use(
       if (isExpired) {
         try {
           const response = await refreshTokens();
-          useAuthStore.setState({
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-          });
+          useAuthStore.setState({ accessToken: response.accessToken });
           config.headers.Authorization = `Bearer ${response.accessToken}`;
         } catch (error) {
           console.error('[API Request] Refresh failed', error);

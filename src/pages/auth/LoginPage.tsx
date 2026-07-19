@@ -63,10 +63,7 @@ const LoginPage = () => {
   const handleLogin = async (request: LoginRequest) => {
     try {
       const response = await login(request);
-      useAuthStore.setState({
-        accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
-      });
+      useAuthStore.setState({ accessToken: response.accessToken });
       const userInfo = await getCurrentUser();
       useUserStore.setState({ userInfo });
       navigate('/', { replace: true });

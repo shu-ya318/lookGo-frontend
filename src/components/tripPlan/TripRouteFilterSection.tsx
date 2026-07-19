@@ -107,7 +107,9 @@ export const TripRouteFilterSection = ({
               {FARE_TYPE_LABELS[tripResult.fareType] ?? '全票'}
             </Typography>
             <Typography variant='body2' sx={{ fontWeight: 700 }}>
-              NT${tripResult.farePrice}
+              {tripResult.farePrice !== null && tripResult.farePrice !== undefined
+                ? `NT$${tripResult.farePrice}`
+                : '--'}
             </Typography>
           </Stack>
           <Stack direction='row' sx={{ justifyContent: 'space-between' }}>

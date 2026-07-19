@@ -48,7 +48,6 @@ export const connectStationChatSocket = (
                         const response = await refreshTokens();
                         useAuthStore.setState({
                             accessToken: response.accessToken,
-                            refreshToken: response.refreshToken,
                         });
                         accessToken = response.accessToken;
                     } catch (error) {

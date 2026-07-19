@@ -206,7 +206,9 @@ export const TripPlanCard = ({
           </Typography>
           {/* 票價 */}
           <Typography variant='caption' sx={{ fontWeight: 700 }}>
-            NT${tripPlan.farePrice}
+            {tripPlan.farePrice !== null && tripPlan.farePrice !== undefined
+              ? `NT$${tripPlan.farePrice}`
+              : '--'}
           </Typography>
         </Stack>
         {/* 車程 */}

@@ -6,7 +6,7 @@ export interface CreateTripPlanRequest {
     fromStationId: number;
     toStationId: number;
     fareType: number;
-    farePrice: number;
+    farePrice: number | null;
     transferCount: number;
     routingStrategy: number;
     notes?: string;
@@ -21,7 +21,7 @@ export interface TripPlan {
     toStationId: number;
     toStationNameZhTw: string;
     fareType: number;
-    farePrice: number;
+    farePrice: number | null;
     transferCount: number;
     routingStrategy: number;
     travelTimeSeconds: number;
@@ -73,7 +73,7 @@ export interface UpdateTripPlanNameResponse {
 export interface UpdateTripPlanRequest {
     tripPlanId: number;
     fareType: number;
-    farePrice: number;
+    farePrice: number | null;
     transferCount: number;
     routingStrategy: number;
     notes?: string;
@@ -82,7 +82,7 @@ export interface UpdateTripPlanRequest {
 export interface UpdateTripPlanInfoResponse {
     id: number;
     fareType: number; // 1=全票, 4=學生, 5=兒童, 7=愛心
-    farePrice: number; // 後端 BigDecimal 序列化為 number
+    farePrice: number | null; // 後端 BigDecimal 序列化為 number
     transferCount: number;
     routingStrategy: number; // 1=最少轉乘次數, 2=最短車程時間
     notes: string | null;

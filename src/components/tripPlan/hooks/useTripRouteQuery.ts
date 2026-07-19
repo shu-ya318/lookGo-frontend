@@ -16,7 +16,7 @@ export interface TripResult {
   toStationNameZhTw: string;
   fareType: number;
   routingStrategy: number;
-  farePrice: number;
+  farePrice: number | null;
   transferCount: number;
   totalTravelTimeSeconds: number;
 }

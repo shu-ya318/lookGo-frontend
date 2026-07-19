@@ -195,7 +195,7 @@ export interface GetOriginDestinationDetailsResponse {
   transferCount: number;
   totalTravelTimeSeconds: number;
   transferTimeSeconds: number;
-  farePrice: number;
+  farePrice: number | null;
 }
 
 // Update Station
